@@ -15,7 +15,6 @@ e.txt
 *.ll
 *.out
 codeExamples
-*.c
 temp/
 *.dSYM/
 *.o
