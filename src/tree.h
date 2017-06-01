@@ -1,6 +1,3 @@
-e
-
-
 typedef enum constantType { KFloat, KInt, KStr } constantType;
 typedef struct Constant
 {
