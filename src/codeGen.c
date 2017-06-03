@@ -144,12 +144,9 @@ static int cellsForType(Type* t){
 	
 static void codeZero(int x) {
 	codeGoTo(x); codeStr("[-]");
+
 }
 
-static void addXbyY(int x,int y){
-	int temp0 = x-1;
-	fprintf(output, "%d[-]%d[%d+%d+%d-]%d[%d+%d-]\n",temp0,y,x,temp0,y,temp0,y,temp0);
-}
 /*	temp0[-]
 		y[x+temp0+y-]
 		temp0[y+temp0-]	*/
@@ -190,15 +187,21 @@ static void setXtoY(int x, int y) {
 	temp1[-]
 	x[temp1+x-]
 	temp1[
-	 y[x+temp0+y-]temp0[y+temp0-]
+	 y[x+temp0+y-]
+	 temp0[y+temp0-]
 	temp1-] */
+
 static void multiplyXbyY(int x, int y){
-	int temp0 = x-1;
-	int temp1 = y-1;
+	printf("mult %d to %d\n",x,y );
+	int temp0 = x+3;
+	int temp1 = y+3;
 	codeZero(temp0);
 	codeZero(temp1);
 	codeGoTo(x); codeStr("["); codeGoTo(temp1); codeStr("+"); codeGoTo(x); codeStr("-]");
 	codeGoTo(temp1); codeStr("[");
+	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("+"); codeGoTo(temp0);codeStr("+"); codeGoTo(y); codeStr("-]");
+	codeGoTo(temp0); codeStr("["); codeGoTo(y); codeStr("+"); codeGoTo(temp0); codeStr("-]");
+	codeGoTo(temp1); codeStr("-]");
 }
 /*
 temp0[-]
@@ -238,6 +241,16 @@ static void swapXbyY(int x, int y){
 	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("+");codeGoTo(x);codeStr("-]");
 	codeGoTo(y);codeStr("[");codeGoTo(x);codeStr("+");codeGoTo(y);codeStr("-]");
 	codeGoTo(temp0); codeStr("["); codeGoTo(y); codeStr("+"); codeGoTo(temp0); codeStr("-]");
+}
+
+/*temp0[-]
+x[temp0-x-]
+temp0[x-temp0+] */
+static void sigswitchX(int x){
+	int temp0;
+	codeZero(temp0);
+	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("-");codeGoTo(x);codeStr("-]");
+	codeGoTo(temp0);codeStr("[");codeGoTo(x);codeStr("-");codeGoTo(temp0);codeStr("+]");
 }
 
 void setCodeOutput(FILE* out) {
@@ -673,7 +686,7 @@ void codeBlock(Block* b) {
 	codeDefVarList(b->dvl);
 	codeCommandList(b->cl);
 }
-int codeBinExp(Exp* e ,char * cmd) {
+int codeBinExp(Exp* e ,int* f) {
 	int te1,te2; 
 	te1 = codeExp(e->bin.e1 );
 	//printExp(e->bin.e1,0);
@@ -683,8 +696,6 @@ int codeBinExp(Exp* e ,char * cmd) {
 	currentAllocationIndex += cellsForType(e->type);
 	incrementXbyY(currentAllocationIndex,te1);
 	incrementXbyY(currentAllocationIndex,te2);
-	
-	codeDebugMessage("Add");
 	return currentAllocationIndex;
 }
 int codeCallExp(Exp* e) {
@@ -1188,31 +1199,57 @@ int codeExp(Exp* e) {
 	if(!e)
 		return -1;
 	switch(e->tag) {
+		int te1,te2;
 		case ExpAdd:
 			if(e->type->b == WFloat) 
 				result = codeBinExp(e,"fadd");
-			else
-				result = codeBinExp(e,"add nsw");
+			else {
+				//result = codeBinExp(e,"add nsw");
+				te1 = codeExp(e->bin.e1 );
+				te2 = codeExp(e->bin.e2 );
+				currentAllocationIndex += cellsForType(e->type);
+				incrementXbyY(currentAllocationIndex,te1);
+				incrementXbyY(currentAllocationIndex,te2);
+				codeDebugMessage("Add");
+				result = currentAllocationIndex;
+			}
 		break;
 		case ExpSub:
 			if(e->type->b == WFloat) 
 				result = codeBinExp(e,"fsub");
 			else {
-
-				result =codeBinExp(e,"sub nsw");
+				te1 = codeExp(e->bin.e1 );
+				te2 = codeExp(e->bin.e2 );
+				currentAllocationIndex += cellsForType(e->type);
+				incrementXbyY(currentAllocationIndex,te1);
+				decrementXbyY(currentAllocationIndex,te2);
+				codeDebugMessage("Sub");
+				result = currentAllocationIndex;
 			}
 		break;
 		case ExpMul:
 			if(e->type->b == WFloat) 
 				result = codeBinExp(e,"fmul");
-			else
-				result = codeBinExp(e,"mul nsw");
+			else{
+				te1 = codeExp(e->bin.e1 );
+				te2 = codeExp(e->bin.e2 );
+				incrementXbyY(currentAllocationIndex,te1);
+				multiplyXbyY(currentAllocationIndex,te2);
+				codeDebugMessage("Mult");
+				result = currentAllocationIndex;
+			}
 		break;
 		case ExpDiv:
 			if(e->type->b == WFloat) 
 				result = codeBinExp(e,"fdiv");
-			else
-				result = codeBinExp(e,"sdiv");
+			else {
+				te1 = codeExp(e->bin.e1 );
+				te2 = codeExp(e->bin.e2 );
+				incrementXbyY(currentAllocationIndex,te1);
+				divideXbyY(currentAllocationIndex,te2);
+				codeDebugMessage("Div");
+				result = currentAllocationIndex;
+			}
 		break;
 		case ExpCall:
 			result = codeCallExp(e);
