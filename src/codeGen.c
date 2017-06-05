@@ -47,6 +47,7 @@ static int currentStringConstant = 0;
 static int declareTop = 0;
 char* stringsToDeclare[100];
 
+int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 registers
 
 
 static int currentFuncHasReturn = 0;
@@ -192,9 +193,10 @@ static void setXtoY(int x, int y) {
 	temp1-] */
 
 static void multiplyXbyY(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
 	printf("mult %d to %d\n",x,y );
-	int temp0 = x+3;
-	int temp1 = y+3;
+	printf("temp0:%d temp1:%d \n",temp0,temp1 );
 	codeZero(temp0);
 	codeZero(temp1);
 	codeGoTo(x); codeStr("["); codeGoTo(temp1); codeStr("+"); codeGoTo(x); codeStr("-]");
@@ -1233,6 +1235,7 @@ int codeExp(Exp* e) {
 			else{
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
+				currentAllocationIndex += cellsForType(e->type);
 				incrementXbyY(currentAllocationIndex,te1);
 				multiplyXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Mult");
@@ -1245,6 +1248,7 @@ int codeExp(Exp* e) {
 			else {
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
+				currentAllocationIndex += cellsForType(e->type);
 				incrementXbyY(currentAllocationIndex,te1);
 				divideXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Div");
