@@ -1,13 +1,13 @@
 CFLAGS = -Wall -std=c99
-OUTFILE = comp
-#always compiles when using just make
-test/comp: src/main.c src/lex.c src/grammar.c
+OUTFILE = hac
+#always haciles when using just make
+test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c
 
-bin/comp.js:
-	emcc --pre-js stdin.js -Wall -o bin/comp.js src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
-bin/comp.html:
-	emcc -Wall  -o bin/comp.html src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+bin/hac.js:
+	emcc --pre-js stdin.js -Wall -o bin/hac.js src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+bin/hac.html:
+	emcc -Wall  -o bin/hac.html src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 
 test: testlexical testsyntax testchecks testbin
 
@@ -15,33 +15,29 @@ bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
 
 testrunnable: hac bfi
+	cp *.ha test/runnable
 	cat test/runnable/example.ha | ./hac
 	./bfi a.bf
 	cat test/runnable/add.ha | ./hac
 	./bfi a.bf
+	cat test/runnable/sub.ha | ./hac
+	./bfi a.bf
+	cat test/runnable/test.ha | ./hac
+	./bfi a.bf
 
-testbin: comp
-	cat test/test1.monga |./comp -noTree
-	cat test/test2.monga |./comp -noTree
-	cat test/test3.monga |./comp -noTree
-	cat test/test4.monga |./comp -noTree
-	cat test/test5.monga |./comp -noTree
-	cat test/test6.monga |./comp -noTree -c  
-	cat test/test7.monga |./comp -noTree
-	cat test/test8.monga |./comp -noTree 
-	cat test/test9.monga |./comp -noTree
-	cat test/examples/program1.monga |./comp -noTree
+testbin: hac
+	sh test/bin/script.sh
 
-testchecks: comp
+testchecks: hac
 	sh test/checks/script.sh
-testsyntax: comp
+testsyntax: hac
 	sh test/syntax/script.sh
-testlexical: comp
+testlexical: hac
 	sh test/lexical/script.sh
 
-testleaks: comp
+testleaks: hac
 	@rm -f val.out prog.out
-	cat test/leaks/leak1.monga | valgrind --track-origins=yes ./comp > prog.out 2> val.out
+	cat test/leaks/leak1.monga | valgrind --track-origins=yes ./hac > prog.out 2> val.out
 	cat val.out | grep error
 	tail val.out
 	rm -f val.out prog.out
@@ -70,17 +66,17 @@ clean:
 	rm -f test/*.out
 	rm -f test/*.ll
 	rm -rf *.o
-	rm -f comp
+	rm -f hac
 
 #always generate zip
 zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
-	mv zipfolder.zip ../mongaComp.zip
+	mv zipfolder.zip ../mongahac.zip
 
-bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
+bin/hac: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
 	ls temp
-	cc -o bin/comp temp/*.o -O3 
+	cc -o bin/hac temp/*.o -O3 
 
 temp/lextest.o: src/lextest.c
 	cc -o temp/lextest.o -Wall -O3 -c src/lextest.c

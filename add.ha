@@ -1,5 +1,5 @@
 void main() {
 	byte a;
 	a=12;
-	@a;
+	@"Value of variable a is ";@a;@"\n";
 }
