@@ -52,9 +52,9 @@ src/lex.c: src/rules.lex src/grammar.c
 clean: 
 	rm -f src/lex.c
 	rm -f src/grammar.c
-	rm -r bin
+	rm -rf bin
 	mkdir bin
-	rm -r temp
+	rm -rf temp
 	mkdir temp
 	rm -rf *.dSYM
 	rm -f test/*/*.output
@@ -62,9 +62,9 @@ clean:
 	rm -f val.out
 	rm -f grammar.output
 	rm -f *.out
-	rm -f *.ll
+	rm -f *.bf
 	rm -f test/*.out
-	rm -f test/*.ll
+	rm -f test/*.bf
 	rm -rf *.o
 	rm -f hac
 

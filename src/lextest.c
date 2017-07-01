@@ -43,6 +43,9 @@ void testLex ()
 			case '@':
 				printf("At\n");
 			break;
+			case '#':
+				printf("Sharp\n");
+			break;
 			case '=':
 				printf("Equal\n");
 			break;

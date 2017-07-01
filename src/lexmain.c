@@ -41,6 +41,9 @@ int main (int argc, char** argv)
 			case '@':
 				printf("At\n");
 			break;
+			case '#':
+				printf("Sharp\n");
+			break;
 			case '=':
 				printf("Equal\n");
 			break;
