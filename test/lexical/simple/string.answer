@@ -1,0 +1,11 @@
+String: this is a string
+String: stringWithNoSpaces
+String: the number is %d
+
+String: "MyString"
+String: 	 that string
+String: ""
+String: """
+String: "
+FINISHED READING FILE
+Proccessed 8 tokens in 2 lines

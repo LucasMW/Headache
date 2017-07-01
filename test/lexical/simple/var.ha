@@ -1,0 +1,2 @@
+varName lowercase UPPERCASE a123 VarWithCase U15 u10
+VERYBIGVARNAMETHISNAMEISGIGANTICyouHAVEnoIDEAofHOWBIGTHISVARIABLENAMEISthisistotestproblemsassociatedwithbufferoverflowofnames 
