@@ -92,6 +92,7 @@ int main (int argc, char** argv)
 			noTree =1;
 			noCode =1;
 			noBin = 1;
+			noDebug =1;
 		}
 		if(strcmp("-syntax",argv[1])==0) 
 		{
@@ -99,6 +100,7 @@ int main (int argc, char** argv)
 			noChecks = 1;
 			noCode = 1;
 			noBin = 1;
+			noDebug =1;
 		}
 		if(strcmp("-lex",argv[1])==0)
 		{
@@ -114,15 +116,18 @@ int main (int argc, char** argv)
 			noChecks = 1;
 			noCode =1;
 			noBin = 1;
+			noDebug =1;
 		}
 		if(strcmp("-noCode",argv[1])==0)
 		{
 			noCode =1;
 			noBin =1;
+			noDebug =1;
 		}
 		if(strcmp("-noBin",argv[1])==0)
 		{
 			noBin =1;
+			noDebug =1;
 		}
 		if(strcmp("-noDebug",argv[1])==0)
 		{

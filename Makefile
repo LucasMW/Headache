@@ -1,6 +1,6 @@
 CFLAGS = -Wall -std=c99
 OUTFILE = hac
-#always haciles when using just make
+#always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c
 
@@ -9,7 +9,7 @@ bin/hac.js:
 bin/hac.html:
 	emcc -Wall  -o bin/hac.html src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 
-test: testlexical testsyntax testchecks testbin
+test: testlexical testsyntax testchecks
 
 bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi

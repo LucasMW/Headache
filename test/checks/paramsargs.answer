@@ -1,0 +1,4 @@
+Syntax OK
+Not equal typing--foo--
+Error: Params typing differs from arguments in call
+# near line 5
