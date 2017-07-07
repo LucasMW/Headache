@@ -63,7 +63,7 @@
 	}
 %}
 
-%x IN_COMMENT 
+%x IN_COMMENT
 %%
 "as"	{return TK_WAS;}
 "byte"	{return TK_WBYTE;}
@@ -113,6 +113,8 @@
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.str_val = makeNewStr();
 									return TK_VAR;}
 
+
+
 <INITIAL>{ //state machine based on the example of flex manual: http://flex.str_valourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
      "/*"      BEGIN(IN_COMMENT); 
      }
@@ -123,6 +125,8 @@
      \n        yy_lines++; //comments can be mult-line
      <<EOF>>	   lexError("Unfinished Comment",1); //reached EOF 
      }
+
+"//".*                                    { /* DO NOTHING */ }
 
 
 \"(([\\][\"])|([^\"\n])+)*\" { yylval.str_val = translatescape(); //gives scape processed string
@@ -142,13 +146,14 @@
 
 \"[^"\""]*[\n]?	{ lexError("Unfinished String",3); 
 			}	
-\\\\*\n {
+\\\\*\n {	printf("comment");
 			yy_lines++;}
 
 [\n] 	{  	//count lines;
 			yy_lines++; }
 [ ]|[\t] {//ignore spaces and tabs
 	 }
+
 . { return yytext[0];}
 
 

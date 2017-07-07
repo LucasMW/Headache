@@ -3,3 +3,8 @@
 line
 comment
 */
+// blablabla
+//
+// /**/
+/*//*/
+// *//*
