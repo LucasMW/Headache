@@ -100,6 +100,18 @@ static int allocateCellsForType(Type* t){
 	currentAllocationIndex += cellsForType(t);
 	return currentAllocationIndex;
 }
+static int pushCells(int x){
+	currentAllocationIndex+=x;
+	return currentAllocationIndex;
+}
+static int popCells(int x){
+	currentAllocationIndex-=x;
+	return currentAllocationIndex;
+}
+
+
+
+
 static void codePrint(const char* str) {
 	int preserve = currentCell;
 	codeGoTo(0);
@@ -122,6 +134,13 @@ static void codePrint(const char* str) {
 		last = *p;
 	}
 	codeGoTo(preserve);
+}
+static void codeCellValuePrint(int start, int end){
+	pushCells(10);
+	bfalgo("$[$+$+$-]$",start,currentAllocationIndex-6,currentAllocationIndex-7,start,currentAllocationIndex-6);
+	codeStr(">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+	bfalgo("$[$+$-]$",currentAllocationIndex-7,start,currentAllocationIndex-7,start);
+	popCells(10);
 }
 
 static int unitsToMoveTo(int cellAddr) {
@@ -173,7 +192,6 @@ static int cellsForType(Type* t){
 	
 static void codeZero(int x) {
 	codeGoTo(x); codeStr("[-]");
-
 }
 
 /*	temp0[-]
@@ -306,6 +324,39 @@ static void sigswitchX(int x){
 	codeZero(temp0);
 	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("-");codeGoTo(x);codeStr("-]");
 	codeGoTo(temp0);codeStr("[");codeGoTo(x);codeStr("-");codeGoTo(temp0);codeStr("+]");
+}
+
+/* temp0[-]
+temp1[-]
+x[temp1+x-]+
+y[temp1-temp0+y-]
+temp0[y+temp0-]
+temp1[x-temp1[-]]*/
+void equals(int x,int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[$+$-]+$[$-$+$-]$[$+$-]$[$-$[-]]",
+		temp0,temp1,
+		x,temp1,x,
+		y,temp1,temp0,y,
+		temp0,y,temp0,
+		temp1,x,temp1);
+}
+/*temp0[-]
+temp1[-]
+x[temp1+x-]
+y[temp1-temp0+y-]
+temp0[y+temp0-]
+temp1[x+temp1[-]] */
+void unequals(int x,int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[$+$-]+$[$-$+$-]$[$+$-]$[$+$[-]]",
+		temp0,temp1,
+		x,temp1,x,
+		y,temp1,temp0,y,
+		temp0,y,temp0,
+		temp1,x,temp1);
 }
 
 void setCodeOutput(FILE* out) {
@@ -618,6 +669,7 @@ void codeCommandList(CommandL* cl) {
 	while(c) {
 		//printf("cl\n");
 		switch(c->tag) {
+			/* evalcond [ do ] */
 			case CWhile:
 			 	i1 = codeCond(c->condExp);
 				b1 = currentBrIndex++;
@@ -698,8 +750,6 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CPrint:
 				i1 =  codeExp(c->printExp);
-				
-				codeGoTo(i1);
 				if(c->printExp->type == NULL) {
 					fprintf(output, ";printing void expression is unavaible\n" );
 				}
@@ -719,7 +769,9 @@ void codeCommandList(CommandL* cl) {
 						// currentFunctionTIndex );
 						break;
 						case WByte:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+
+						codeCellValuePrint(i1,i1);
 						codeDebugMessage("print byte");
 
 						break;
