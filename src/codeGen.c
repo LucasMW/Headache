@@ -655,11 +655,13 @@ int codeCond(Exp* e) {
 	codeZero(temp0);
 	//fprintf(output, ";begin codecond\n");
 	i1 = codeExp(e);
-	unequals(i1,temp0);
+	//unequals(i1,temp0);
+	codeGoTo(i1);
 	codeDebugMessage("CodeCond");
 	return i1;
 }
 void codeCommandList(CommandL* cl) {
+	codeDebugMessage("CL");
 	if(!cl)
 		return;
 	CommandL* c = cl;
@@ -674,22 +676,18 @@ void codeCommandList(CommandL* cl) {
 			 	i1 = codeCond(c->condExp);
 				bfalgo("[\n");
 					codeCommandList(c->cmdIf );
-					i2 = codeCond(c->condExp);
+				i2 = codeCond(c->condExp);
 				bfalgo("\n]");
 				codeDebugMessage("while");
 			break;
 			case CIf:
 				i1 = codeCond(c->condExp);
-				b1 = currentBrIndex++;
-				b2 = currentBrIndex++;
-				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
-				 i1,
-				 b1,
-				 b2);
-				fprintf(output, "b%d:\n",b1 );
+				bfalgo("[\n");
 				codeCommandList(c->cmdIf );
-				fprintf(output, "br label %%b%d\n",b2 );
-				fprintf(output, "b%d:\n",b2 );				// leaveScope();
+				codeZero(currentTempRegs[1]);
+				codeGoTo(currentTempRegs[1]);
+				bfalgo("]\n");
+				// leaveScope();
 			break;
 			case CIfElse:
 				i1 = codeCond(c->condExp);
