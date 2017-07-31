@@ -342,6 +342,11 @@ void equals(int x,int y){
 		temp0,y,temp0,
 		temp1,x,temp1);
 }
+
+//x[-y-x]+y[x-y[-]] does not preserve x and y
+void equals2(int x,int y){
+	bfalgo("$[-$-$]+$[$-$[-]]",x,y,x,y,x,y);
+}
 /*temp0[-]
 temp1[-]
 x[temp1+x-]
@@ -351,12 +356,13 @@ temp1[x+temp1[-]] */
 void unequals(int x,int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = currentTempRegs[1];
-	bfalgo("$[-]$[-]$[$+$-]+$[$-$+$-]$[$+$-]$[$+$[-]]",
+	bfalgo("$[-]$[-]$[$+$-]$[$-$+$-]$[$+$-]$[$+$[-]]",
 		temp0,temp1,
 		x,temp1,x,
 		y,temp1,temp0,y,
 		temp0,y,temp0,
 		temp1,x,temp1);
+	codeDebugMessage("unequals");
 }
 
 void setCodeOutput(FILE* out) {
@@ -645,18 +651,12 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
+	int temp0 = currentTempRegs[3];
+	codeZero(temp0);
 	//fprintf(output, ";begin codecond\n");
 	i1 = codeExp(e);
-	
-	char* tStr = stringForType(e->type);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
-	currentFunctionTIndex,
-	tStr,
-	i1 );
-	//fprintf(output, ";end codecond\n");
-	i1 = currentFunctionTIndex;
-	
+	unequals(i1,temp0);
+	codeDebugMessage("CodeCond");
 	return i1;
 }
 void codeCommandList(CommandL* cl) {
@@ -672,21 +672,11 @@ void codeCommandList(CommandL* cl) {
 			/* evalcond [ do ] */
 			case CWhile:
 			 	i1 = codeCond(c->condExp);
-				b1 = currentBrIndex++;
-				b2 = currentBrIndex++;
-				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
-				 i1,
-				 b1,
-				 b2);
-				fprintf(output, "b%d:\n",b1 );
-				codeCommandList(c->cmdIf );
-				i2 = codeCond(c->condExp);
-				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
-				 i2,
-				 b1,
-				 b2);
-				fprintf(output, "b%d:\n",b2 );
-				// leaveScope();
+				bfalgo("[\n");
+					codeCommandList(c->cmdIf );
+					i2 = codeCond(c->condExp);
+				bfalgo("\n]");
+				codeDebugMessage("while");
 			break;
 			case CIf:
 				i1 = codeCond(c->condExp);
