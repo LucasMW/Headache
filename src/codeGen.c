@@ -668,10 +668,10 @@ void codeCommandList(CommandL* cl) {
 	//printf("CommandL\n");
 	int i1,i2;
 	int b1,b2,b3;
+	int temp0,temp1;
 	while(c) {
 		//printf("cl\n");
 		switch(c->tag) {
-			/* evalcond [ do ] */
 			case CWhile:
 			 	i1 = codeCond(c->condExp);
 				bfalgo("[\n");
@@ -691,20 +691,14 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CIfElse:
 				i1 = codeCond(c->condExp);
-				b1 = currentBrIndex++;
-				b2 = currentBrIndex++;
-				b3 = currentBrIndex++;
-				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
-				 i1,
-				 b1,
-				 b2);
-				fprintf(output, "b%d:\n",b1 );
-				codeCommandList(c->cmdIf );
-				fprintf(output, "br label %%b%d\n",b3 );
-				fprintf(output, "b%d:\n",b2 );
-				codeCommandList(c->cmdElse );
-				fprintf(output, "br label %%b%d\n",b3 );
-				fprintf(output, "b%d:\n",b3 );
+				temp0 = currentTempRegs[2];
+				temp1 = currentTempRegs[3];
+				bfalgo("$[-]+$[-]$[",temp0,temp1,i1);
+ 				codeCommandList(c->cmdIf);
+ 				bfalgo("$-$[$+$-]]$[$+$-]$[",temp0,i1,temp1,i1,temp1,i1,temp1,temp0);
+ 				codeCommandList(c->cmdElse);
+ 				bfalgo("$-]",temp0);
+ 
 			break;
 			case CReturn:	
 				//printf("cret\n");

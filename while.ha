@@ -1,5 +1,8 @@
 void main(){
-	while(0){
-		@ "did\n";
+	byte a;
+	a = 2;
+	while(a){
+		a = a-1;
+		@"did!\n";
 	}
 }

@@ -1,8 +1,11 @@
 void main() {
 	byte b;
-	b = 0;
+	b = 10;
 	if(b){
-		@b;@" != 0";@"\n";
+		@" is true\n";
+	}
+	else {
+		@" is false\n";
 	}
 
 
