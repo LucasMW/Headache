@@ -10,6 +10,17 @@ typedef struct Stack {
     int size;
 } Stack;
 
+typedef enum state {
+	used,
+	clean
+} State;
+
+typedef struct memBlock {
+	char * block_start;
+	int size;
+	State state;
+} MemBlock;
+
 void Stack_Init(Stack **S){
     *S = calloc(sizeof(Stack),1); //allocating a Stack
     (*S)->size = 0; 
@@ -84,6 +95,7 @@ void execute(char* program,int memorySize){
 	
 	Stack* loopStack;
 	char instructions[] = {'>','<','+','-','.',',','[',']'};
+	char extras_instructions[] = {'@','#','$','%','&'};
 	char* ptr; 
 	char c; 
 	char *loopStart = NULL;
@@ -151,6 +163,23 @@ void execute(char* program,int memorySize){
 			else{
 				Stack_Pop(loopStack); // out of this loop
 			}
+		}
+		// output memory
+		else if( c == extras_instructions[0]) {
+			printMemory(ptr - memory);
+		}
+
+		else if( c == extras_instructions[1]) {
+			
+		}
+		else if( c == extras_instructions[2]) {
+			
+		}
+		else if( c == extras_instructions[3]) {
+			
+		}
+		else if( c == extras_instructions[4]) {
+			
 		}
 		else{
 
