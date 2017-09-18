@@ -45,7 +45,7 @@ void lexError(const char* message, int ret)
 	exit( ret ? ret : 1);
 }
 
-static char* mongaOptions[] = {
+static char* hacOptions[] = {
 	"-check",
 	"-syntax",
 	"-lex",
@@ -54,14 +54,14 @@ static char* mongaOptions[] = {
 	"-noBin",
 	"-noCode"
 };
-static char mongaOptionsCount = 7;
+static char hacOptionsCount = 7;
 
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
 	char flag = 0;
 	for(int i=1;i<argc;i++) {
-		for(int j=0;j<mongaOptionsCount;j++) {
-			if(strcmp(argv[i],mongaOptions[j])==0) {
+		for(int j=0;j<hacOptionsCount;j++) {
+			if(strcmp(argv[i],hacOptions[j])==0) {
 				flag = 0;
 				break;
 			}
@@ -94,7 +94,7 @@ int main (int argc, char** argv)
 			noBin = 1;
 			noDebug =1;
 		}
-		if(strcmp("-syntax",argv[1])==0) 
+		if(strcmp("-syntax",argv[1])==0)
 		{
 			noTree = 1;
 			noChecks = 1;
@@ -138,18 +138,18 @@ int main (int argc, char** argv)
 	yyparse();
 	printf("Syntax OK\n");
 
-	
+
 	if(!noChecks) {
 		checkAndFixesTypesInTree();
 		printf("Typing OK\n");
 	}
-	if(!noTree) 
+	if(!noTree)
 	{
 		printTree();
 	}
 	char * bf_name = "a.bf";
 	//char * bin_name = "a.out";
-	if(!noCode) 
+	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
 		codeTree();
@@ -159,8 +159,8 @@ int main (int argc, char** argv)
 	{
 		char* str = handleClangOptions(argc,argv);
 		char* buff = (char*)malloc(
-			strlen(str) + 
-			strlen("clang") + 
+			strlen(str) +
+			strlen("clang") +
 			strlen(bf_name)+1);
 		sprintf(buff,"clang %s %s",
 			str,
@@ -176,9 +176,8 @@ int main (int argc, char** argv)
 		execute(program,30000);
 		free(program);
 		printf("printing memory\n");
-		printMemory(lookForWrittenMemory());
+		printAllWrittenMemory();
 	}
 
 	return 0;
 }
-
