@@ -68,18 +68,19 @@ void printMemory(int start) {
 	}
 	printf("|\n");
 }
+static inline int isWritten(char* memory,int wide){
+	for(int j=0;j<=wide;j++){
+	   if(memory[j]!=0){
+	      return 1;
+	   }
+	}
+	return 0;
+} 
 void printAllWrittenMemory(){
-  	char mark = 0;
   	int count = 0;
-  	for(int i=0;i<30000;i+=18){
-	  	mark = 0;
-		for(int j=i;j<=18;j++){
-	      if(memory[i]!=0){
-	        mark = 1;
-	        break;
-	      }
-	    }
-	    if(mark == 1) {
+  	int wide = 18;
+  	for(int i=0;i<30000;i+=wide){
+	    if(isWritten(memory+i,wide)) {
 	      	printMemory(i);
 	    }
 	}
