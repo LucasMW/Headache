@@ -23,14 +23,14 @@ typedef struct memBlock {
 
 void Stack_Init(Stack **S){
     *S = calloc(sizeof(Stack),1); //allocating a Stack
-    (*S)->size = 0; 
+    (*S)->size = 0;
 }
 
 char* Stack_Top(Stack *S){
     if (S->size == 0) {
         fprintf(stderr, "Error: stack empty\n");
         return NULL;
-    } 
+    }
     return S->data[S->size-1];
 }
 
@@ -68,6 +68,22 @@ void printMemory(int start) {
 	}
 	printf("|\n");
 }
+void printAllWrittenMemory(){
+  	char mark = 0;
+  	int count = 0;
+  	for(int i=0;i<30000;i+=18){
+	  	mark = 0;
+		for(int j=i;j<=18;j++){
+	      if(memory[i]!=0){
+	        mark = 1;
+	        break;
+	      }
+	    }
+	    if(mark == 1) {
+	      	printMemory(i);
+	    }
+	}
+}
 
 
 char * readFile(const char* path){
@@ -87,12 +103,12 @@ char * readFile(const char* path){
 		i++;
 	}
 	fileString[size] = '\0';
-	fclose(input); 
+	fclose(input);
 	return fileString;
 }
 
 void execute(char* program,int memorySize){
-	
+
 	Stack* loopStack;
 	char instructions[] = {'>','<','+','-','.',',','[',']'};
 	char extras_instructions[] = {'@','#','$','%','&'};
@@ -158,7 +174,7 @@ void execute(char* program,int memorySize){
 			// repeats loop
 			if(*ptr){
 				loopStart = Stack_Top(loopStack);
-				program = loopStart; 
+				program = loopStart;
 			}
 			else{
 				Stack_Pop(loopStack); // out of this loop
@@ -202,6 +218,6 @@ int main (int argc, char** argv){
 	else{
 		printf("Error!\nProgram usage is: \n%s sourcecode\n",argv[0]);
 		return -1;
-	} 
+	}
 }
 #endif

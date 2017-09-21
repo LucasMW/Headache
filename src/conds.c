@@ -5,7 +5,7 @@ y[temp1-temp0+y-]
 temp0[y+temp0-]
 temp1[x-temp1[-]]*/
 void equals(int x,int y){
-
+	
 }
 /*temp0[-]
 temp1[-]

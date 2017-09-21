@@ -64,6 +64,7 @@ static void codeDebugMessage(const char* str){
 	}
 }
 
+
 static void bfalgo(char* str, ...){
 
 //based on http://www.gnu.org/software/libc/manual/html_node/Variadic-Example.html
@@ -94,6 +95,12 @@ static void bfalgo(char* str, ...){
   va_end (ap);                  /* Clean up. */
 }
 
+typedef struct slice{
+	int* start;
+	int* end;
+	char state
+} Slice;
+
 
 
 static int allocateCellsForType(Type* t){
@@ -109,6 +116,14 @@ static int popCells(int x){
 	return currentAllocationIndex;
 }
 
+/*looks for not used temporary
+chunks is needed memory size
+
+*/
+
+int findTempMemory(int chunks){
+
+}
 
 
 
@@ -135,13 +150,8 @@ static void codePrint(const char* str) {
 	}
 	codeGoTo(preserve);
 }
-static void codeCellValuePrint(int start, int end){
-	pushCells(10);
-	bfalgo("$[$+$+$-]$",start,currentAllocationIndex-6,currentAllocationIndex-7,start,currentAllocationIndex-6);
-	codeStr(">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
-	bfalgo("$[$+$-]$",currentAllocationIndex-7,start,currentAllocationIndex-7,start);
-	popCells(10);
-}
+
+
 
 static int unitsToMoveTo(int cellAddr) {
 	return cellAddr - currentCell;
@@ -363,6 +373,17 @@ void unequals(int x,int y){
 		temp0,y,temp0,
 		temp1,x,temp1);
 	codeDebugMessage("unequals");
+}
+
+
+static void codeCellValuePrint(int start, int end){
+	pushCells(10);
+	incrementXbyY2(currentAllocationIndex-5,start);
+	bfalgo("$[$+$+$-]$",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-6);
+	codeStr(">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+	bfalgo("$[$+$-]$",currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-7,currentAllocationIndex-5);
+	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
+	popCells(10);
 }
 
 void setCodeOutput(FILE* out) {
@@ -674,10 +695,10 @@ void codeCommandList(CommandL* cl) {
 		switch(c->tag) {
 			case CWhile:
 			 	i1 = codeCond(c->condExp);
-				bfalgo("[\n");
+				bfalgo("$[\n",i1);
 					codeCommandList(c->cmdIf );
 				i2 = codeCond(c->condExp);
-				bfalgo("\n]");
+				bfalgo("$\n]",i2);
 				codeDebugMessage("while");
 			break;
 			case CIf:
@@ -741,15 +762,6 @@ void codeCommandList(CommandL* cl) {
 						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
 						codeDebugMessage("print int");
 						break;
-						case WFloat:
-						currentFunctionTIndex++;
-						fprintf(output, "%%t%d = fpext float %%t%d to double\n", 
-							currentFunctionTIndex,
-							i1 );
-						 
-						// fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.floatprintstr, i64 0, i64 0), double %%t%d)\n",
-						// currentFunctionTIndex );
-						break;
 						case WByte:
 						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
 
@@ -761,8 +773,8 @@ void codeCommandList(CommandL* cl) {
 				}
 				else if(c->printExp->type->of->tag == base &&
 					c->printExp->type->of->b == WByte) {
-					codeDebugMessage("Printing string");
 					codePrint(c->printExp->c->u.str);
+					codeDebugMessage("Printing string");
 				}
 				else {
 					fprintf(output, ";printing non string array is unavaible\n" );

@@ -1,4 +1,4 @@
 
 void main() {
-	@"Hello World!\n";
+	@"Omae wa mou shindeiru\n";
 }
