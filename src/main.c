@@ -77,6 +77,7 @@ static char* handleClangOptions(int argc,char** argv) {
 	return str;
 
 }
+
 int main (int argc, char** argv)
 {
 	char noTree =0;
@@ -133,11 +134,20 @@ int main (int argc, char** argv)
 		{
 			noDebug =1;
 		}
-	}
+		if(strcmp("--help",argv[1])==0)
+		{
+			printf("Usage: %s [options] file.bf \n",argv[0] );
+			printf("Available options: \n");
+			for(int i=0;i<hacOptionsCount;i++){
+				printf("\t%s\n",hacOptions[i]);
+			}
+			printf("If no file is provided, it shall read from stdin\n");
+			return 0;
+		}
+	} 
 	yyin = fopen(argv[1],"r");
 	yyparse();
 	printf("Syntax OK\n");
-
 
 	if(!noChecks) {
 		checkAndFixesTypesInTree();
