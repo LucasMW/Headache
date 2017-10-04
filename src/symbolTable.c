@@ -67,84 +67,6 @@ void raiseWarning(const char* message) {
 void generateStardardDeclares(progNode* prog) {
 	findFuncInTree("");
 }
-/*static Def* expandDefVar(Def* d) {
-	DefVar* dv = d->u.v;
-	NameL* nl = dv->nl;
-	Def* dl = d;
-	while(nl) {
-		//printf("%s\n", nl->name);
-		Def* nDef = (Def*)malloc(sizeof(Def));
-		nDef->tag = DVar;
-		DefVar* ndv = (DefVar*)malloc(sizeof(DefVar));
-		char* name = (char*)malloc(strlen(nl->name)+1);
-		name[strlen(nl->name)] = '\0';
-		strcpy(name,nl->name);
-		ndv->id = name;
-		assert(ndv->id!=NULL);
-		ndv->t = dv->t; //same type
-		nDef->u.v = ndv;
-		dl->next = nDef;
-		dl = dl->next;
-		nl = nl->next;
-	}
-	dl->next = d->next;
-	return d;
-}
-static DefVarL* expandNameListIntoDefVarL(NameL * nl,Type* t) {
-	if(nl==NULL) {
-		return NULL;
-	}
-	DefVarL * dvl;
-
-		dvl = (DefVarL*)malloc(sizeof(DefVarL));
-		DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
-		dv->scope = VLocal;
-		char* name = (char*)malloc(strlen(nl->name)+1);
-		name[strlen(nl->name)] = '\0';
-		strcpy(name,nl->name);
-		dv->id = name;
-		dv->t = t;
-		dv->nl = NULL;
-		dvl->dv = dv;
-		dvl->next = expandNameListIntoDefVarL(nl->next,t);
-	return dvl;
-	
-
-}
-static DefVarL* expandDefVarL(DefVarL* dvl) {
-	// DefVar* dv = dvl->dv;
-	// NameL* nl = dv->nl;
-	// DefVarL* rdvl = dvl;
-	// dv->id = "NENHUM";
-	// while(nl) {
-	// 	printf("%s\n", nl->name);
-	// 	printf("%s nl\n",nl->name );
-	// 	DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
-
-	// 	DefVar* ndv = (DefVar*)malloc(sizeof(DefVar));
-	// 	char* name = (char*)malloc(strlen(nl->name)+1);
-	// 	name[strlen(nl->name)] = '\0';
-	// 	strcpy(name,nl->name);
-	// 	ndv->id = name;
-	// 	assert(ndv->id!=NULL);
-	// 	ndv->t = dv->t; //same type
-	// 	ndvl->dv = ndv;
-	// 	dl->next = ndvl;
-	// 	dl = dl->next;
-	// 	nl = nl->next;
-	// }
-	// dl->next = d->next;
-
-	// return d;
-	DefVarL* internalList = expandNameListIntoDefVarL(dvl->dv->nl,dvl->dv->t);
-	DefVarL* p = internalList;
-	while(p->next !=NULL) {
-		p = p->next;
-	}
-	p->next = dvl->next;
-	dvl->next = internalList;
-	return dvl;
-}*/
 
 Parameter* findParamsOfFunc(const char* funcId) {
 	Def* dfl = globalTree->next;
@@ -174,20 +96,7 @@ DefFunc* findFuncInTree(const char* funcId) {
 	return NULL;
 
 }
-// Parameter* findTypeOfFunc(const char* funcId) {
-// 	Def* dfl = globalTree->next;
-// 	while(dfl) {
-// 		if(dfl->tag == DFunc) {
-// 			DefFunc* df = dfl->u.f;
-// 			if(strcmp(funcId,df->id)==0) {
-// 				return df->retType;
-// 			}
-// 		}
-// 		dfl = dfl->next;
-// 	}
-// 	return NULL;
 
-// }
 void printSymbol(Symbol s) {
 	printType(s.type,0);
 	printf("symbol %s \n",s.id);
@@ -255,10 +164,6 @@ void insert(const char* symbolID,Type* type,void* d) {
 	variablesTop++;
 	//printf("variablesTop %d\n",variablesTop );
 }
-
-
-
-
 
 void typeTree(progNode* p)
 {
