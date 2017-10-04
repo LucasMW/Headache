@@ -27,10 +27,6 @@ void codeExpList(ExpList* el);
 int codeAccessElemPtr(Exp* e);
 char* stringForType(Type* t);
 
-
-
-
-
 static void codePrint(const char* str);
 static int unitsToMoveTo(int cellAddr);
 static void codeStr(const char* str);
@@ -572,7 +568,8 @@ void codeDefList(Def* d) {
 			codeDefVar(d->u.v);
 		break;
 		case DFunc:
-			codeDefFunc(d->u.f);
+			if(strcmp(d->u.f->id,"main")==0) //only code main
+				codeDefFunc(d->u.f);
 		break;
 	}
 	codeDefList(d->next);
@@ -831,16 +828,16 @@ int codeCallExp(Exp* e) {
 	}
 
 	if(e->type == NULL) {
-		fprintf(output, "call void @%s(",
-			e->call.id);
+		// fprintf(output, "call void @%s(",
+		// 	e->call.id);
 	}
 	else {
 		char* fTypeStr = stringForType(e->type);
 		 toCall = ++currentFunctionTIndex; 
-		fprintf(output, "%%t%d = call %s @%s(",
-			toCall,
-			fTypeStr,
-			e->call.id);
+		// fprintf(output, "%%t%d = call %s @%s(",
+		// 	toCall,
+		// 	fTypeStr,
+		// 	e->call.id);
 	}
 	p = e->call.expList;
 	i=0;
