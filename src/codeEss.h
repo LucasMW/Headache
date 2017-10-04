@@ -6,3 +6,6 @@
 #endif
 void bfalgo(char* str, ...);
 void codeZero(int x);
+void incrementXbyY(int x, int y);
+void decrementXbyY(int x,int y);
+void setXtoY(int x, int y);

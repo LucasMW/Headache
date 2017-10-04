@@ -183,7 +183,9 @@ void execute(char* program,int memorySize){
 		}
 		// output memory
 		else if( c == extras_instructions[0]) {
-			printMemory(ptr - memory);
+			printf("\n---\t bfi Debug ---\t\n");
+			printAllWrittenMemory();
+			printf("---\t bfi Debug ---\t\n" );
 		}
 
 		else if( c == extras_instructions[1]) {

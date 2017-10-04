@@ -28,6 +28,9 @@ int codeAccessElemPtr(Exp* e);
 char* stringForType(Type* t);
 
 
+
+
+
 static void codePrint(const char* str);
 static int unitsToMoveTo(int cellAddr);
 static void codeStr(const char* str);
@@ -98,7 +101,7 @@ static void bfalgo(char* str, ...){
 typedef struct slice{
 	int* start;
 	int* end;
-	char state
+	char state;
 } Slice;
 
 
@@ -124,6 +127,7 @@ chunks is needed memory size
 int findTempMemory(int chunks){
 
 }
+
 
 
 
@@ -804,6 +808,9 @@ int codeBinExp(Exp* e ,int* f) {
 	return currentAllocationIndex;
 }
 int codeCallExp(Exp* e) {
+
+	codeDefFunc((DefFunc*)e->call.def);
+	
 	int toCall = -1;
 	int size=0;
 	ExpList *p = e->call.expList;
@@ -848,22 +855,7 @@ int codeCallExp(Exp* e) {
 	fprintf(output, ")\n" );
 	return toCall;		
 }
-char* hexaStringForFloat(float c) {
-	double f = (double)c;
-	int i;
-	unsigned char buff[sizeof(double)];
-	memcpy(buff,&f,sizeof(double));
 
-	char* string = (char*)malloc(sizeof(double)+3);
-	char temp[3] = "0x";
-	strcpy(string,temp);
-	for(i = sizeof(double)-1;i >= 0;i--){
-        sprintf(temp,"%02X",buff[i]);
-        strcat(string,temp);
-    }
-    return string;
-
-}
 char* stringForConstant(Constant* c) {
 	//char str[40] = "no string given";
 	char* str;
@@ -878,7 +870,7 @@ char* stringForConstant(Constant* c) {
 		break;
 		case KFloat:
 			nd = frexp(c->u.d, &exponent);
-			str = hexaStringForFloat(c->u.d);
+			str = "No floats";//hexaStringForFloat(c->u.d);
 		break;
 		case KStr:
 			str = (char*)c->u.str;

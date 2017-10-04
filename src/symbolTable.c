@@ -659,6 +659,7 @@ int checkAccessType(Exp* e) {
 }
 
 
+
 void typeExp(Exp* e ) {
 	if(!e)
 		return;
@@ -709,6 +710,7 @@ void typeExp(Exp* e ) {
 		case ExpCall:
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);
+			e->call.def = (void*) findFuncInTree(e->call.id);
 			if(!checkCallability(e)) {
 					//printf("--%s--\n", e->call.id);
 					raiseError("Expression is not callable",e->dbg_line);
