@@ -407,6 +407,7 @@ void promoteType(Exp ** eptr) {
 		performCastToType(t,eptr);
 	}
 }
+
 BType BTypeOfArith(Exp* e1,Exp *e2) {
 	if(e1->type->b == WFloat || e2->type->b == WFloat)
 		return WFloat;
@@ -418,14 +419,17 @@ Type* arithType(Exp* e) {
 	t->b = BTypeOfArith(e->bin.e1,e->bin.e2);
 	return t;
 }
+
 Type* unaryType(Exp* e) {
 	return e->unary.e->type;
 }
+
 Type* CmpType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
 	t->b = WInt;
 	return t;
 }
+
 Type* typeOfCall(Exp* e) {
 	if(!e)
 		return NULL;
@@ -474,12 +478,14 @@ int checkTypeArtih(Exp* left,Exp *right) {
 	}
 	return 0;
 }
+
 int chekTypeMinusUnary(Exp* e) {
 	Type* t = e->type;
 	if(!t)
 		return 0;
 	return t->tag == base;
 }
+
 //receives exp inside unary
 int checkTypeUnary(Exp* e) {
 	Type* t = e->type;
@@ -487,11 +493,13 @@ int checkTypeUnary(Exp* e) {
 		return 0;
 	return t->tag == base && t->b == WInt;
 }
+
 int checkTypeLogic(Exp* e) {
 	if(e->type->tag == base)
 		return 1;
 	return 0;
 }
+
 int checkTypeCast(Exp* e) {
 	//printExp(e,5);
 	if(e->type->tag == base) {
@@ -499,8 +507,8 @@ int checkTypeCast(Exp* e) {
 	}
 	return 0;
 }
-int checkTypeExpList(ExpList* el,Parameter* params) {
 
+int checkTypeExpList(ExpList* el,Parameter* params) {
 	if(el == NULL || params == NULL)
 		return !el && !params;
 	ExpList *p = el;
@@ -548,6 +556,7 @@ int checkPrintability(Exp* e) {
 	}
 	return 0;
 }
+
 int checkAccess(Exp* e) {
 	Exp* v = e->access.varExp;
 	if(v->tag == ExpAccess || v->tag == ExpVar || v->tag == ExpCall) {
@@ -555,6 +564,7 @@ int checkAccess(Exp* e) {
 	}
 	return 0;
 }
+
 int checkAccessType(Exp* e) {
 	Exp* v = e->access.varExp;
 	if(v->type->tag == array) {
@@ -562,8 +572,6 @@ int checkAccessType(Exp* e) {
 	}
 	return 0;
 }
-
-
 
 void typeExp(Exp* e ) {
 	if(!e)
@@ -627,7 +635,6 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpVar:
 			typeVar(e->var);
-
 			e->type = e->var->type;
 		break;
 		case ExpUnary:
@@ -661,8 +668,8 @@ void typeExp(Exp* e ) {
 		case ExpCmp:
 			typeExp(e->cmp.e1);
 			typeExp(e->cmp.e2);
-			promoteType(&e->cmp.e1);
-			promoteType(&e->cmp.e2);
+			//promoteType(&e->cmp.e1);
+			//promoteType(&e->cmp.e2);
 			switch(e->cmp.op) {
 				default:
 					if(!checkTypeLogic(e->cmp.e1) ||
@@ -681,10 +688,7 @@ void typeExp(Exp* e ) {
 				break;
 
 			}
-
-			
 			e->type = CmpType(e);
-
 		break;
 		case ExpAccess:
 			typeExp(e->access.varExp);
@@ -756,7 +760,6 @@ void typeExpList(ExpList* el ) {
 		p = p->next;
 	}
 	return;
-
 }
 
 void typeVar(Var* v) {
