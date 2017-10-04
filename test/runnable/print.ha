@@ -1,5 +1,5 @@
 void main(){
-	@"Is printing functioning properly?\n";
-	@"\t 1)I think so\n";
-	@"\t 2)\"it works\"\n";
+	byte a;
+	a = 12;
+	@10;@"\n";@20;@"\n";@30;@"\n";@40;@"\n";
 }
