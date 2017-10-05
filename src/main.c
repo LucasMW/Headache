@@ -138,7 +138,7 @@ int main (int argc, char** argv)
 		}
 		if(strcmp("--help",argv[1])==0)
 		{
-			printf("Usage: %s [options] file.bf \n",argv[0] );
+			printf("Usage: %s [options] file.ha \n",argv[0] );
 			printf("Available options: \n");
 			for(int i=0;i<hacOptionsCount;i++){
 				printf("\t%s\n",hacOptions[i]);
