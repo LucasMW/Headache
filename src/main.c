@@ -56,6 +56,8 @@ static char* hacOptions[] = {
 };
 static char hacOptionsCount = 7;
 
+static char hacVersion[] = "alpha0.01";
+
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
 	char flag = 0;
@@ -142,6 +144,11 @@ int main (int argc, char** argv)
 				printf("\t%s\n",hacOptions[i]);
 			}
 			printf("If no file is provided, it shall read from stdin\n");
+			return 0;
+		}
+		if(strcmp("--version",argv[1])==0)
+		{
+			printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
 			return 0;
 		}
 	} 
