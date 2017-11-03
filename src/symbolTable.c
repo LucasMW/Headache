@@ -398,6 +398,41 @@ Em qualquer expressão,
 uma variável char tem seu valor 
 automaticamente promovido para int.
 */
+
+
+
+/* Um argumento vira uma definição de variável */
+
+static DefVar* paramToDefVar(Parameter* param){
+	DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
+	dv->id = param->id;
+	dv->t = param->t;
+	dv->nl = (NameL*)malloc(sizeof(NameL));
+	dv->nl->name = param->id;
+	dv->nl->next = NULL;
+	return dv;
+}
+
+
+/* Transforma argumentos em variáveis
+*/
+void adaptFuncParamsToVars(DefFunc* df){
+	
+	DefVarL* param_dvl = (DefVarL*)malloc(sizeof(DefVarL));
+	param_dvl->next = df->b->dvl;
+	
+	DefVarL* dvl = param_dvl;
+	for(Parameter* p = df->params; p ; p = p->next){
+		DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
+		ndvl->dv = paramToDefVar(p);
+		ndvl->next = dvl;
+		dvl = ndvl;
+	}
+	
+
+}
+
+
 void promoteType(Exp ** eptr) {
 	Exp* e = *eptr;
 	if(e->type->tag == base && e->type->b == WByte) {
