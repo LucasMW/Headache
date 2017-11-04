@@ -151,8 +151,13 @@ int main (int argc, char** argv)
 			printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
 			return 0;
 		}
-	} 
-	yyin = fopen(argv[1],"r");
+		yyin = fopen(argv[2],"r");
+	}  
+	else 
+	{
+		yyin = fopen(argv[1],"r");
+	}
+	
 	yyparse();
 	printf("Syntax OK\n");
 
