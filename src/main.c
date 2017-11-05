@@ -49,7 +49,7 @@ static char* hacOptions[] = {
 	"-check",
 	"-syntax",
 	"-lex",
-	"-noTree",
+	"-tree",
 	"-noChecks",
 	"-noBin",
 	"-noCode"
@@ -110,9 +110,9 @@ int main (int argc, char** argv)
 			testLex();
 			return 0;
 		}
-		if(strcmp("-noTree",argv[1])==0)
+		if(strcmp("-tree",argv[1])==0)
 		{
-			noTree = 1;
+			noTree = 0;
 		}
 		if(strcmp("-noChecks",argv[1])==0)
 		{
