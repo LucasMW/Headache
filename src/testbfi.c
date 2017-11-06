@@ -108,7 +108,7 @@ char * readFile(const char* path){
 	return fileString;
 }
 
-void execute(char* program,int memorySize){
+void execute(char* program,int memorySize, char extra){
 
 	Stack* loopStack;
 	char instructions[] = {'>','<','+','-','.',',','[',']'};
@@ -121,6 +121,7 @@ void execute(char* program,int memorySize){
 	const char* memLimit = memory + memorySize -1;
 	ptr = memory;
 	Stack_Init(&loopStack);
+
 	while(*program){
 		c = *program;
 		if (c == instructions[0]) {
@@ -182,23 +183,24 @@ void execute(char* program,int memorySize){
 			}
 		}
 		// output memory
-		else if( c == extras_instructions[0]) {
-			printf("\n---\t bfi Debug ---\t\n");
-			printAllWrittenMemory();
-			printf("---\t bfi Debug ---\t\n" );
-		}
-
-		else if( c == extras_instructions[1]) {
+		else if(extra) {
+			if(c == extras_instructions[0]){
+				printf("\n---\t bfi Debug ---\t\n");
+				printAllWrittenMemory();
+				printf("---\t bfi Debug ---\t\n" );
+			}
+			else if( c == extras_instructions[1]) {
 			
-		}
-		else if( c == extras_instructions[2]) {
+			}
+			else if( c == extras_instructions[2]) {
 			
-		}
-		else if( c == extras_instructions[3]) {
+			}
+			else if( c == extras_instructions[3]) {
 			
-		}
-		else if( c == extras_instructions[4]) {
+			}
+			else if( c == extras_instructions[4]) {
 			
+			}
 		}
 		else{
 
