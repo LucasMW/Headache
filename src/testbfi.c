@@ -205,8 +205,7 @@ void execute(char* program,int memorySize){
 		}
 		program++;
 	}
-	//free(memory);
-	//free(loopStack);
+	free(loopStack);
 }
 #ifdef STANDALONE
 int main (int argc, char** argv){
