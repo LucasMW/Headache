@@ -88,7 +88,7 @@ int main (int argc, char** argv)
 	char noBin = 1;
 	char noDebug = 0;
 
-	if(argc >= 2)
+	if(argc >= 3)
 	{
 		if(strcmp("-check",argv[1])==0)
 		{
@@ -136,6 +136,10 @@ int main (int argc, char** argv)
 		{
 			noDebug =1;
 		}
+		yyin = fopen(argv[2],"r");
+	}  
+	else 
+	{
 		if(strcmp("--help",argv[1])==0)
 		{
 			printf("Usage: %s [options] file.ha \n",argv[0] );
@@ -151,13 +155,14 @@ int main (int argc, char** argv)
 			printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
 			return 0;
 		}
-		yyin = fopen(argv[2],"r");
-	}  
-	else 
-	{
 		yyin = fopen(argv[1],"r");
 	}
+	if(yyin == NULL && argc > 1){
+		printf("ERROR: no such file \'%s\'\n", (argc > 2) ? argv[2] : argv[1]);
+		return 1;
+	}
 	
+	printf("argc %d\n",argc );
 	yyparse();
 	printf("Syntax OK\n");
 
