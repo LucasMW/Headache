@@ -4,8 +4,13 @@
 #include <assert.h>
 #include <math.h>
 #include <stdarg.h>
+
 #if !defined(tree_h)
 	#include "tree.h"
+	#define tree_h
+#endif
+#if !defined(codeEss_h)
+	#include "codeEss.h"
 	#define tree_h
 #endif
 
@@ -29,7 +34,6 @@ char* stringForType(Type* t);
 
 static void codePrint(const char* str);
 static int unitsToMoveTo(int cellAddr);
-static void codeStr(const char* str);
 static void codeGoTo(int cellIndex);
 static void codeZero(int x);
 static int allocateCellsForType(Type* t);
@@ -156,9 +160,7 @@ static void codePrint(const char* str) {
 static int unitsToMoveTo(int cellAddr) {
 	return cellAddr - currentCell;
 }
-static void codeStr(const char* str) {
-	fprintf(output, "%s",str);
-}
+
 static void codeGoTo(int cellIndex) {
 	int units = unitsToMoveTo(cellIndex);
 	char direction = '>';
@@ -387,6 +389,7 @@ static void codeCellValuePrint(int start, int end){
 }
 
 void setCodeOutput(FILE* out) {
+	setOutput(out);
 	output = out;
 } 
 
@@ -522,6 +525,7 @@ void codeDefVar(DefVar* dv) {
 
 }
 void codeDefFunc(DefFunc* df) {
+
 
 	char* typeStr = stringForType(df->retType);
 	if(df->b) {
@@ -673,8 +677,8 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
-	int temp0 = currentTempRegs[3];
-	codeZero(temp0);
+	// int temp0 = currentTempRegs[3];
+	// codeZero(temp0);
 	//fprintf(output, ";begin codecond\n");
 	i1 = codeExp(e);
 	//unequals(i1,temp0);
@@ -695,12 +699,13 @@ void codeCommandList(CommandL* cl) {
 		//printf("cl\n");
 		switch(c->tag) {
 			case CWhile:
+				codeDebugMessage("begin while");
 			 	i1 = codeCond(c->condExp);
 				bfalgo("$[\n",i1);
-					codeCommandList(c->cmdIf );
+					codeCommandList(c->cmdIf);
 				i2 = codeCond(c->condExp);
 				bfalgo("$\n]",i2);
-				codeDebugMessage("while");
+				codeDebugMessage("end while");
 			break;
 			case CIf:
 				i1 = codeCond(c->condExp);
@@ -1295,9 +1300,6 @@ int codeExp(Exp* e) {
 	switch(e->tag) {
 		int te1,te2;
 		case ExpAdd:
-			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fadd");
-			else {
 				//result = codeBinExp(e,"add nsw");
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
@@ -1306,12 +1308,8 @@ int codeExp(Exp* e) {
 				incrementXbyY2(currentAllocationIndex,te2);
 				codeDebugMessage("Add");
 				result = currentAllocationIndex;
-			}
 		break;
 		case ExpSub:
-			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fsub");
-			else {
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
 				currentAllocationIndex += cellsForType(e->type);
@@ -1319,12 +1317,8 @@ int codeExp(Exp* e) {
 				decrementXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Sub");
 				result = currentAllocationIndex;
-			}
 		break;
 		case ExpMul:
-			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fmul");
-			else{
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
 				currentAllocationIndex += cellsForType(e->type);
@@ -1332,12 +1326,8 @@ int codeExp(Exp* e) {
 				multiplyXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Mult");
 				result = currentAllocationIndex;
-			}
 		break;
 		case ExpDiv:
-			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fdiv");
-			else {
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
 				currentAllocationIndex += cellsForType(e->type);
@@ -1345,7 +1335,6 @@ int codeExp(Exp* e) {
 				divideXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Div");
 				result = currentAllocationIndex;
-			}
 		break;
 		case ExpCall:
 			result = codeCallExp(e);
@@ -1357,16 +1346,13 @@ int codeExp(Exp* e) {
 			result = codeExpUnary(e);
 		break;
 		case ExpPrim:
-			result = codeExpPrim(e);
-			
+			result = codeExpPrim(e);	
 		break;
 		case ExpNew:
 			result = codeExpNew(e);
-		
 		break;
 		case ExpCmp:
 			result = codeExpCompare(e);
-
 		break;
 		case ExpAccess:
 			result = codeExpAccess(e);
