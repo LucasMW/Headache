@@ -90,6 +90,7 @@ int main (int argc, char** argv)
 
 	if(argc >= 3)
 	{
+		yyin = fopen(argv[2],"r");
 		if(strcmp("-check",argv[1])==0)
 		{
 			noTree =1;
@@ -136,7 +137,7 @@ int main (int argc, char** argv)
 		{
 			noDebug =1;
 		}
-		yyin = fopen(argv[2],"r");
+		
 	}  
 	else 
 	{
@@ -161,8 +162,6 @@ int main (int argc, char** argv)
 		printf("ERROR: no such file \'%s\'\n", (argc > 2) ? argv[2] : argv[1]);
 		return 1;
 	}
-	
-	printf("argc %d\n",argc );
 	yyparse();
 	printf("Syntax OK\n");
 
