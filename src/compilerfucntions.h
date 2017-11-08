@@ -1,1 +1,0 @@
-char[] = "hac_print_memory"; 
