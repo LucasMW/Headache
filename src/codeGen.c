@@ -13,6 +13,11 @@
 	#include "codeEss.h"
 	#define tree_h
 #endif
+#if !defined(compilerFunctions_h)
+	#include "compilerFunctions.h"
+	#define compilerFunctions_h
+#endif
+
 
 void codeDefVar(DefVar* dv);
 void codeDefFunc(DefFunc* df);
@@ -36,7 +41,7 @@ static void codePrint(const char* str);
 static int unitsToMoveTo(int cellAddr);
 static void codeGoTo(int cellIndex);
 static void codeZero(int x);
-static int allocateCellsForType(Type* t);
+int allocateCellsForType(Type* t);
 static int cellsForType(Type* t);
 
 static FILE* output = NULL;
@@ -106,7 +111,7 @@ typedef struct slice{
 
 
 
-static int allocateCellsForType(Type* t){
+int allocateCellsForType(Type* t){
 	currentAllocationIndex += cellsForType(t);
 	return currentAllocationIndex;
 }
@@ -125,7 +130,7 @@ chunks is needed memory size
 */
 
 int findTempMemory(int chunks){
-
+	return 0;
 }
 
 
@@ -320,7 +325,7 @@ static void divideXbyY(int x,int y){
 x[temp0+x-]
 y[x+y-]
 temp0[y+temp0-] */
-static void swapXbyY(int x, int y){
+void swapXbyY(int x, int y){
 	int temp0=x-1;
 	codeGoTo(temp0);codeStr("[-]");
 	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("+");codeGoTo(x);codeStr("-]");
@@ -331,7 +336,7 @@ static void swapXbyY(int x, int y){
 /*temp0[-]
 x[temp0-x-]
 temp0[x-temp0+] */
-static void sigswitchX(int x){
+void sigswitchX(int x){
 	int temp0=currentTempRegs[0];
 	codeZero(temp0);
 	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("-");codeGoTo(x);codeStr("-]");
@@ -527,6 +532,9 @@ void codeDefVar(DefVar* dv) {
 void codeDefFunc(DefFunc* df) {
 
 
+	if(checkCompilerFunctions(df->id) >= 0){
+		codeCompilerFunctions(df->id);
+	}
 	char* typeStr = stringForType(df->retType);
 	if(df->b) {
 		currentFunctionTIndex = 0;
@@ -693,7 +701,7 @@ void codeCommandList(CommandL* cl) {
 	CommandL* c = cl;
 	//printf("CommandL\n");
 	int i1,i2;
-	int b1,b2,b3;
+	//int b1,b2,b3;
 	int temp0,temp1;
 	while(c) {
 		//printf("cl\n");
@@ -837,8 +845,8 @@ int codeCallExp(Exp* e) {
 		// 	e->call.id);
 	}
 	else {
-		char* fTypeStr = stringForType(e->type);
-		 toCall = ++currentFunctionTIndex; 
+		// char* fTypeStr = stringForType(e->type);
+		//  toCall = ++currentFunctionTIndex; 
 		// fprintf(output, "%%t%d = call %s @%s(",
 		// 	toCall,
 		// 	fTypeStr,
