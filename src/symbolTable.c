@@ -8,6 +8,11 @@
 	#include "grammar.h"
 	#define grammar_h
 #endif
+#if !defined(compilerFunctions_h)
+	#include "compilerFunctions.h"
+	#define compilerFunctions_h
+#endif
+
 
 typedef struct SymbolListNode
 {
@@ -67,6 +72,7 @@ void raiseWarning(const char* message) {
 void generateStardardDeclares(progNode* prog) {
 	findFuncInTree("");
 }
+
 
 Parameter* findParamsOfFunc(const char* funcId) {
 	Def* dfl = globalTree->next;
@@ -469,7 +475,9 @@ Type* typeOfCall(Exp* e) {
 	if(!e)
 		return NULL;
 	int index = find(e->call.id);
-
+	if(checkCompilerFunctions(e->call.id) >= 0) {
+		return NULL;
+	}
 	if(index < 0) {
 		printf("--func %s--\n",e->call.id);
 		raiseError("No such func in scope",e->dbg_line);
@@ -486,7 +494,9 @@ Type* typeOfNew(Exp* e) {
 
 Type* typeOfAccess(Exp* e) {
 	int index = find(e->call.id);
-
+	if(checkCompilerFunctions(e->call.id) >= 0) {
+		return NULL;
+	}
 	if(index < 0) {
 		printf("--func %s--\n",e->call.id);
 		raiseError("No such func in scope",e->dbg_line);

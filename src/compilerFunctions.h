@@ -1,8 +1,9 @@
  
 static char* compilerFunctions[] = {
-	"hac_print_memory"
+	"hacPrintMemory"
 };
 static char compilerFunctionsCount = 1;
 
-int checkCompilerFunctions();
-void hac_print_memory();
+int checkCompilerFunctions(const char* str);
+void codeCompilerFunctions(const char* str);
+void hacPrintMemory();
