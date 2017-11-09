@@ -77,7 +77,6 @@ static inline int isWritten(char* memory,int wide){
 	return 0;
 } 
 void printAllWrittenMemory(){
-  	int count = 0;
   	int wide = 18;
   	for(int i=0;i<30000;i+=wide){
 	    if(isWritten(memory+i,wide)) {
@@ -126,14 +125,14 @@ void execute(char* program,int memorySize, char extra){
 		c = *program;
 		if (c == instructions[0]) {
 			if(ptr == memLimit) {
-				printf("Access violation\n");
+				printf("Access violation, there is no cell %d \n",memorySize);
 				exit(1);
 			}
 			++ptr;
 		}
 		else if (c == instructions[1]){
 			if(ptr == memory) {
-				printf("Access violation\n");
+				printf("Access violation, there is no cell %d\n",-1);
 				exit(1);
 			}
 			--ptr;
