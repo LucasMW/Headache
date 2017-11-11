@@ -15,15 +15,7 @@ bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
 
 testrunnable: hac bfi
-	cp *.ha test/runnable
-	cat test/runnable/example.ha | ./hac
-	./bfi a.bf
-	cat test/runnable/add.ha | ./hac
-	./bfi a.bf
-	cat test/runnable/sub.ha | ./hac
-	./bfi a.bf
-	cat test/runnable/test.ha | ./hac
-	./bfi a.bf
+	sh test/runnable/script.sh
 
 testbin: hac
 	sh test/bin/script.sh

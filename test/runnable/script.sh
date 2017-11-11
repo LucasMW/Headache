@@ -8,12 +8,12 @@ do
 	COUNT=$((COUNT+1))
 	name=$(echo $f | cut -f 1 -d '.')
 	echo "Testing $name"
-	./hac $f > $f.output
-	./bfi a.bf > $f.run.output
 	if [ ! -f $name.answer ]; then
     	echo "no answer associated"
     	continue
 	fi
+	./hac $f > $f.output
+	./bfi a.bf > $f.run.output
 	if(cmp $f.run.output $name.answer) then
 		rm $f.output
 		rm $f.run.output

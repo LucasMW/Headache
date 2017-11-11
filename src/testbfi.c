@@ -214,7 +214,7 @@ int main (int argc, char** argv){
 	//expects bfi filepath
 	if(argc == 2){
 		program = readFile(argv[1]);
-		execute(program,DEFAULT_SIZE);
+		execute(program,DEFAULT_SIZE,1);
 		free(program);
 		return 0;
 	}

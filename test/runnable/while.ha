@@ -1,8 +1,12 @@
 void main(){
 	byte a;
+	byte b;
+	byte c;
 	a = 4;
-	while(a){
+	c = 10;
+	while(1){	
 		a = a-1;
+		b = b+2;
 		@"did!\n";
 	}
 }
