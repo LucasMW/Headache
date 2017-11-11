@@ -8,7 +8,7 @@ do
 	COUNT=$((COUNT+1))
 	name=$(echo $f | cut -f 1 -d '.')
 	echo "Testing $name"
-	cat $f | ./hac > $f.output
+	./hac $f > $f.output
 	./bfi a.bf > $f.run.output
 	if [ ! -f $name.answer ]; then
     	echo "no answer associated"
