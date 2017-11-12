@@ -1,6 +1,6 @@
 void main() {
 	byte b;
-	b = 10;
+	b = 0;
 	if(b){
 		@"is true\n";
 	}

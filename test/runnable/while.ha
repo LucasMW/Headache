@@ -4,7 +4,7 @@ void main(){
 	byte c;
 	a = 4;
 	c = 10;
-	while(1){	
+	while(a){	
 		a = a-1;
 		b = b+2;
 		@"did!\n";
