@@ -5,4 +5,5 @@ void main() {
 	b = 12;
 	a = b*a;
 	b = a*0+11;
+	@b;
 }
