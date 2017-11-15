@@ -1,3 +1,21 @@
+
+typedef struct CellUsage
+{
+	int start;
+	int end;
+} CellUsage;
+
+int getNumberOfCells(CellUsage cu);
+int getCellSize();
+int getMemoryUsageInBytes(CellUsage cu);
+
+
+
+
+
+
+
+
 typedef enum constantType { KFloat, KInt, KStr } constantType;
 typedef struct Constant
 {
@@ -7,7 +25,7 @@ typedef struct Constant
 		int i;
 		double d;
 	} u;
-
+	CellUsage* limits;
 } Constant;
 
 
@@ -31,6 +49,7 @@ typedef struct Parameter
 	Type* t;
 	char* id;
 	struct Parameter* next;
+	CellUsage* limits;
 } Parameter;
 
 
@@ -55,6 +74,7 @@ typedef struct DefVar
 	NameL* nl;
 	int scope; //think is enough
 	int start_cell;
+	CellUsage* limits;
 
 } DefVar;
 
@@ -71,6 +91,7 @@ typedef struct Var
 	const char* id;
 	Type* type;
 	DefVar* declaration;
+	CellUsage* limits;
 } Var;
 
 typedef enum ExpE {
@@ -128,12 +149,14 @@ typedef struct Exp{
 	};
 	Type* type;
 	int dbg_line;
+	CellUsage* limits;
 } Exp;
 
 typedef struct ExpList
 {
 	Exp* e;
 	struct ExpList* next; 
+	CellUsage* limits;
 } ExpList ;
 
 
@@ -163,6 +186,7 @@ typedef struct Block
 {	
 	DefVarL* dvl;
 	CommandL* cl;
+	CellUsage* limits;
 	
 } Block;
 typedef struct DefFunc
@@ -171,7 +195,7 @@ typedef struct DefFunc
 	Type* retType;
 	Parameter* params;
 	Block* b;
-
+	CellUsage* limits;
 
 } DefFunc;
 typedef struct Def {
@@ -181,11 +205,13 @@ typedef struct Def {
 		DefVar* v;
 	} u;
 	struct Def* next;
+	CellUsage* limits;
 } Def;
 
 
 typedef struct progNode {
 	Def* next;
+	CellUsage* limits;
 } progNode;
 
 void printDefVar(DefVar* dv,int x);

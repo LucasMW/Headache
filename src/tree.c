@@ -327,21 +327,17 @@ void printConstant(Constant* c,int x) {
 	}
 }
 
-
-
-void notConst()
-{
-
-}
-void minusConst()
-{
-
-}
-void makeID()
-{
-	
+int getNumberOfCells(CellUsage cu){
+	return cu.end - cu.start+1;
 }
 
+int getCellSize(){
+	return 1;
+}
+
+int getMemoryUsageInBytes(CellUsage cu){
+	return getNumberOfCells(cu) * getCellSize();
+}
 
 Constant* makeConstant(constantType t)
 {
