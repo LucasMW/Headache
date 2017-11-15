@@ -8,6 +8,7 @@ typedef struct CellUsage
 int getNumberOfCells(CellUsage cu);
 int getCellSize();
 int getMemoryUsageInBytes(CellUsage cu);
+CellUsage* makeCellUsage(int start, int end);
 
 
 

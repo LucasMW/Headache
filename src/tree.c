@@ -339,6 +339,14 @@ int getMemoryUsageInBytes(CellUsage cu){
 	return getNumberOfCells(cu) * getCellSize();
 }
 
+CellUsage* makeCellUsage(int start, int end){
+	CellUsage* cu = (CellUsage*)malloc(sizeof(CellUsage));
+	cu->start = start;
+	cu->end = end;
+	return cu;
+}
+
+
 Constant* makeConstant(constantType t)
 {
 	Constant* k = (Constant*)malloc(sizeof(Constant));

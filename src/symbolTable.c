@@ -47,6 +47,8 @@ static int flagFunctionHasReturn = 0;
 
 int warningCount=0;
 
+int totalMemoryUsage=0;
+
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
@@ -61,6 +63,7 @@ void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
 }
+
 void raiseError(const char* message,int line) {
 	printf("Error: %s\n# near line %d\n",message,line);
 	exit(01);
@@ -71,6 +74,10 @@ void raiseWarning(const char* message) {
 }
 void generateStardardDeclares(progNode* prog) {
 	findFuncInTree("");
+}
+
+void incrementMemoryUsage(int bytes){
+	totalMemoryUsage+=bytes;
 }
 
 
@@ -174,6 +181,7 @@ void insert(const char* symbolID,Type* type,void* d) {
 void typeTree(progNode* p)
 {
 	typeDefList(p->next);
+	printf("Using %d bytes\n", totalMemoryUsage);
 }
 void typeDefList(Def* d)
 {
@@ -199,6 +207,7 @@ void typeNameList(NameL* nl, Type* t,DefVar* dv) {
 	do  {
 		insert(p->name,t,dv);
 		p = p->next;
+		incrementMemoryUsage(2);
 	} while(p);
 }
 void typeDefVar(DefVar* dv){
@@ -571,6 +580,7 @@ int checkTypeExpList(ExpList* el,Parameter* params) {
 		if(!params && p) {
 			return 0;
 		}
+		incrementMemoryUsage(2);
 	}
 	return params == NULL;
 }
@@ -775,6 +785,7 @@ Type* typeOfConstant(Constant* c) {
 	switch(c->tag) {
 		case KInt:
 			t->b = WInt;
+			incrementMemoryUsage(2);
 		break;
 		case KFloat:
 			t->b = WFloat;
