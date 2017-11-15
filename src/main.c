@@ -139,7 +139,7 @@ int main (int argc, char** argv)
 		}
 		
 	}  
-	else 
+	else if(argc >= 2)
 	{
 		if(strcmp("--help",argv[1])==0)
 		{
@@ -157,6 +157,9 @@ int main (int argc, char** argv)
 			return 0;
 		}
 		yyin = fopen(argv[1],"r");
+	}
+	else {
+		printf("HAC: Running interactive mode\n");
 	}
 	if(yyin == NULL && argc > 1){
 		printf("ERROR: no such file \'%s\'\n", (argc > 2) ? argv[2] : argv[1]);
