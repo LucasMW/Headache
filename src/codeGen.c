@@ -387,7 +387,7 @@ static void codeCellValuePrint(int start, int end){
 	pushCells(10);
 	incrementXbyY2(currentAllocationIndex-5,start);
 	bfalgo("$[$+$+$-]$",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-6);
-	codeStr(">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+	codeStr(">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
 	bfalgo("$[$+$-]$",currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-7,currentAllocationIndex-5);
 	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
 	popCells(10);
