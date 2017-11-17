@@ -62,7 +62,7 @@ int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 regis
 static int currentFuncHasReturn = 0;
 
 static char DBG_File = 1;
-static char DBG_Console = 1;
+static char DBG_Console = 0;
 static void codeDebugMessage(const char* str){
 	if(DBG_File){
 		fprintf(output, "%s\n",str);
@@ -797,6 +797,9 @@ void codeCommandList(CommandL* cl) {
 				// 	typeError("Expression is not printable");
 				// }
 			break;
+			case CDebug:
+				codeStr("@");
+			break; 
 		}
 		c = c->next;
 	}

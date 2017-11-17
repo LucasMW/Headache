@@ -120,7 +120,7 @@ void execute(char* program,int memorySize, char extra){
 	const char* memLimit = memory + memorySize -1;
 	ptr = memory;
 	Stack_Init(&loopStack);
-
+	printf("%s\n", extra ? "extra enabled" : "extra disabled" );
 	while(*program){
 		c = *program;
 		if (c == instructions[0]) {

@@ -45,6 +45,8 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
+
+
 int warningCount=0;
 
 int totalMemoryUsage=0;
@@ -180,6 +182,7 @@ void insert(const char* symbolID,Type* type,void* d) {
 
 void typeTree(progNode* p)
 {
+	flagDebug = 0;
 	typeDefList(p->next);
 	printf("Using %d bytes\n", totalMemoryUsage);
 }
@@ -371,6 +374,9 @@ void typeCommandList(CommandL* cl ) {
 				if (!checkPrintability(c->printExp)) {
 					raiseError("Expression is not printable",c->printExp->dbg_line);
 				}
+			break;
+			case CDebug:
+				flagDebug = 1;
 			break;
 		}
 		c = c->next;

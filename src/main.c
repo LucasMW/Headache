@@ -202,7 +202,7 @@ int main (int argc, char** argv)
 		printf("Debuging\n");
 		char* program = readFile(bf_name);
 		printf("exec\n");
-		execute(program,30000,'\0');
+		execute(program,30000,1);
 		free(program);
 		printf("printing memory\n");
 		printAllWrittenMemory();

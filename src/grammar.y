@@ -15,7 +15,12 @@ extern FILE *yyin;
   #include "tree.h"
   #define tree_h
    #endif
+#if !defined(compilerFunctions_h)
+  #include "compilerFunctions.h"
+  #define compilerFunctions_h
+   #endif
 %}
+
 
 %union{
   int		int_val;
@@ -67,7 +72,7 @@ extern FILE *yyin;
 
 
 %type<prog> program  
-%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
@@ -249,6 +254,12 @@ commandPrint: '@' exp ';' {
   $$->printExp = $2;
 }
 ;
+commandDebug: '%' exp ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+  $$->tag = CDebug;
+  $$->printExp = $2;
+}
+;
 commandIF: TK_WIF '(' exp ')' command %prec "if" {  
    $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CIf;
@@ -304,6 +315,9 @@ command1: TK_WRETURN  ';' {
           $$=$1;
         } 
         | commandPrint {
+          $$ = $1;
+        }
+        | commandDebug {
           $$ = $1;
         }
 ;
