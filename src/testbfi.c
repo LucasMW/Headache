@@ -107,7 +107,7 @@ char * readFile(const char* path){
 	return fileString;
 }
 
-void execute(char* program,int memorySize, char extra){
+int execute(char* program,int memorySize, char extra){
 
 	Stack* loopStack;
 	char instructions[] = {'>','<','+','-','.',',','[',']'};
@@ -116,6 +116,7 @@ void execute(char* program,int memorySize, char extra){
 	char c; 
 	char *loopStart = NULL;
 	int internalLoopCount = 0;
+	char* farthestPtr = memory;
 	memory = (char*) calloc(sizeof(char),memorySize); // memory of program must be zeroed.
 	const char* memLimit = memory + memorySize -1;
 	ptr = memory;
@@ -205,15 +206,26 @@ void execute(char* program,int memorySize, char extra){
 
 		}
 		program++;
+		if(ptr > farthestPtr)
+		{
+			farthestPtr = ptr;
+		}
 	}
 	free(loopStack);
+	return farthestPtr - memory;
 }
 #ifdef STANDALONE
 int main (int argc, char** argv){
 	char * program;
-	//expects bfi filepath
-	if(argc == 2){
+	//expects bfi filepath [-debug -extra]
+	if(argc >= 3){
+
+	}
+	else if(argc == 2){
 		program = readFile(argv[1]);
+		if(!program){
+			printf("Couldn't read file: %s\n",argv[1]);
+		}
 		execute(program,DEFAULT_SIZE,1);
 		free(program);
 		return 0;
