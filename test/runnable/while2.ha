@@ -3,15 +3,18 @@ void main(){
 	byte j;
 	byte x;
 	byte y;
+	byte r;
 	i = 2;
+	r = 0;
 	while(i){
-		j=2;
+		j=i;
 		while(j){
-			@"y ";
+			//@"y ";
 			j=j-1;
+			r = r + 1;
 		}
 		i = i-1;
-		@"x\n";
+		//@"x\n";
 	}
-	@"\nFinished\n";
+	@"Result is "; @r; @"\n";
 }

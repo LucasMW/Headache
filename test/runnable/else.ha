@@ -6,6 +6,9 @@ void main() {
 	}
 	else {
 		@"is false\n";
+		if(1){
+			@ "greater than zero is true\n";
+		}
 	}
 
 
