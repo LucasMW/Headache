@@ -13,8 +13,8 @@ Arithmetic:
 (.)  a == x <=> x-a == 0
 
 Logic:
-(.) if(x && y) { block } <=> if(x){ if(y){} }
-(.) if(x || y) { block } <=> if(x){ } else { if(y) {} }
+(.) if(x && y) { block } <=> if(x){ if(y){ block} }
+(.) if(x || y) { block } <=> if(x){ } else { if(y) { block } }
 (.) if(x xor y) { block } <=> if(x){ if (y) else { block } } else { if(y) { block } }
 
 They can be statically solved by operating the AST.
@@ -115,9 +115,12 @@ while (foo) {
  return lastvar;
 }
 
-Still, this would not seem achievable in version 1. Headache isn't that stable yet, this implementation seems prone to many bugs. 
-However, it seems that return statements can be solved by saving possible return values in a speciable variable and adding ifs to prevent blocks of code of triggering and representing the "break like" semantics. So for each return not which is not the last statement, would mean to creating two special variables: One to preserve the return value, other to prevent blocks of code from triggering.
+Still, this would not seem achievable in version 1. Headache isn't that stable yet and this implementation seems prone to many bugs. 
+However, it seems that return statements can be solved by saving possible return values in a special shady variable and adding "ifs" to prevent blocks of code of triggering, representing the "break like" semantics. 
+So, for each return which is not the last statement, it would mean to creating two special variables: One to preserve the return value (if there is one), other to prevent blocks of code from triggering.
 Is it worth it?
+Since the cost of adding two shady variables to control these semantics is inevitable, wouldn't it be better to the compiler to simply detect and raise an error like: 
+"Error: return is not last statement of function, line 131" and leaving to the programmer this type of control and rendering he aware of its safety implications?
 
 
 
