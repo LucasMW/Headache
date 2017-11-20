@@ -1,0 +1,124 @@
+17/11/2017:
+Always creating a new constant at the right will reach out-of-bounds in loops.
+Constants must be checked and optimized.
+
+18/11/2017:
+conditions may be implemented the easy way:
+
+Arithmetic:
+(.)  a > x <=> a-x > 0 
+(.)  a < x <=> x-a > 0
+(.)  a >= x <=> !(a<x)
+(.)  a <= x <=> !(a>x)
+(.)  a == x <=> x-a == 0
+
+Logic:
+(.) if(x && y) { block } <=> if(x){ if(y){} }
+(.) if(x || y) { block } <=> if(x){ } else { if(y) {} }
+(.) if(x xor y) { block } <=> if(x){ if (y) else { block } } else { if(y) { block } }
+
+They can be statically solved by operating the AST.
+
+19/11/2017:
+Some considerations in solving return statements:
+
+func() { something(); return; somethingElse(); } <=> func() { something() return; } // static solve
+func() { ... if(a) { return 0 } else { return 1 } } => return is final statement;
+func() { while(a) { a=a-1; if(b==3){ return x; } } return y; } 
+
+
+Compiler should force return statements to be the last statements or it would not be able to generate code. Headache could also remove this kind of statements since the how hard is to implement jumps in brainfuck and how different would be the semantics of this statement compared to languages which use this word (Headache return would not have "break;" semantics). 
+
+When the return statement is the last statement, as in "return exp" , code can be calculated by evaluing exp and moving the result to the reserved accumulator register. This would make it easy to implementing anything like "x=func();" since it is just moving the accumulator register to the variable.
+
+
+20/11/2017: 
+
+Brainfuck Algorithms propose this solution:
+
+while (foo) {
+ if (bar == foo) {
+  if (x > 2) {
+   break;
+  }
+  else {
+   block1
+  }
+  block2
+ }
+ block3
+}
+<=>
+while (foo) {
+ shouldBreak = false
+ if (bar == foo) {
+  if (x > 2) {
+   shouldBreak = true
+  }
+  else {
+   block1
+  }
+  // don't evaluate any more code in the loop after breaking
+  if (!shouldBreak) {
+   block2
+  }
+ }
+ if (shouldBreak) {
+  // so that the loop stops
+  foo = 0
+ }
+ else {
+  block3
+ }
+}
+
+Which would mean solving returns like 
+
+while (foo) {
+ if (bar == foo) {
+  if (x > 2) {
+  	return x;
+  }
+  else {
+   block1
+  }
+  block2
+ }
+ block3
+}
+
+<=>
+
+while (foo) {
+
+ shouldBreak = false
+ if (bar == foo) {
+  if (x > 2) {
+   shouldBreak = true
+   lastvar = x;
+  }
+  else {
+   block1
+  }
+  // don't evaluate any more code in the loop after breaking
+  if (!shouldBreak) {
+   block2
+  }
+ }
+ if (shouldBreak) {
+  // so that the loop stops
+  foo = 0
+ }
+ else {
+  block3
+ }
+ return lastvar;
+}
+
+Still, this would not seem achievable in version 1. Headache isn't that stable yet, this implementation seems prone to many bugs. 
+However, it seems that return statements can be solved by saving possible return values in a speciable variable and adding ifs to prevent blocks of code of triggering and representing the "break like" semantics. So for each return not which is not the last statement, would mean to creating two special variables: One to preserve the return value, other to prevent blocks of code from triggering.
+Is it worth it?
+
+
+
+
