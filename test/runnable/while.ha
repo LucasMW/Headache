@@ -1,14 +1,22 @@
 void main(){
-	while(0){	
+	byte a;
+	a = 0;
+	while(a){	
 		@"Do not execute\n";
 	}
-	while(1){
+	a = 1;
+	while(a){
+		a = a-1;
 		@"execute one time\n";
 	}
-	while(2){
+	a = 2;
+	while(a){
+		a = a-1;
 		@"execute twice\n";
 	}
-	while(3){
+	a = 3;
+	while(a){
+		a = a-1;
 		@"execute three times\n";
 	}
 }
