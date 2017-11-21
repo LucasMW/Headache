@@ -8,7 +8,7 @@ int main (float ae){
 	var2 = -3;
 	var3 = var1 - var2 ; 
 
-	/*float var4 = var1 * var3; monga does not have this*/
+	/*float var4 = var1 * var3; Headache does not have this*/
 	var4 = -1;
 	if(var3>0){
 
