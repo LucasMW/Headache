@@ -68,15 +68,21 @@ zip:
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../mongahac.zip
 
-bin/hac: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
+bin/hac: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
+temp/testbfi.o:
+	cc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
+temp/compilerFunctions.o:
+	cc -o temp/compilerFunctions.o -Wall -O3 -c src/compilerFunctions.c
+temp/codeEss.o:
+	cc -o temp/codeEss.o -Wall -O3 -c src/codeEss.c
 temp/lextest.o: src/lextest.c
 	cc -o temp/lextest.o -Wall -O3 -c src/lextest.c
 temp/codeGen.o: src/codeGen.c
 	cc -o temp/codeGen.o -Wall -O3 -c src/codeGen.c
-temp/symbolTable.o: src/symbolTable.c
+temp/symbolTable.o: src/symbolTable.c src/compilerFunctions.c
 	cc -o temp/symbolTable.o -Wall -O3 -c src/symbolTable.c
 temp/grammar.o: src/grammar.c
 	cc -o temp/grammar.o -Wall -O3 -c src/grammar.c
