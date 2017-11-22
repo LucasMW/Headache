@@ -184,7 +184,7 @@ void typeTree(progNode* p)
 {
 	flagDebug = 0;
 	typeDefList(p->next);
-	printf("Using %d bytes\n", totalMemoryUsage);
+	//printf("Using %d bytes\n", totalMemoryUsage);
 }
 void typeDefList(Def* d)
 {
@@ -340,6 +340,9 @@ void typeCommandList(CommandL* cl ) {
 				}
 				if(!checkTypeReturn(c->retExp,currentFunction)) {
 					raiseError("Return and func types mismatch",c->retExp->dbg_line);
+				}
+				if(c->next){
+					raiseError("Return is not last statement of function",c->retExp->dbg_line);
 				}
 			break;
 			case CAssign:
@@ -538,6 +541,8 @@ int checkTypeArtih(Exp* left,Exp *right) {
 	}
 	return 0;
 }
+
+
 
 int chekTypeMinusUnary(Exp* e) {
 	Type* t = e->type;
