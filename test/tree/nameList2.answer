@@ -12,6 +12,3 @@ root
 |  |  |  |  |-defVar
 |  |  |  |  |  |-byte 
 |  |  |  |  |  |-a
-|  |  |  |  |-defVar
-|  |  |  |  |  |-byte 
-|  |  |  |  |  |-b
