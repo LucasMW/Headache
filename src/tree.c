@@ -15,6 +15,47 @@
 
 progNode* globalTree;
 
+
+DefVarL* DefVarToDevL(DefVar* dv);
+DefVarL* NameLToDevL(NameL* nl, Type* t, int scope );
+void DefVarLFix(DefVarL** dvlRef);
+
+void DefVarLFix(DefVarL** dvlRef){
+	(*dvlRef)->next = DefVarToDevL((*dvlRef)->dv);
+}
+
+DefVarL* DefVarToDevL(DefVar* dv){
+	DefVarL* dvl =  (DefVarL*)malloc(sizeof(DefVarL));
+	dvl->next = NameLToDevL(dv->nl, dv->t,dv->scope);
+	return dvl;
+}
+
+DefVarL* NameLToDevL(NameL* nl, Type* t, int scope ){
+	if(!nl)
+		return NULL;
+	DefVarL* dvl = (DefVarL*)malloc(sizeof(DefVarL));
+	DefVarL* currentDvl = dvl;
+	NameL* p = nl;
+	do  {
+		DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
+		DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
+		dv->scope = scope;
+		dv->t = t;
+		dv->id = malloc(strlen(p->name)+1);
+		strcpy((char*)dv->id,p->name);
+		dv->start_cell = 0;
+		dv->limits = NULL;
+		ndvl->dv = dv;
+		currentDvl->next = ndvl;
+		currentDvl = ndvl;
+
+		p = p->next;
+	} while(p);
+	currentDvl->next = NULL;
+
+	return dvl;
+}
+
 static void printDepthLevel(const char* str,int x) {
 	int i =0;
 	printf("\n|");
@@ -72,7 +113,8 @@ void printDefVar(DefVar* dv,int x){
 		return;
 	printDepthLevel("defVar",x);
 	printType(dv->t,x+1);
-	printNameList(dv->nl,x+1);
+	//printNameList(dv->nl,x+1);
+	printDepthLevel(dv->id,x+1);
 }
 void printDefFunc(DefFunc* df,int x)
 {
@@ -140,6 +182,7 @@ void printDefVarList(DefVarL* dvl,int x) {
 	printDepthLevel("DefVarL",x);
 	if(!dvl)
 		return;
+	DefVarLFix(&dvl);
 	DefVarL* d = dvl;
 	while(d){
 		printDefVar(d->dv,x+1);
