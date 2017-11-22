@@ -56,7 +56,30 @@ static char* hacOptions[] = {
 };
 static char hacOptionsCount = 7;
 
+static char* breakingOptions[] = {
+	"--help",
+	"--version"
+};
+static char breakingOptionsCount = 2;
+
 static char hacVersion[] = "alpha0.01";
+
+static int isOption(const char* candidate){
+	for (int i=0;i<hacOptionsCount;i++){
+		if(strcmp(candidate,hacOptions[i])==0){
+			return 1;
+		}
+	}
+	return 0;
+}
+static int isBreakingOption(const char* candidate){
+	for (int i=0;i<breakingOptionsCount;i++){
+		if(strcmp(candidate,breakingOptions[i])==0){
+			return 1;
+		}
+	}
+	return 0;
+}
 
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
@@ -88,83 +111,102 @@ int main (int argc, char** argv)
 	char noBin = 1;
 	char noDebug = 0;
 
+	char* option;
+	char* fileName;
 	if(argc >= 3)
-	{
-		yyin = fopen(argv[2],"r");
-		if(strcmp("-check",argv[1])==0)
-		{
-			noTree =1;
-			noCode =1;
-			noBin = 1;
-			noDebug =1;
-		}
-		if(strcmp("-syntax",argv[1])==0)
-		{
-			noTree = 1;
-			noChecks = 1;
-			noCode = 1;
-			noBin = 1;
-			noDebug =1;
-		}
-		if(strcmp("-lex",argv[1])==0)
-		{
-			testLex();
-			return 0;
-		}
-		if(strcmp("-tree",argv[1])==0)
-		{
-			noTree = 0;
-		}
-		if(strcmp("-noChecks",argv[1])==0)
-		{
-			noChecks = 1;
-			noCode =1;
-			noBin = 1;
-			noDebug =1;
-		}
-		if(strcmp("-noCode",argv[1])==0)
-		{
-			noCode =1;
-			noBin =1;
-			noDebug =1;
-		}
-		if(strcmp("-noBin",argv[1])==0)
-		{
-			noBin =1;
-			noDebug =1;
-		}
-		if(strcmp("-noDebug",argv[1])==0)
-		{
-			noDebug =1;
-		}
-		
+	{	
+		fileName = argv[2];
+		option = argv[1];
+		yyin = fopen(fileName,"r");
 	}  
 	else if(argc >= 2)
 	{
-		if(strcmp("--help",argv[1])==0)
+		if(isOption(argv[1]))
 		{
-			printf("Usage: %s [options] file.ha \n",argv[0] );
-			printf("Available options: \n");
-			for(int i=0;i<hacOptionsCount;i++){
-				printf("\t%s\n",hacOptions[i]);
+			option = argv[1];
+		} 
+		else if (isBreakingOption(argv[1])) 
+		{ 
+			if(strcmp("--help",argv[1])==0)
+			{
+				printf("Usage: %s [options] file.ha \n",argv[0] );
+				printf("Available options: \n");
+				for(int i=0;i<hacOptionsCount;i++) {
+					printf("\t%s\n",hacOptions[i]);
+				}
+				printf("If no file is provided, it shall read from stdin\n");
+				return 0;
 			}
-			printf("If no file is provided, it shall read from stdin\n");
-			return 0;
-		}
-		if(strcmp("--version",argv[1])==0)
+			else if(strcmp("--version",argv[1])==0)
+			{
+				printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
+				return 0;
+			} 
+		} 
+		else 
 		{
-			printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
-			return 0;
+			fileName = argv[1];
+			option = NULL; 
+			yyin = fopen(fileName,"r");
 		}
-		yyin = fopen(argv[1],"r");
+
 	}
-	else {
-		printf("HAC: Running interactive mode\n");
-	}
-	if(yyin == NULL && argc > 1){
+	if(yyin == NULL && argc > 1 && !option)
+	{
 		printf("ERROR: no such file \'%s\'\n", (argc > 2) ? argv[2] : argv[1]);
 		return 1;
+	} 
+	if(argc == 1 || (argc == 2 && option) ) 
+	{
+		printf("HAC: Running interactive mode\n");
 	}
+	if(strcmp("-check",option)==0)
+	{
+		noTree =1;
+		noCode =1;
+		noBin = 1;
+		noDebug =1;
+	}
+	else if(strcmp("-syntax",option)==0)
+	{
+		noTree = 1;
+		noChecks = 1;
+		noCode = 1;
+		noBin = 1;
+		noDebug =1;
+	}
+	else if(strcmp("-lex",option)==0)
+	{
+		testLex();
+		return 0;
+	}
+	else if(strcmp("-tree",option)==0)
+	{
+		noTree = 0;
+	}
+	else if(strcmp("-noChecks",option)==0)
+	{
+		noChecks = 1;
+		noCode =1;
+		noBin = 1;
+		noDebug =1;
+	}
+	else if(strcmp("-noCode",option)==0)
+	{
+		noCode =1;
+		noBin =1;
+		noDebug =1;
+	}
+	else if(strcmp("-noBin",option)==0)
+	{
+		noBin =1;
+		noDebug =1;
+	}
+	else if(strcmp("-noDebug",option)==0)
+	{
+		noDebug =1;
+	}
+
 	yyparse();
 	printf("Syntax OK\n");
 
