@@ -160,52 +160,55 @@ int main (int argc, char** argv)
 	{
 		printf("HAC: Running interactive mode\n");
 	}
-	if(strcmp("-check",option)==0)
-	{
-		noTree =1;
-		noCode =1;
-		noBin = 1;
-		noDebug =1;
+	if(option) {
+		if(strcmp("-check",option)==0)
+		{
+			noTree =1;
+			noCode =1;
+			noBin = 1;
+			noDebug =1;
+		}
+		else if(strcmp("-syntax",option)==0)
+		{
+			noTree = 1;
+			noChecks = 1;
+			noCode = 1;
+			noBin = 1;
+			noDebug =1;
+		}
+		else if(strcmp("-lex",option)==0)
+		{
+			testLex();
+			return 0;
+		}
+		else if(strcmp("-tree",option)==0)
+		{
+			noTree = 0;
+		}
+		else if(strcmp("-noChecks",option)==0)
+		{
+			noChecks = 1;
+			noCode =1;
+			noBin = 1;
+			noDebug =1;
+		}
+		else if(strcmp("-noCode",option)==0)
+		{
+			noCode =1;
+			noBin =1;
+			noDebug =1;
+		}
+		else if(strcmp("-noBin",option)==0)
+		{
+			noBin =1;
+			noDebug =1;
+		}
+		else if(strcmp("-noDebug",option)==0)
+		{
+			noDebug =1;
+		}
 	}
-	else if(strcmp("-syntax",option)==0)
-	{
-		noTree = 1;
-		noChecks = 1;
-		noCode = 1;
-		noBin = 1;
-		noDebug =1;
-	}
-	else if(strcmp("-lex",option)==0)
-	{
-		testLex();
-		return 0;
-	}
-	else if(strcmp("-tree",option)==0)
-	{
-		noTree = 0;
-	}
-	else if(strcmp("-noChecks",option)==0)
-	{
-		noChecks = 1;
-		noCode =1;
-		noBin = 1;
-		noDebug =1;
-	}
-	else if(strcmp("-noCode",option)==0)
-	{
-		noCode =1;
-		noBin =1;
-		noDebug =1;
-	}
-	else if(strcmp("-noBin",option)==0)
-	{
-		noBin =1;
-		noDebug =1;
-	}
-	else if(strcmp("-noDebug",option)==0)
-	{
-		noDebug =1;
-	}
+	
 
 	yyparse();
 	printf("Syntax OK\n");
