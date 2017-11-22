@@ -9,7 +9,7 @@ bin/hac.js:
 bin/hac.html:
 	emcc -Wall  -o bin/hac.html src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 
-test: testlexical testsyntax testchecks
+test: testlexical testsyntax testtree testchecks
 
 bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
@@ -20,6 +20,8 @@ testrunnable: hac bfi
 testbin: hac
 	sh test/bin/script.sh
 
+testtree: hac
+	sh test/tree/script.sh
 testchecks: hac
 	sh test/checks/script.sh
 testsyntax: hac
