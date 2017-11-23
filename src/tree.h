@@ -13,10 +13,6 @@ CellUsage* makeCellUsage(int start, int end);
 
 
 
-
-
-
-
 typedef enum constantType { KFloat, KInt, KStr } constantType;
 typedef struct Constant
 {
@@ -27,6 +23,7 @@ typedef struct Constant
 		double d;
 	} u;
 	CellUsage* limits;
+	int start_cell;
 } Constant;
 
 
@@ -50,7 +47,7 @@ typedef struct Parameter
 	Type* t;
 	char* id;
 	struct Parameter* next;
-	CellUsage* limits;
+	int start_cell;
 } Parameter;
 
 
@@ -64,6 +61,8 @@ typedef struct NameL
 {
 	const char* name;
 	struct NameL* next;
+	CellUsage limits;
+
 } NameL;
 
 typedef enum VScope { VGlobal,VLocal } VScope;
@@ -92,7 +91,7 @@ typedef struct Var
 	const char* id;
 	Type* type;
 	DefVar* declaration;
-	CellUsage* limits;
+	//CellUsage* limits; //already in declaration.
 } Var;
 
 typedef enum ExpE {
