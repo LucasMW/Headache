@@ -15,22 +15,49 @@
 
 progNode* globalTree;
 
-
 DefVarL* DefVarToDevL(DefVar* dv);
 DefVarL* NameLToDevL(NameL* nl, Type* t, int scope );
+
+
+void DefVarLinkEnd(DefVarL* dvl, DefVarL* e){
+	DefVarL* p = dvl;
+	while(p->next){
+		p=p->next;
+	}
+	p->next = e;
+}
+void DefVarLinkBegin(DefVarL* dvl, DefVarL* e){
+	e->next = dvl;
+}
+
 void DefVarLFix(DefVarL** dvlRef);
 
 void DefVarLFix(DefVarL** dvlRef){
 	//printf("Fixing\n");
-	(*dvlRef) = DefVarToDevL((*dvlRef)->dv);
+	
+	DefVarL* internal = DefVarToDevL((*dvlRef)->dv);
+
+	//printDefVarList(internal,5);
+	//DefVarL* oldNext = (*dvlRef)->next;
+	DefVarLinkEnd(internal,(*dvlRef)->next);
+	
+	
+
+	//printf("\nInto this:\n");
+	//printDefVarList(internal,7);
+
+	*dvlRef = internal;
 }
 
 DefVarL* DefVarToDevL(DefVar* dv){
 	if(!dv)
 		return NULL;
-	DefVarL* dvl = NameLToDevL(dv->nl, dv->t,dv->scope);;
-	
-	//printDefVarList(dvl,1);
+	DefVarL* dvl =  (DefVarL*)malloc(sizeof(DefVarL));
+	dvl->next = NameLToDevL(dv->nl, dv->t,dv->scope);
+	//printf("\ninternal\n");
+	//printDefVarList(dvl->next,0);
+	//printf("\nevery\n");
+	//printDefVarList(dvl,0);
 	return dvl;
 }
 
@@ -57,6 +84,7 @@ DefVarL* NameLToDevL(NameL* nl, Type* t, int scope ){
 		p = p->next;
 	} while(p);
 	currentDvl->next = NULL;
+	//printf("first dvl:\n");
 	//printDefVarList(dvl,0);
 	return dvl;
 }
