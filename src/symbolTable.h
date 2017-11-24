@@ -18,5 +18,5 @@ void typeExp(Exp* e);
 void typeVar(Var* v);
 void typeConstant(Constant* c);
 void typeExpList(ExpList* el);
-
+int cellsForType(Type* t);
 static char flagDebug;

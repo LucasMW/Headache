@@ -60,6 +60,9 @@ void performCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
 int checkTypeLogic(Exp* e);
 
+
+
+
 DefFunc* findFuncInTree(const char* funcId);
 void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
@@ -847,6 +850,29 @@ void typeVar(Var* v) {
 void checkAndFixesTypesInTree() 
 {
 	typeTree(globalTree);
+}
+
+int cellsForType(Type* t){
+	if(!t)
+		return -1;
+	switch(t->tag) {
+		case base:
+			switch(t->b) {
+				case WInt:
+					return 8;
+				break;
+				case WFloat:
+					return 8;
+				break;
+				case WByte:
+					return 2;
+				break;
+			}
+		break;
+		case array:
+			return -1;
+		break;
+	}
 }
 
 
