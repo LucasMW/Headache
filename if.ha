@@ -7,6 +7,4 @@ void main() {
 	else {
 		@" is false\n";
 	}
-
-
 }
