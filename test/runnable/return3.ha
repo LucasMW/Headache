@@ -10,7 +10,9 @@ void main(){
 	byte a;
 	byte b;
 	a = bitsInByte() + bitsInByte();
+	//%;
 	b = bitsInWinXP() + bitsInWinXP();
+	//%;
 	@a;@"\n";
 	@b;@"\n";
 }
