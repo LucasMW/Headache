@@ -91,6 +91,7 @@ typedef struct Var
 	const char* id;
 	Type* type;
 	DefVar* declaration;
+	int start_cell;
 	//CellUsage* limits; //already in declaration.
 } Var;
 
