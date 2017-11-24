@@ -3,7 +3,7 @@ Programming Language that compiles to 8-Bit Brainfuck.
 
 ## Build
 
-Just use type 'make'.
+Just type 'make'.
 
 ## Usage
 
@@ -24,3 +24,25 @@ Other options:
 
 ./hac -check
 	Checks for errors and warnings whithout compiling
+
+## Tests
+
+Type 'make test' to run the default tests
+
+Other options:
+
+make testlexical
+	Runs only the lexical analyser tests
+
+make testsyntax
+	Runs only the syntax analyser tests
+
+make testchecks
+	Runs only the typing and error checking related tests
+
+make testrunnable
+	Runs only the tests which tests if programs are compiled and run succesfully.
+
+
+
+
