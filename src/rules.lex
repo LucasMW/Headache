@@ -102,6 +102,7 @@
 ","		{return ',';}
 "@"		{return '@';}
 "#"		{return '#';}
+"%"		{return '%';}
 
 "0x"([0-9]|[A-F]|[a-f])+	{yylval.int_val = strtol(yytext, NULL, 0);
 				return TK_INT;}

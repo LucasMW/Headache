@@ -121,7 +121,7 @@ int execute(char* program,int memorySize, char extra){
 	const char* memLimit = memory + memorySize -1;
 	ptr = memory;
 	Stack_Init(&loopStack);
-	printf("%s\n", extra ? "extra enabled" : "extra disabled" );
+	//printf("%s\n", extra ? "extra enabled" : "extra disabled" );
 	while(*program){
 		c = *program;
 		if (c == instructions[0]) {
@@ -185,9 +185,9 @@ int execute(char* program,int memorySize, char extra){
 		// output memory
 		else if(extra) {
 			if(c == extras_instructions[0]){
-				printf("\n---\t bfi Debug ---\t\n");
+				printf("\n---\t bfi Debug Begin ---\t\n");
 				printAllWrittenMemory();
-				printf("---\t bfi Debug ---\t\n" );
+				printf("---\t bfi Debug End ---\t\n" );
 			}
 			else if( c == extras_instructions[1]) {
 			
