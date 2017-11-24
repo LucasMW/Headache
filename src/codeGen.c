@@ -21,6 +21,10 @@
 	#include "symbolTable.h"
 	#define symbolTable_h
 #endif
+#if !defined(optimizer_h)
+	#include "optimizer.h"
+	#define optimizer_h
+#endif
 
 
 void codeDefVar(DefVar* dv);
@@ -90,7 +94,7 @@ static void bfalgo(char* str, ...){
   		count++;
   	}
   }
-  printf("count %d\n",count );
+  //printf("count %d\n",count );
   va_start (ap, count);         /* Initialize the argument list. */
 
   for(i=0;str[i];i++){
@@ -184,7 +188,7 @@ static void codeGoTo(int cellIndex) {
 	}
 	assert(units < 30000);
 	currentCell += units;
-	printf("units: %d\n",units );
+	//printf("units: %d\n",units );
 	for(;units>0;units--) {
 		count++;
 		fprintf(output, "%c",direction);
@@ -212,7 +216,7 @@ static void moveXToY(int x, int y){
 	bfalgo("$[$+$-]",x,y,x);
 }
 static void incrementXbyY(int x,int y) {
-	printf("add %d to %d\n", x,y);
+	//printf("add %d to %d\n", x,y);
 	int temp0 = x-1;
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("+"); 
@@ -227,7 +231,7 @@ y[x-temp0+y-]
 temp0[y+temp0-]
 */
 static void decrementXbyY(int x,int y) {
-	printf("sub %d to %d\n", x,y);
+	//printf("sub %d to %d\n", x,y);
 	int temp0 = x-1;
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("-"); codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
@@ -744,7 +748,7 @@ void codeCommandList(CommandL* cl) {
 				 i2 = codeExp(c->expLeft);
 				 //printExp(c->expRight,0);
 				 moveXToY(i1,i2);
-				 printf("%d %d",i1,i2);
+				 //printf("%d %d",i1,i2);
 				 codeDebugMessage("Assign");
 			break;
 			case CBlock:
@@ -813,7 +817,7 @@ int codeBinExp(Exp* e ,int* f) {
 	//printExp(e->bin.e1,0);
 	te2 = codeExp(e->bin.e2 );
 	//printExp(e->bin.e2,0);
-	printf("\n%d,%d\n",te1,te2 );
+	//printf("\n%d,%d\n",te1,te2 );
 	currentAllocationIndex += cellsForType(e->type);
 	incrementXbyY(currentAllocationIndex,te1);
 	incrementXbyY(currentAllocationIndex,te2);
@@ -909,7 +913,7 @@ int codeExpPrim(Exp* e) {
 	} else {
 		if(!e->c->start_cell) {
 			e->c->start_cell = currentAllocationIndex += 2;
-			printf("kint at %d\n",currentAllocationIndex);
+			//printf("kint at %d\n",currentAllocationIndex);
 			char c = '+';
 			int number = e->c->u.i;
 			codeZero(e->c->start_cell);
@@ -1006,7 +1010,7 @@ int codeExpCast(Exp* e) {
 	char* orTStr = stringForType(e->cast.e->type);
 	char* toTStr = stringForType(e->type);
 	currentFunctionTIndex++;
-	printf("%di1\n",i1);
+	//printf("%di1\n",i1);
 	codeDebugMessage("Cast");
 	if(e->type->b == WFloat) {
 		fprintf(output, "%%t%d = sitofp %s %%t%d to float\n",
@@ -1301,6 +1305,8 @@ int codeExp(Exp* e) {
 	int result =-1;
 	if(!e)
 		return -1;
+	e = optimizeExp(e);
+	printExp(e,10);
 	switch(e->tag) {
 		int te1,te2;
 		case ExpAdd:

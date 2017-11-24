@@ -12,7 +12,10 @@
 	#include "compilerFunctions.h"
 	#define compilerFunctions_h
 #endif
-
+#if !defined(optimizer_h)
+	#include "optimizer.h"
+	#define optimizer_h
+#endif
 
 typedef struct SymbolListNode
 {
@@ -45,11 +48,16 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
+static currentAllocationIndex = 4; // four registers
+
+
+
 
 
 int warningCount=0;
 
 int totalMemoryUsage=0;
+
 
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
@@ -213,7 +221,8 @@ void typeNameList(NameL* nl, Type* t,DefVar* dv) {
 	do  {
 		insert(p->name,t,dv);
 		p = p->next;
-		incrementMemoryUsage(2);
+		incrementMemoryUsage(cellsForType(t));
+
 	} while(p);
 }
 void typeDefVar(DefVar* dv){
@@ -645,6 +654,7 @@ int checkAccessType(Exp* e) {
 void typeExp(Exp* e ) {
 	if(!e)
 		return;
+
 	switch(e->tag) {
 		case ExpAdd: 
 			typeExp(e->bin.e1 );

@@ -32,6 +32,10 @@
 	#include "testbfi.h"
 	#define testbfi_h
 #endif
+#if !defined(optimizer_h)
+	#include "optimizer.h"
+	#define optimizer_h
+#endif
 
 #include <string.h>
 #include <assert.h>
@@ -54,7 +58,17 @@ static char* hacOptions[] = {
 	"-noBin",
 	"-noCode"
 };
+
 static char hacOptionsCount = 7;
+
+
+static char* optimizationOptions[] = {
+	"-O0",
+	"-O1",
+	"-O2"
+};
+
+static char optimizationOptionsCount = 3;
 
 static char* breakingOptions[] = {
 	"--help",
@@ -80,7 +94,41 @@ static int isBreakingOption(const char* candidate){
 	}
 	return 0;
 }
+/* detects -O0 -O1 -O2 and eliminates it from argv
+	sets zero optimization as default */
+static int handleOptimization(int* refargc, char** argv){
+	char flag;
+	int j;
+	int level=0;
+	const int argc = *refargc;
+	for(int i=1;i<argc;i++) {
+		for(j=0;j<optimizationOptionsCount;j++) {
+			if(strcmp(argv[i],optimizationOptions[j])==0) {
+				level = j;
+				flag = 1;
+			} else if((strcmp(argv[i],"-O") == 0 && strlen(argv[i])>2)){
+				int x = atoi(argv[i]+2);
+				if(x > 0 && x < 3){
+					level = x;
+				} else {
+					level = 0;
+				}
+				flag = 1;
+			}
+		}
+		if(flag == 1) {
+			printf("detected  O%d\n",level );
+			if(i< argc-1) 
+				argv[i] = argv[i+1];
+			*refargc= argc - 1;
+			return level;
+		}
+		flag = 0;
+	}
+	return level;
+		
 
+}
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
 	char flag = 0;
@@ -113,6 +161,7 @@ int main (int argc, char** argv)
 
 	char* option;
 	char* fileName;
+	int level = handleOptimization(&argc,argv);
 	if(argc >= 3)
 	{	
 		fileName = argv[2];
@@ -217,6 +266,8 @@ int main (int argc, char** argv)
 		checkAndFixesTypesInTree();
 		printf("Typing OK\n");
 	}
+	setOptimizationLevel(level);
+	optimizeTree();
 	if(!noTree)
 	{
 		printTree();
