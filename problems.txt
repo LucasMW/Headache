@@ -13,6 +13,7 @@ Arithmetic:
 (.)  a == x <=> x-a == 0
 
 Logic:
+(.) if(!x) { block } <=> if(x) {} else { block }
 (.) if(x && y) { block } <=> if(x){ if(y){ block} }
 (.) if(x || y) { block } <=> if(x){ } else { if(y) { block } }
 (.) if(x xor y) { block } <=> if(x){ if (y) else { block } } else { if(y) { block } }
@@ -22,14 +23,14 @@ They can be statically solved by operating the AST.
 19/11/2017:
 Some considerations in solving return statements:
 
-func() { something(); return; somethingElse(); } <=> func() { something() return; } // static solve
+func() { something(); return; somethingElse(); } <=> func() { something(); return; } // static solve
 func() { ... if(a) { return 0 } else { return 1 } } => return is final statement;
 func() { while(a) { a=a-1; if(b==3){ return x; } } return y; } 
 
 
-Compiler should force return statements to be the last statements or it would not be able to generate code. Headache could also remove this kind of statements since the how hard is to implement jumps in brainfuck and how different would be the semantics of this statement compared to languages which use this word (Headache return would not have "break;" semantics). 
+Compiler should force return statements to be the last statements or it would not be able to generate code. Headache could also remove this kind of statements since how hard is to implement jumps in brainfuck and how different would be the semantics of this statement compared to languages which use this word (meaning Headache's return would not have "break;" semantics). 
 
-When the return statement is the last statement, as in "return exp" , code can be calculated by evaluing exp and moving the result to the reserved accumulator register. This would make it easy to implementing anything like "x=func();" since it is just moving the accumulator register to the variable.
+When the return statement is the last statement, as in "return exp", code can be calculated by evaluing exp and moving the result to the reserved accumulator register. This would make it easy to implementing anything like "x=func();" since it is just moving the accumulator register to the variable.
 
 
 20/11/2017: 
