@@ -9,7 +9,7 @@ Just type 'make'.
 
 ./hac file.ha
 
-it generates a brainfuck file named "a.bf" and then executes it.
+	it generates a brainfuck file named "a.bf" and then executes it.
 
 Other options:
 
