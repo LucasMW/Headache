@@ -72,6 +72,8 @@ bin/hac: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
+temp/optimizer.o:
+	cc -o temp/optimizer.o -Wall -O3 -c src/optimizer.c
 temp/testbfi.o:
 	cc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
 temp/compilerFunctions.o:
