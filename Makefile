@@ -1,13 +1,14 @@
 CFLAGS = -Wall -std=c99
 OUTFILE = hac
+SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c
+OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
-	cc $(CFLAGS) -o hac src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c
-
-bin/hac.js:
+	cc $(CFLAGS) -o hac $(SOURCES)
+bin/hac.js: src/main.c src/lex.c src/grammar.c
 	emcc --pre-js stdin.js -Wall -o bin/hac.js src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
-bin/hac.html:
-	emcc -Wall  -o bin/hac.html src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+bin/hac.html: src/main.c src/lex.c src/grammar.c
+	emcc -Wall -o bin/hac.html $(SOURCES)
 
 test: testlexical testsyntax testtree testchecks
 
@@ -68,7 +69,7 @@ zip:
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../mongahac.zip
 
-bin/hac: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o
+bin/hac: $(OBJS)
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
