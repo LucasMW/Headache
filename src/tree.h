@@ -230,8 +230,9 @@ void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
 
-
-Constant* makeConstant(constantType t);
-void notConst();
-void minusConst();
-void makeID();
+/* Helping Parser */
+void DefVarLinkEnd(DefVarL* dvl, DefVarL* e);
+void DefVarLinkBegin(DefVarL* dvl, DefVarL* e);
+DefVarL* NameLToDevL(NameL* nl, Type* t, int scope );
+DefVarL* DefVarToDevL(DefVar* dv);
+void DefVarLFix(DefVarL** dvlRef);

@@ -15,10 +15,9 @@
 
 progNode* globalTree;
 
-DefVarL* DefVarToDevL(DefVar* dv);
-DefVarL* NameLToDevL(NameL* nl, Type* t, int scope );
 
 
+// dvl->e->null
 void DefVarLinkEnd(DefVarL* dvl, DefVarL* e){
 	DefVarL* p = dvl;
 	while(p->next){
@@ -26,27 +25,31 @@ void DefVarLinkEnd(DefVarL* dvl, DefVarL* e){
 	}
 	p->next = e;
 }
+//e->dvl->null
 void DefVarLinkBegin(DefVarL* dvl, DefVarL* e){
-	e->next = dvl;
+	DefVarL* p = e;
+	while(p->next){
+		p=p->next;
+	}
+	p->next = dvl;
 }
 
 void DefVarLFix(DefVarL** dvlRef);
 
 void DefVarLFix(DefVarL** dvlRef){
 	//printf("Fixing\n");
-	
-	DefVarL* internal = DefVarToDevL((*dvlRef)->dv);
+	if(!(*dvlRef))
+		return;
 
-	//printDefVarList(internal,5);
-	//DefVarL* oldNext = (*dvlRef)->next;
-	DefVarLinkEnd(internal,(*dvlRef)->next);
-	
-	
 
-	//printf("\nInto this:\n");
-	//printDefVarList(internal,7);
+	DefVarL* oldNext = (*dvlRef)->next; // nextLine definitions
+	
+	DefVarL* internal = DefVarToDevL((*dvlRef)->dv); //result from expanded
 
-	*dvlRef = internal;
+	DefVarLinkEnd(internal,oldNext);
+
+	(*dvlRef)->dv = internal->dv;
+	(*dvlRef)->next = internal->next;
 }
 
 DefVarL* DefVarToDevL(DefVar* dv){
@@ -58,6 +61,8 @@ DefVarL* DefVarToDevL(DefVar* dv){
 	//printDefVarList(dvl->next,0);
 	//printf("\nevery\n");
 	//printDefVarList(dvl,0);
+	free(dv->nl);
+	dv->nl = NULL;
 	return dvl;
 }
 
@@ -207,7 +212,7 @@ void printBlock(Block* b,int x) {
 	if(!b)
 		return;
 	printDepthLevel("block{}",x);
-	DefVarLFix(&(b->dvl));
+	//DefVarLFix(&(b->dvl));
 	printDefVarList(b->dvl,x+1);
 	printCommandList(b->cl,x+1);
 }
