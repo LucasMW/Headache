@@ -17,6 +17,10 @@
 	#include "compilerFunctions.h"
 	#define compilerFunctions_h
 #endif
+#if !defined(symbolTable_h)
+	#include "symbolTable.h"
+	#define symbolTable_h
+#endif
 
 
 void codeDefVar(DefVar* dv);
@@ -31,7 +35,7 @@ void codeCommandList(CommandL* cl);
 int codeExpAccess(Exp* e);
 void codeBlock(Block* b);
 int codeExp(Exp* e);
-void codeVar(Var* v);
+
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
 int codeAccessElemPtr(Exp* e);
@@ -42,7 +46,7 @@ static int unitsToMoveTo(int cellAddr);
 static void codeGoTo(int cellIndex);
 static void codeZero(int x);
 int allocateCellsForType(Type* t);
-static int cellsForType(Type* t);
+
 
 static FILE* output = NULL;
 
@@ -57,6 +61,7 @@ static int declareTop = 0;
 char* stringsToDeclare[100];
 
 int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 registers
+
 
 
 static int currentFuncHasReturn = 0;
@@ -157,12 +162,14 @@ static void codePrint(const char* str) {
 		fprintf(output, ".");
 		last = *p;
 	}
+	codeZero(0);
 	codeGoTo(preserve);
 }
 
 
 
 static int unitsToMoveTo(int cellAddr) {
+	//printf("%d vs %d \n", cellAddr, currentCell );
 	return cellAddr - currentCell;
 }
 
@@ -175,8 +182,9 @@ static void codeGoTo(int cellIndex) {
 		direction = '<';
 		units = -units;
 	}
+	assert(units < 30000);
 	currentCell += units;
-	
+	printf("units: %d\n",units );
 	for(;units>0;units--) {
 		count++;
 		fprintf(output, "%c",direction);
@@ -184,28 +192,7 @@ static void codeGoTo(int cellIndex) {
 	currentCell = cellIndex;
 }
 
-static int cellsForType(Type* t){
-	if(!t)
-		return -1;
-	switch(t->tag) {
-		case base:
-			switch(t->b) {
-				case WInt:
-					return 8;
-				break;
-				case WFloat:
-					return 8;
-				break;
-				case WByte:
-					return 2;
-				break;
-			}
-		break;
-		case array:
-			return -1;
-		break;
-	}
-}
+
 	
 static void codeZero(int x) {
 	codeGoTo(x); codeStr("[-]");
@@ -219,6 +206,10 @@ static void incrementXbyY2(int x, int y){
 	int temp0 = x-1;
 	bfalgo("$[-] $[$+$+$-] $[$+$-]",temp0,y,x,temp0,y,
 		temp0,y,temp0);
+}
+static void moveXToY(int x, int y){
+	codeZero(y);
+	bfalgo("$[$+$-]",x,y,x);
 }
 static void incrementXbyY(int x,int y) {
 	printf("add %d to %d\n", x,y);
@@ -524,9 +515,9 @@ void codeTree() {
 	codeDefList(globalTree->next);
 } 
 void codeDefVar(DefVar* dv) {
-	dv->start_cell = currentAllocationIndex;
+	dv->start_cell = currentAllocationIndex += cellsForType(dv->t);
 	printf("var address: %d\n",dv->start_cell);
-	codeNameList(dv->nl,dv->t,dv->scope);	
+	//codeNameList(dv->nl,dv->t,dv->scope);	
 
 }
 void codeDefFunc(DefFunc* df) {
@@ -542,6 +533,7 @@ void codeDefFunc(DefFunc* df) {
 		declareTop = 0;
 		currentFuncHasReturn = 0;
 		currentBrIndex = 0;
+
 		
 		codeParams(df->params);
 		
@@ -614,10 +606,8 @@ void codeType(Type* t);
 void codeParams(Parameter* params) {
 	if(!params)
 		return;
-	char * tStr = stringForType(params->t);
-	fprintf(output,"%s",tStr);
 	if(params->next) {
-		fprintf(output, "," );
+		params->start_cell = currentAllocationIndex+=2;
 		codeParams(params->next);
 	}
 }
@@ -740,11 +730,12 @@ void codeCommandList(CommandL* cl) {
 				currentFuncHasReturn = 1;
 				if(c->retExp == NULL) {
 					fprintf(output, "ret void\n");
+					codeDebugMessage("No Return");
 				}
 				else {
-				char * tStr = stringForType(c->retExp->type);
-				i1 = codeExp(c->retExp);
-				fprintf(output, "ret %s %%t%d\n",tStr,i1);
+					i1 = codeExp(c->retExp);
+					moveXToY(i1,currentTempRegs[0]);
+					codeDebugMessage("Return");
 				}
 			break;
 			case CAssign:
@@ -752,7 +743,7 @@ void codeCommandList(CommandL* cl) {
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
 				 //printExp(c->expRight,0);
-				 setXtoY(i2,i1);
+				 moveXToY(i1,i2);
 				 printf("%d %d",i1,i2);
 				 codeDebugMessage("Assign");
 			break;
@@ -764,6 +755,7 @@ void codeCommandList(CommandL* cl) {
 			case CCall:
 				//printf("ccall\n");
 				codeExp(c->expRight);
+				codeDebugMessage("Call");
 			break;
 			case CPrint:
 				i1 =  codeExp(c->printExp);
@@ -799,14 +791,21 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CDebug:
 				codeStr("@");
+				codeDebugMessage("Print All Memory");
 			break; 
 		}
 		c = c->next;
 	}
 }
 void codeBlock(Block* b) {
+	if(!b->limits) {
+		b->limits = (CellUsage*)malloc(sizeof(CellUsage));
+		b->limits->start = currentAllocationIndex++;
+	}
 	codeDefVarList(b->dvl);
 	codeCommandList(b->cl);
+
+	codeGoTo(b->limits->start);
 }
 int codeBinExp(Exp* e ,int* f) {
 	int te1,te2; 
@@ -865,8 +864,8 @@ int codeCallExp(Exp* e) {
 		p = p->next;
 		i++;
 	}
-	fprintf(output, ")\n" );
-	return toCall;		
+	
+	return currentTempRegs[0];		
 }
 
 char* stringForConstant(Constant* c) {
@@ -893,44 +892,38 @@ char* stringForConstant(Constant* c) {
 }
 int codeExpPrim(Exp* e) {
 	currentFunctionTIndex++;
-	char* tStr = stringForType(e->type);
+	//char* tStr = stringForType(e->type);
 	if(e->c->tag == KStr) {
 		currentStringConstant++;
 		char* cStr = stringForConstant(e->c);
-		//int len = strlen(cStr) + 1;
-		//fprintf(output, "%%t%d = getelementptr inbounds [%d x i8], [%d x i8]* @.cstr.%d, i64 0, i64 0\n",
-		// currentFunctionTIndex,
-		// len,
-		// len,
-		// currentStringConstant );
 		
 		pushStringToDeclare(cStr);
 
 		return currentFunctionTIndex;
 	}
 	
-	char* cStr = stringForConstant(e->c);
+	//char* cStr = stringForConstant(e->c);
 	
 	if(e->c->tag == KFloat) {
-		fprintf(output, "%%t%d= fadd %s 0.0 , %s\n",
-			currentFunctionTIndex,
-			tStr,
-			cStr );
+		
 	} else {
-		currentAllocationIndex += 2;
-		printf("kint at %d\n",currentAllocationIndex);
-		char c = '+';
-		int number = e->c->u.i;
-		//int preserve = currentCell;
-		codeGoTo(currentAllocationIndex);
-		for(int i=0; i<number;i++) {
-			fprintf(output, "%c", c);
+		if(!e->c->start_cell) {
+			e->c->start_cell = currentAllocationIndex += 2;
+			printf("kint at %d\n",currentAllocationIndex);
+			char c = '+';
+			int number = e->c->u.i;
+			codeZero(e->c->start_cell);
+			for(int i=0; i<number;i++) {
+				fprintf(output, "%c", c);
+			}
 		}
+		codeGoTo(e->c->start_cell);
+		
 		//codeGoTo(preserve);
 		codeDebugMessage("KInt");
 	}
-	int index = currentAllocationIndex;
-	return index;
+	//int index = currentAllocationIndex;
+	return e->c->start_cell;
 }
 int getAddressOfVar(Var* id) {
 	return -1;
@@ -1377,12 +1370,7 @@ int codeExp(Exp* e) {
 
 	return result;
 }
-void codeVar(Var* v) {
-	char* tStr = stringForType(v->type);
-	fprintf(output, "%%L%s = alloca %s\n",
-	v->id,  tStr );
-}
-void codeConstant(Constant* c);
+
 void codeExpList(ExpList* el) {
 	char * tStr;
 	if(!el)
