@@ -206,18 +206,32 @@ static void codeZero(int x) {
 		y[x+temp0+y-]
 		temp0[y+temp0-]	*/
 
+
+static void moveXToY(int x, int y){
+	codeZero(y);
+	bfalgo("$[$+$-]",x,y,x);
+}
+static void constantIncrement(int x, int q){
+	codeGoTo(x);
+	while(q--){
+		bfalgo("+");
+	}
+}
+static void constantDecrement(int x, int q){
+	codeGoTo(x);
+	while(q--){
+		bfalgo("-");
+	}
+}
+
 static void incrementXbyY2(int x, int y){
 	int temp0 = x-1;
 	bfalgo("$[-] $[$+$+$-] $[$+$-]",temp0,y,x,temp0,y,
 		temp0,y,temp0);
 }
-static void moveXToY(int x, int y){
-	codeZero(y);
-	bfalgo("$[$+$-]",x,y,x);
-}
 static void incrementXbyY(int x,int y) {
 	//printf("add %d to %d\n", x,y);
-	int temp0 = x-1;
+	int temp0 = currentTempRegs[0];
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("+"); 
 	codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
@@ -232,7 +246,7 @@ temp0[y+temp0-]
 */
 static void decrementXbyY(int x,int y) {
 	//printf("sub %d to %d\n", x,y);
-	int temp0 = x-1;
+	int temp0 = currentTempRegs[0];
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("-"); codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
 	codeGoTo(temp0); codeStr("[");  codeGoTo(y); codeStr("+"); codeGoTo(temp0); codeStr("-]");
@@ -1012,29 +1026,16 @@ int codeExpCast(Exp* e) {
 	currentFunctionTIndex++;
 	//printf("%di1\n",i1);
 	codeDebugMessage("Cast");
-	if(e->type->b == WFloat) {
-		fprintf(output, "%%t%d = sitofp %s %%t%d to float\n",
-		currentFunctionTIndex,
-		orTStr,
-		i1 );
-	}
-	else if(e->cast.e->type->b == WFloat) {
-		fprintf(output, "%%t%d = fptosi float %%t%d to %s\n",
-		currentFunctionTIndex,
-		i1,
-		toTStr);
-		
-	}
-	else {
+
 		if(e->type->b == WByte) {
-			fprintf(output, "%%t%d = trunc i32 %%t%d to i8\n",
-			currentFunctionTIndex,
-			i1 );
+			// fprintf(output, "%%t%d = trunc i32 %%t%d to i8\n",
+			// currentFunctionTIndex,
+			// i1 );
 		}
 		else if(e->cast.e->type->b == WByte) {
-			fprintf(output, "%%t%d = sext i8 %%t%d to i32\n",
-			currentFunctionTIndex,
-			i1 );
+			// fprintf(output, "%%t%d = sext i8 %%t%d to i32\n",
+			// currentFunctionTIndex,
+			// i1 );
 		}
 		else if(e->cast.e->type->b == e->type->b) {
 			fprintf(output, ";cast useless\n");
@@ -1044,7 +1045,6 @@ int codeExpCast(Exp* e) {
 			fprintf(output, ";cast not implemented\n");
 			return -1;
 		}
-	}
 	return i1;
 }
 char* adressOfParameter(const char* id) {
