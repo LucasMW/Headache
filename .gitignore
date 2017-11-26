@@ -1,5 +1,5 @@
 hac
-*.bf
+a.bf
 src/lex.c
 comp
 src/linecounter.lex
