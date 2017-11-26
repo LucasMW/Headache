@@ -18,8 +18,8 @@ bfi: src/testbfi.c
 testrunnable: hac bfi
 	sh test/runnable/script.sh
 
-testbfi: bfi
-	sh test/bfi/script.sh
+testbf: bfi
+	sh test/bf/script.sh
 
 testbin: hac
 	sh test/bin/script.sh

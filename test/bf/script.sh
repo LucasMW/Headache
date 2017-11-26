@@ -1,5 +1,5 @@
 #!/bin/bash
-FILES="test/bfi/*.bf"
+FILES="test/bf/*.bf"
 COUNT="0"
 OK=0
 Wrongs=0
