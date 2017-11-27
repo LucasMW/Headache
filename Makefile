@@ -12,6 +12,9 @@ bin/hac.html: src/main.c src/lex.c src/grammar.c
 
 test: testlexical testsyntax testtree testchecks
 
+bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift src/bfide/OperatorsC.swift
+	swiftc -o bfide-bfi src/bfide/*.swift
+
 bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
 
