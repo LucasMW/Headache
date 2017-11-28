@@ -1,4 +1,6 @@
 #!/bin/bash
+
+
 FILES="test/runnable/*.ha"
 COUNT="0"
 OK=0
@@ -12,8 +14,8 @@ do
     	echo "no answer associated"
     	continue
 	fi
-	./hac $f > $f.output
-	./bfi a.bf > $f.run.output
+	./hac -noBin $f > $f.output
+	gtimeout 2 ./bfi a.bf > $f.run.output
 	if(cmp $f.run.output $name.answer) then
 		rm $f.output
 		rm $f.run.output
