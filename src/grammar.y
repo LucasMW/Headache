@@ -76,11 +76,11 @@ extern FILE *yyin;
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
-%type <dVar> defVar 
+%type <dvl> defVar 
 %type <dFunc> defFunc
 %type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
 %type <type> type;
-%type <namelist> idList idList2 nameList
+%type <dvl> nameList
 %type <int_val> baseType 
 %type <str_val> ID
 %type <dvl> defVarList defVarList2
@@ -109,7 +109,6 @@ definition : defVar {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.v = $1;
   $$->tag = DVar;
-  $$->next = NULL;
   //printDefVar($$->u.v);
 }
 | defFunc {
@@ -181,39 +180,50 @@ command : command1 {
 
 defVar : type nameList ';' {  //correct
   //printf("defVar\n");
-  $$ = (DefVar*)malloc(sizeof(DefVar));
-  $$->t = $1;
-  $$->nl = $2;
-  $$->scope = VGlobal;
-  $$->id = $2->name;
-  
+  DefVar* d = (DefVar*)malloc(sizeof(DefVar));
+  d->t = $1;
+  d->nl = NULL;
+
+   $$ = (DefVarL*)malloc(sizeof(DefVarL));
+   $$->dv = d;
+   $$->next = $2;
+
+   DefVarL* p = $2;
+   
+   while(p) {
+    p->dv->t = $1;
+    p = p->next;
+   }
 }
 ;
 
-nameList: ID idList {
-  
-   $$ = (NameL*)malloc(sizeof(NameL));
-   $$->name = $1;
-   $$->next = $2;
-   //printf(" namelist: ");
-   //printNameList($$);
-   //printf("\n");
+nameList: ID {
+
+   DefVar* d = (DefVar*)malloc(sizeof(DefVar));
+   d->t = NULL;
+   d->nl = NULL;
+   d->scope = VGlobal;
+   d->id = $1;
+
+
+   $$ = (DefVarL*)malloc(sizeof(DefVarL));
+   $$->dv = d;
+   $$->next = NULL;
+
+} | ID ',' nameList {
+
+   DefVar* d = (DefVar*)malloc(sizeof(DefVar));
+   d->t = NULL;
+   d->nl = NULL;
+   d->scope = VGlobal;
+   d->id = $1;
+
+
+   $$ = (DefVarL*)malloc(sizeof(DefVarL));
+   $$->dv = d;
+   $$->next = $3;
 }
 
-idList: {$$ = NULL;}
-    |idList2 { $$ = $1; //printf("ONE ID");
-  }
-idList2: ID { 
-    $$ = (NameL*)malloc(sizeof(NameL));
-    $$->name = $1;
-    $$->next = NULL;
-             //printf("<nl null>");
-}
-    | ',' ID idList {
-      $$ = (NameL*)malloc(sizeof(NameL));
-      $$->name = $2;
-      $$->next = $3;
-    }
 
 block : '{'  defVarList   commandList  '}'
 {
@@ -223,17 +233,20 @@ block : '{'  defVarList   commandList  '}'
 };
 
 
-defVarList : {
+defVarList : /*Empty*/ { 
   $$ = NULL;
-}
+} 
 | defVarList2 {
   $$ = $1;
 }
 
 defVarList2: defVar defVarList {
-  $$ = (DefVarL*)malloc(sizeof(DefVarL));
-  $$->dv = $1;
+  $$ = $1;
   $$->next = $2;
+  /*printf("HardCore");
+  DefVarLFix(&$2);
+  DefVarLFix(&$$);
+  printf("sds");*/
 }
 
 commandList: {
@@ -254,10 +267,10 @@ commandPrint: '@' exp ';' {
   $$->printExp = $2;
 }
 ;
-commandDebug: '%' exp ';' {
+commandDebug: '%'';' {
   $$ = (CommandL*)malloc(sizeof(CommandL));
   $$->tag = CDebug;
-  $$->printExp = $2;
+  //$$->printExp = $2;
 }
 ;
 commandIF: TK_WIF '(' exp ')' command %prec "if" {  

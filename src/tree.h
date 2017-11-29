@@ -107,7 +107,8 @@ typedef enum ExpE {
 	ExpCmp,
 	ExpNew,
 	ExpAccess,
-	ExpCast
+	ExpCast,
+	ExpBasic
 } ExpE;
 
 
@@ -147,10 +148,14 @@ typedef struct Exp{
 		struct {
 			struct Exp *e;
 		} print;
+		struct {
+			struct Exp *e;
+			Type* t;
+		} basic;
 	};
 	Type* type;
 	int dbg_line;
-	CellUsage* limits;
+	int start_cell; //type and start cell are enough to infer size
 } Exp;
 
 typedef struct ExpList
@@ -203,7 +208,7 @@ typedef struct Def {
 	defType tag;
 	union {
 		DefFunc* f;
-		DefVar* v;
+		DefVarL* v;
 	} u;
 	struct Def* next;
 	CellUsage* limits;
