@@ -2,6 +2,7 @@
 #define STACK_MAX 10000
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // based on  http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html
 
@@ -214,21 +215,49 @@ int execute(char* program,int memorySize, char extra){
 	free(loopStack);
 	return farthestPtr - memory;
 }
+int parse(char* program){
+	char* p = program;
+	int open = 0;
+	while(*p){
+		if(*p=='['){
+			open++;
+		}
+		if(*p==']'){
+			if(open<0){
+				return 0;
+			}
+			open--;
+		}
+		p++;
+	}
+	return open == 0;
+}
 #ifdef STANDALONE
 int main (int argc, char** argv){
 	char * program;
+	char extra = 0;
 	//expects bfi filepath [-debug -extra]
-	if(argc >= 3){
-
-	}
-	else if(argc == 2){
+	if(argc >= 3)
+	{
+		if(strcmp(argv[2],"-extra")==0){
+			extra = 1;
+		}
+		if(strcmp(argv[2],"-debug")==0) {
+			extra = 1;
+		}
+	} else if(argc == 2){
 		program = readFile(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);
 		}
-		execute(program,DEFAULT_SIZE,1);
-		free(program);
-		return 0;
+		else if(!parse(program)){
+			printf("Unmatched brackets. Aborting\n");
+		} else {
+			execute(program,DEFAULT_SIZE,extra);
+			free(program);
+			return 0;
+		}
+		return -1;
 	}
 	else{
 		printf("Error!\nProgram usage is: \n%s sourcecode\n",argv[0]);
