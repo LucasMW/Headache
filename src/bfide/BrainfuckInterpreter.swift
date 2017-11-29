@@ -115,8 +115,9 @@ class BrainfuckInterpreter {
         {
             self.stop()
             self.crashed = true
+            let str = "Access violation, there is no cell \(self.mem_idx)"
             self.output_s += String(format: "\nbfi: ACCESS VIOLATION. THERE IS NO CELL NUMBER %d\n", self.mem_idx)
-            print(self.output_s)
+            print(str)
             return
         }
     }
@@ -127,8 +128,9 @@ class BrainfuckInterpreter {
         {
             self.stop()
             self.crashed = true
+            let str = "Access violation, there is no cell \(self.mem_idx)"
             self.output_s += String(format: "\nbfi: ACCESS VIOLATION. THERE IS NO CELL NUMBER %d\n", self.mem_idx)
-            print(self.output_s)
+            print(str)
             return
         }
     }
@@ -311,7 +313,7 @@ class BrainfuckInterpreter {
     }
     private func stopSequence()
     {
-        print("bfi: EXECUTION ABORTED");
+        dprint("bfi: EXECUTION ABORTED");
         self.finished = true
         return
     }
