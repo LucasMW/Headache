@@ -15,7 +15,7 @@ Headache:
     color: "#A2AD91"
 
   comment:
-    color: "#BAA5A0"
+    color: "#28FF37"
     single_line: "//"
     begin_multiline: "/*"
     end_multiline: "*/"
@@ -38,7 +38,7 @@ Headache:
         - "while"
         - "if"
         - "else"
-    - color: "#BBA855"
+    - color: "#00C3FF"
       keywords:
         - "void"
         - "byte"
