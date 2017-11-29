@@ -117,7 +117,7 @@ static int handleOptimization(int* refargc, char** argv){
 			}
 		}
 		if(flag == 1) {
-			printf("detected  O%d\n",level );
+			//printf("detected  O%d\n",level );
 			if(i< argc-1) 
 				argv[i] = argv[i+1];
 			*refargc= argc - 1;
