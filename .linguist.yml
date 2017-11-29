@@ -6,24 +6,29 @@ Headache:
     color: "#3185FC"
 
   string:
-    color: "#D6B62A"
+    color: "#D7C62A"
 
   group:
     - color: "#D6B62A"
       operators:
         - "@"
+        - "+"
+        - "-"
+        - "*"
+        - "/"
 
       keywords:
         - "as"
-        - "main"
 
     - color: "#E84855"
       keywords:
         - "return"
+        - "while"
+        - "if"
+        - "else"
+    - color: "#BBA855"
+      keywords:
         - "void"
         - "byte"
         - "short"
         - "int"
-        - "while"
-        - "if"
-        - "else"
