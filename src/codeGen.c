@@ -45,6 +45,8 @@ void codeExpList(ExpList* el);
 int codeAccessElemPtr(Exp* e);
 char* stringForType(Type* t);
 
+
+
 static void codePrint(const char* str);
 static int unitsToMoveTo(int cellAddr);
 static void codeGoTo(int cellIndex);
@@ -55,7 +57,8 @@ int allocateCellsForType(Type* t);
 static FILE* output = NULL;
 
 static int currentCell = 0;
-static int currentAllocationIndex = 4;
+static int currentAllocationIndex = 4; // four registers
+static char* memory[30000]; //debugs and controlsfree memory
 
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
@@ -67,6 +70,8 @@ char* stringsToDeclare[100];
 int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 registers
 
 
+static int pushCells(int x);
+static int popCells(int x);
 
 static int currentFuncHasReturn = 0;
 
@@ -121,14 +126,20 @@ typedef struct slice{
 
 
 int allocateCellsForType(Type* t){
-	currentAllocationIndex += cellsForType(t);
+	currentAllocationIndex = pushCells(cellsForType(t));
 	return currentAllocationIndex;
 }
 static int pushCells(int x){
+	for(int i=0;i<x;i++){
+		memory[currentAllocationIndex+i] = 1;
+	}
 	currentAllocationIndex+=x;
 	return currentAllocationIndex;
 }
 static int popCells(int x){
+	for(int i=0;i<x;i++){
+		memory[currentAllocationIndex-i] = 0;
+	}
 	currentAllocationIndex-=x;
 	return currentAllocationIndex;
 }
@@ -225,13 +236,13 @@ static void constantDecrement(int x, int q){
 }
 
 static void incrementXbyY2(int x, int y){
-	int temp0 = x-1;
+	int temp0 = currentTempRegs[2];
 	bfalgo("$[-] $[$+$+$-] $[$+$-]",temp0,y,x,temp0,y,
 		temp0,y,temp0);
 }
 static void incrementXbyY(int x,int y) {
 	//printf("add %d to %d\n", x,y);
-	int temp0 = currentTempRegs[0];
+	int temp0 = currentTempRegs[2];
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("+"); 
 	codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
@@ -246,7 +257,7 @@ temp0[y+temp0-]
 */
 static void decrementXbyY(int x,int y) {
 	//printf("sub %d to %d\n", x,y);
-	int temp0 = currentTempRegs[0];
+	int temp0 = currentTempRegs[2];
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("-"); codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
 	codeGoTo(temp0); codeStr("[");  codeGoTo(y); codeStr("+"); codeGoTo(temp0); codeStr("-]");
@@ -257,7 +268,7 @@ static void decrementXbyY(int x,int y) {
 	temp0[y+temp0-]	*/
 static void setXtoY(int x, int y) {
 	printf("set %d to %d\n",x,y );
-	int temp0 = x-1;
+	int temp0 = currentTempRegs[2];
 	printf("temp %d\n",temp0 );
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(x); codeStr("[-]");
@@ -335,7 +346,7 @@ x[temp0+x-]
 y[x+y-]
 temp0[y+temp0-] */
 void swapXbyY(int x, int y){
-	int temp0=x-1;
+	int temp0=currentTempRegs[0];
 	codeGoTo(temp0);codeStr("[-]");
 	codeGoTo(x);codeStr("[");codeGoTo(temp0);codeStr("+");codeGoTo(x);codeStr("-]");
 	codeGoTo(y);codeStr("[");codeGoTo(x);codeStr("+");codeGoTo(y);codeStr("-]");
@@ -814,6 +825,16 @@ void codeCommandList(CommandL* cl) {
 		}
 		c = c->next;
 	}
+}
+int sizeOfDvl(DefVarL* dvl ){
+	DefVarL* p=dvl;
+	int sum = 0;
+	while(p){
+		sum += cellsForType(p->dv->t); 
+		p=p->next;
+	}
+	return sum;
+
 }
 void codeBlock(Block* b) {
 	if(!b->limits) {

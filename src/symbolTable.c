@@ -49,7 +49,7 @@ static DefFunc* currentFunction = NULL;
 static int flagFunctionHasReturn = 0;
 
 static currentAllocationIndex = 4; // four registers
-
+static char* memory[30000]; //debugs and controlsfree memory
 
 
 
