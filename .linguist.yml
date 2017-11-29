@@ -3,7 +3,7 @@ Headache:
     - ".ha"
 
   default:
-    color: "#DBB4AE"
+    color: "#FFFFFF"
 
   identifier:
     color: "#9B785B"
