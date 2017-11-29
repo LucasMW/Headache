@@ -24,6 +24,13 @@ testrunnable: hac bfi
 testbf: bfi
 	sh test/bf/script.sh
 
+testbfide: bfide-bfi
+	mv bfi bfi-x
+	mv bfide-bfi bfi
+	sh test/bf/script.sh
+	mv bfi bfide-bfi
+	mv bfi-x bfi
+
 testbin: hac
 	sh test/bin/script.sh
 
@@ -36,12 +43,6 @@ testsyntax: hac
 testlexical: hac
 	sh test/lexical/script.sh
 
-testleaks: hac
-	@rm -f val.out prog.out
-	cat test/leaks/leak1.monga | valgrind --track-origins=yes ./hac > prog.out 2> val.out
-	cat val.out | grep error
-	tail val.out
-	rm -f val.out prog.out
 src/grammar.c: src/grammar.y
 	bison -d src/grammar.y
 	mv grammar.tab.c src/grammar.c
