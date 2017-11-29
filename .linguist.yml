@@ -1,0 +1,23 @@
+Headache:
+  extensions:
+    - ".ha"
+
+  default:
+    color: "#3185FC"
+
+  string:
+    color: "#D6B62A"
+
+  group:
+    - color: "#D6B62A"
+      operators:
+        - "@"
+      keywords:
+        - "as"
+        - "main"
+
+    - color: "#E84855"
+      keywords:
+        - "return"
+        - "void"
+        - "byte"
