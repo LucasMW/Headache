@@ -12,6 +12,18 @@ Headache:
     - color: "#D6B62A"
       operators:
         - "@"
+        - ";"
+        - "["
+        - "]"
+        - "{"
+        - "}"
+        - "("
+        - ")"
+        - "=="
+        - "="
+        - "<"
+        - ">"
+
       keywords:
         - "as"
         - "main"
@@ -21,3 +33,8 @@ Headache:
         - "return"
         - "void"
         - "byte"
+        - "short"
+        - "int"
+        - "while"
+        - "if"
+        - "else"
