@@ -12,7 +12,7 @@ bin/hac.html: src/main.c src/lex.c src/grammar.c
 
 test: testlexical testsyntax testtree testchecks
 
-bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift src/bfide/OperatorsC.swift
+bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift
 	swiftc -o bfide-bfi src/bfide/*.swift
 
 bfi: src/testbfi.c
@@ -69,6 +69,7 @@ clean:
 	rm -f test/*.bf
 	rm -rf *.o
 	rm -f hac
+	rm -f bfide-bfi
 
 #always generate zip
 zip:

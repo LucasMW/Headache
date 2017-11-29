@@ -208,19 +208,19 @@ class BrainfuckInterpreter {
             // skip while sequence
             //self.evaluateTime({
             var internalLoopCount = 0
-            self.prg_idx++
+            self.prg_idx += 1
             var s = self.program[self.prg_idx]
             while(!(s == 93 && internalLoopCount == 0)) // while not match stop requirements
             {
                 if(s == 91)
                 {
-                    internalLoopCount++;
+                    internalLoopCount += 1;
                 }
                 else if(s == 93)
                 {
-                    internalLoopCount--;
+                    internalLoopCount -= 1;
                 }
-                self.prg_idx++
+                self.prg_idx += 1
                 s = self.program[self.prg_idx]
                 //print("\(s) \(internalLoopCount) \(prg_idx)")
                 //usleep(100)
@@ -272,7 +272,7 @@ class BrainfuckInterpreter {
         default:
             ()
         }
-        prg_idx++
+        prg_idx += 1
         
     }
     func execute()
