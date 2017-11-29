@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ !command -v timeout]; then
-	echo ""
-else
-	alias timeout="gtimeout"
-fi 
 
 FILES="test/runnable/*.ha"
 COUNT="0"
