@@ -3,10 +3,22 @@ Headache:
     - ".ha"
 
   default:
-    color: "#3185FC"
+    color: "#DBB4AE"
+
+  identifier:
+    color: "#9B785B"
+
+  number:
+    color: "#A2AD91"
 
   string:
-    color: "#D7C62A"
+    color: "#A2AD91"
+
+  comment:
+    color: "#BAA5A0"
+    single_line: "//"
+    begin_multiline: "/*"
+    end_multiline: "*/"
 
   group:
     - color: "#D6B62A"
