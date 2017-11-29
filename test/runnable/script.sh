@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ !command -v timeout]; then
+	echo ""
+else
+	alias timeout="gtimeout"
+fi 
 
 FILES="test/runnable/*.ha"
 COUNT="0"
@@ -15,7 +20,7 @@ do
     	continue
 	fi
 	./hac -noBin $f > $f.output
-	gtimeout 2 ./bfi a.bf > $f.run.output
+	timeout 2 ./bfi a.bf > $f.run.output
 	if(cmp $f.run.output $name.answer) then
 		rm $f.output
 		rm $f.run.output
