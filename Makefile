@@ -18,6 +18,9 @@ bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift
 bfi: src/testbfi.c
 	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
 
+expander: src/expander.c
+	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+
 testrunnable: hac bfi
 	sh test/runnable/script.sh
 

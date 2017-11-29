@@ -1,5 +1,6 @@
 hac
 a.bf
+exa.bf
 src/lex.c
 src/linecounter.lex
 src/example.lex
@@ -20,3 +21,4 @@ temp/
 bfi
 *.js
 bfide-bfi
+expander
