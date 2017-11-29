@@ -39,7 +39,7 @@ void optimizeDefList(Def* d)
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
-				optimizeDefVar(df->u.v);
+				optimizeDefVarList(df->u.v);
 			break;
 			case DFunc:
 				optimizeDefFunc(df->u.f);
@@ -194,33 +194,6 @@ Exp* optimizeExpLogic(Exp* e){
 	Exp* newExp = e;
 	Exp* e1 = optimizeExp(e->bin.e1);
 	Exp* e2 = optimizeExp(e->bin.e2);
-	if(e1->tag == ExpPrim && e2->tag == ExpPrim) {
-		//printf("Both prim\n");
-		char r; //same semantics as brainfuck cell
-		if(e->tag == ExpAdd)
-			r = e1->c->u.d + e2->c->u.d;
-		else if(e->tag == ExpSub)
-			r = e1->c->u.d - e2->c->u.d;
-		else if(e->tag == ExpMul)
-			r = e1->c->u.d * e2->c->u.d;
-		else if(e->tag == ExpDiv)
-			r = e1->c->u.d / e2->c->u.d; //might have different results due to 0/0
-		else {
-			printf("SEVERE ERROR optimizer\n");
-			printf("aborting optimization\n");
-			return e;
-		}
-		//printf("r is %d\n", r);
-		newExp=(Exp*)malloc(sizeof(Exp));
-		newExp->tag = ExpPrim;
-		newExp->c = (Constant*)malloc(sizeof(Constant));
-		newExp->c->u.d = r;
-		newExp->type = e->type;
-	} else if(e1->tag == ExpPrim) { // translate to simple increments or decrements
-
-	} else if(e2->tag == ExpPrim) {
-
-	}
 	//printf("Optimized exp\n");
 	//printExp(newExp,2);
 	return newExp;	

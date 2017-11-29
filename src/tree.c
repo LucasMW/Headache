@@ -123,7 +123,7 @@ void printDefList(Def* d,int x)
 		switch(df->tag) {
 			case DVar:
 				//printf("defVar \t");
-				printDefVar(df->u.v,x+1);
+				printDefVarList(df->u.v,x+1);
 			break;
 			case DFunc:
 				//printf("defFunc \t");

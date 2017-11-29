@@ -245,7 +245,8 @@ int main (int argc, char** argv){
 		if(strcmp(argv[2],"-debug")==0) {
 			extra = 1;
 		}
-	} else if(argc == 2){
+	} 
+	if(argc >= 2){
 		program = readFile(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);

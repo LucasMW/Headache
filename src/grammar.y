@@ -76,14 +76,13 @@ extern FILE *yyin;
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
-%type <dvl> defVar 
+%type <dvl> defVar defVar2
 %type <dFunc> defFunc
 %type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
 %type <type> type;
 %type <dvl> nameList
 %type <int_val> baseType 
 %type <str_val> ID
-%type <dvl> defVarList defVarList2
 %type <el> expList expList2
 %type <cons> constant;
 
@@ -180,22 +179,26 @@ command : command1 {
 
 defVar : type nameList ';' {  //correct
   //printf("defVar\n");
-  DefVar* d = (DefVar*)malloc(sizeof(DefVar));
-  d->t = $1;
-  d->nl = NULL;
-
-   $$ = (DefVarL*)malloc(sizeof(DefVarL));
-   $$->dv = d;
-   $$->next = $2;
-
    DefVarL* p = $2;
    
    while(p) {
     p->dv->t = $1;
     p = p->next;
    }
+   $$ = $2;
 }
-;
+defVar2: /*Empty*/{
+  $$ = NULL;
+} | defVar defVar2{
+  
+  $$=$1;
+  DefVarL* p = $1;
+  while(p->next){
+    p=p->next;
+  }
+  p->next = $2;
+} 
+
 
 nameList: ID {
 
@@ -225,7 +228,7 @@ nameList: ID {
 }
 
 
-block : '{'  defVarList   commandList  '}'
+block : '{'  defVar2   commandList  '}'
 {
   $$ = (Block*) malloc (sizeof(Block));
   $$->dvl = $2;
@@ -233,21 +236,7 @@ block : '{'  defVarList   commandList  '}'
 };
 
 
-defVarList : /*Empty*/ { 
-  $$ = NULL;
-} 
-| defVarList2 {
-  $$ = $1;
-}
 
-defVarList2: defVar defVarList {
-  $$ = $1;
-  $$->next = $2;
-  /*printf("HardCore");
-  DefVarLFix(&$2);
-  DefVarLFix(&$$);
-  printf("sds");*/
-}
 
 commandList: {
   $$=NULL;

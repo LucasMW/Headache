@@ -48,7 +48,7 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
-static currentAllocationIndex = 4; // four registers
+static int currentAllocationIndex = 4; // four registers
 static char* memory[30000]; //debugs and controlsfree memory
 
 
@@ -205,7 +205,7 @@ void typeDefList(Def* d)
 			case DVar:
 				// ndf = expandDefVar(d);
 				// df = ndf;
-				typeDefVar(df->u.v);
+				typeDefVarList(df->u.v);
 			break;
 			case DFunc:
 				typeDefFunc(df->u.f);

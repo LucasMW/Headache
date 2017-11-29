@@ -72,7 +72,6 @@ int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 regis
 
 static int pushCells(int x);
 static int popCells(int x);
-
 static int currentFuncHasReturn = 0;
 
 static char DBG_File = 1;
@@ -598,7 +597,7 @@ void codeDefList(Def* d) {
 	//printf("coding DefList\n");
 	switch (d->tag) {
 		case DVar:
-			codeDefVar(d->u.v);
+			codeDefVarList(d->u.v);
 		break;
 		case DFunc:
 			if(strcmp(d->u.f->id,"main")==0) //only code main
