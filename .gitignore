@@ -1,7 +1,6 @@
 hac
 a.bf
 src/lex.c
-comp
 src/linecounter.lex
 src/example.lex
 bin/
@@ -20,3 +19,4 @@ temp/
 *.o
 bfi
 *.js
+bfide-bfi
