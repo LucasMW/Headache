@@ -223,7 +223,7 @@ int parse(char* program){
 			open++;
 		}
 		if(*p==']'){
-			if(open<0){
+			if(open<=0){
 				return 0;
 			}
 			open--;
@@ -249,9 +249,11 @@ int main (int argc, char** argv){
 		program = readFile(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);
+			return -1;
 		}
 		else if(!parse(program)){
 			printf("Unmatched brackets. Aborting\n");
+			return -1;
 		} else {
 			execute(program,DEFAULT_SIZE,extra);
 			free(program);
