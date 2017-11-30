@@ -230,7 +230,8 @@ void typeDefVar(DefVar* dv){
 	if(!dv)
 		return;
 	dv->scope = scopesTop;
-	typeNameList(dv->nl,dv->t,dv);
+	//typeNameList(dv->nl,dv->t,dv);
+	insert(dv->id,dv->t,dv);
 }
 void typeDefFunc(DefFunc* df)
 {
