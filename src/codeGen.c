@@ -704,14 +704,15 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
-	// int temp0 = currentTempRegs[3];
-	// codeZero(temp0);
+	int temp = currentTempRegs[3];
 	//fprintf(output, ";begin codecond\n");
 	i1 = codeExp(e);
+	codeZero(temp);
+	incrementXbyY2(temp,i1);
 	//unequals(i1,temp0);
-	codeGoTo(i1);
+	
 	codeDebugMessage("CodeCond");
-	return i1;
+	return temp;
 }
 void codeCommandList(CommandL* cl) {
 	codeDebugMessage("CL");
@@ -727,7 +728,7 @@ void codeCommandList(CommandL* cl) {
 		switch(c->tag) {
 			case CWhile:
 				codeDebugMessage("begin while");
-				//temp0 = currentAllocationIndex;
+				temp0 = currentAllocationIndex;
 			 	i1 = codeCond(c->condExp);
 				bfalgo("$[\n",i1);
 					codeCommandList(c->cmdIf);
@@ -740,8 +741,8 @@ void codeCommandList(CommandL* cl) {
 				i1 = codeCond(c->condExp);
 				bfalgo("[\n");
 				codeCommandList(c->cmdIf );
-				codeZero(currentTempRegs[1]);
-				codeGoTo(currentTempRegs[1]);
+				codeZero(currentTempRegs[2]);
+				codeGoTo(currentTempRegs[3]);
 				bfalgo("]\n");
 				// leaveScope();
 			break;
