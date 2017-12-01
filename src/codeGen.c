@@ -727,11 +727,13 @@ void codeCommandList(CommandL* cl) {
 		switch(c->tag) {
 			case CWhile:
 				codeDebugMessage("begin while");
+				//temp0 = currentAllocationIndex;
 			 	i1 = codeCond(c->condExp);
 				bfalgo("$[\n",i1);
 					codeCommandList(c->cmdIf);
 				i2 = codeCond(c->condExp);
 				bfalgo("$\n]",i2);
+				
 				codeDebugMessage("end while");
 			break;
 			case CIf:
