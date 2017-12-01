@@ -304,6 +304,15 @@ int checkCallability(Exp* callExp) {
 	Type* ft = df->retType;
 	return typeEquals(t,ft);
 }
+int checkIncDecremantability(Exp* oprExp){
+	if(!oprExp){
+		return 0;
+	}
+	if(oprExp->opr.e->tag == ExpPrim){
+		return 0;
+	}
+	return 1;
+}
 void typeCommandList(CommandL* cl ) {
 	if(!cl)
 		return;
@@ -393,6 +402,12 @@ void typeCommandList(CommandL* cl ) {
 			break;
 			case CDebug:
 				flagDebug = 1;
+			break;
+			case COperator:
+				typeExp(c->oprExp);
+				if (!checkIncDecremantability(c->oprExp)) {
+					raiseError("Expression is suitable for increment/decrement",c->oprExp->dbg_line);
+				}
 			break;
 		}
 		c = c->next;
@@ -797,6 +812,10 @@ void typeExp(Exp* e ) {
 				raiseWarning("Cast to equal typing");
 			}
 			e->type = e->cast.type;
+		break;
+		case ExpOperator:
+			typeExp(e->opr.e);
+			e->type = e->opr.e->type;
 		break;
 		
 	}

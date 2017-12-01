@@ -826,6 +826,10 @@ void codeCommandList(CommandL* cl) {
 				codeStr("@");
 				codeDebugMessage("Print All Memory");
 			break; 
+			case COperator:
+				codeExp(c->oprExp);
+				codeDebugMessage("Operator");
+			break; 
 		}
 		c = c->next;
 	}
@@ -1369,11 +1373,26 @@ int codeExp(Exp* e) {
 			result = codeExpCast(e);
 			
 		break;
+		case ExpOperator:
+			result = codeExpOperator(e);
+			
+		break;
 	}
 
 	return result;
 }
-
+int codeExpOperator(Exp* e) {
+	int result = codeExp(e->opr.e);
+	switch(e->opr.op) {
+		case INC:
+			bfalgo("$+",result);
+		break;
+		case DEC:
+			bfalgo("$-",result);
+		break; 
+	}
+	return currentFunctionTIndex;
+}
 void codeExpList(ExpList* el) {
 	char * tStr;
 	if(!el)

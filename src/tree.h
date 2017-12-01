@@ -53,7 +53,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator } CTypes;
 
 
 
@@ -107,7 +107,7 @@ typedef enum ExpE {
 	ExpNew,
 	ExpAccess,
 	ExpCast,
-	ExpBasic
+	ExpOperator
 } ExpE;
 
 
@@ -122,6 +122,10 @@ typedef struct Exp{
 			struct Exp *e;
 			enum {NOT, MINUS} op;
 		} unary;
+		struct {
+			struct Exp *e;
+			enum {INC, DEC} op;
+		} opr;
 		Constant* c;
 		Var *var;
 		struct {
@@ -147,10 +151,6 @@ typedef struct Exp{
 		struct {
 			struct Exp *e;
 		} print;
-		struct {
-			struct Exp *e;
-			Type* t;
-		} basic;
 	};
 	Type* type;
 	int dbg_line;
@@ -176,6 +176,7 @@ typedef struct CommandL
 	Exp* expRight;
 	Exp* retExp;
 	Exp* printExp;
+	Exp* oprExp;
 	void* block;
 } CommandL;
 

@@ -285,19 +285,39 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 ;
 
 expOperator: expVar TK_INC {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = INC;
+        $$->opr.e = $1;
+        $$->dbg_line = yy_lines;
         
       } | TK_INC expVar{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = INC;
+        $$->opr.e = $2;
+        $$->dbg_line = yy_lines;
         
       } | TK_DEC expVar{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = DEC;
+        $$->opr.e = $2;
+        $$->dbg_line = yy_lines;
       
       } | expVar TK_DEC{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = DEC;
+        $$->opr.e = $1;
+        $$->dbg_line = yy_lines;
       }
 ;
 
 CommandOperator: expOperator ';' {
   $$ = (CommandL*)malloc(sizeof(CommandL));
-   $$->tag = CReturn;
-   $$->retExp = $1;
+   $$->tag = COperator;
+   $$->oprExp = $1;
 }
 
 command1: TK_WRETURN  ';' {

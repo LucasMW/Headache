@@ -273,6 +273,10 @@ void printCommandList(CommandL* cl,int x) {
 				printDepthLevel("debug",x);
 				printExp(c->printExp,x+1);
 			break;
+			case COperator:
+				printDepthLevel("operator",x);
+				printExp(c->oprExp,x+1);
+			break;
 
 		}
 		c = c->next;
@@ -371,6 +375,17 @@ void printExp(Exp* e,int x) {
 			printDepthLevel("cast",x);
 			printExp(e->cast.e,x+1);
 			printType(e->cast.type,x+1); 
+		break;
+		case ExpOperator:
+			switch(e->opr.op) {
+				case INC:
+					printDepthLevel("++",x);
+				break;
+				case DEC:
+					printDepthLevel("--",x);
+				break; 
+			}
+			printExp(e->opr.e,x+1);
 		break;
 	}
 }
