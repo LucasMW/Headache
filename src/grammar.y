@@ -204,7 +204,7 @@ nameList: ID {
 
    DefVar* d = (DefVar*)malloc(sizeof(DefVar));
    d->t = NULL;
-   d->nl = NULL;
+   //d->nl = NULL;
    d->scope = VGlobal;
    d->id = $1;
 
@@ -217,7 +217,7 @@ nameList: ID {
 
    DefVar* d = (DefVar*)malloc(sizeof(DefVar));
    d->t = NULL;
-   d->nl = NULL;
+   //d->nl = NULL;
    d->scope = VGlobal;
    d->id = $1;
 

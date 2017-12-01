@@ -71,7 +71,6 @@ typedef struct DefVar
 {
 	Type* t;
 	const char* id; //not used yet
-	NameL* nl;
 	int scope; //think is enough
 	int start_cell;
 	CellUsage* limits;

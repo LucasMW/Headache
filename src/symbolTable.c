@@ -444,9 +444,9 @@ static DefVar* paramToDefVar(Parameter* param){
 	DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
 	dv->id = param->id;
 	dv->t = param->t;
-	dv->nl = (NameL*)malloc(sizeof(NameL));
-	dv->nl->name = param->id;
-	dv->nl->next = NULL;
+	//dv->nl = (NameL*)malloc(sizeof(NameL));
+	//dv->nl->name = param->id;
+	//dv->nl->next = NULL;
 	return dv;
 }
 
