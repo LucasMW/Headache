@@ -763,7 +763,8 @@ void codeCommandList(CommandL* cl) {
 				}
 				else {
 					i1 = codeExp(c->retExp);
-					moveXToY(i1,currentTempRegs[0]);
+					codeZero(currentTempRegs[0]);
+					incrementXbyY2(currentTempRegs[0],i1);
 					codeDebugMessage("Return");
 				}
 			break;
