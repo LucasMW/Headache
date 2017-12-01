@@ -66,19 +66,19 @@ extern FILE *yyin;
 %token <int_val> TK_EQEQ
 %token <str_val> TK_VAR
 %token <str_val> TK_STR
-%token <str_val> TK_INC
-%token <str_val> TK_DEC
+%token <int_val> TK_INC
+%token <int_val> TK_DEC
 
 
 
 %type<prog> program  
-%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
 %type <dvl> defVar defVar2
 %type <dFunc> defFunc
-%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
+%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary expOperator
 %type <type> type;
 %type <dvl> nameList
 %type <int_val> baseType 
@@ -284,6 +284,22 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 }
 ;
 
+expOperator: expVar TK_INC {
+        
+      } | TK_INC expVar{
+        
+      } | TK_DEC expVar{
+      
+      } | expVar TK_DEC{
+      }
+;
+
+CommandOperator: expOperator ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+   $$->tag = CReturn;
+   $$->retExp = $1;
+}
+
 command1: TK_WRETURN  ';' {
    $$ = (CommandL*)malloc(sizeof(CommandL));
    $$->tag = CReturn;
@@ -320,6 +336,8 @@ command1: TK_WRETURN  ';' {
           $$ = $1;
         }
         | commandDebug {
+          $$ = $1;
+        } | CommandOperator {
           $$ = $1;
         }
 ;
@@ -499,8 +517,7 @@ expUnary: '!' expVar {
         $$->unary.op = MINUS;
         $$->unary.e = $2;
         $$->dbg_line = yy_lines;
-      }
-      | expVar  {
+      } | expVar  {
         $$=$1;
       }
 ;
@@ -557,6 +574,7 @@ primary: constant {
       | '(' exp ')' {
         $$ = $2; 
       }
+
 ;
 constant: TK_INT  {     
         $$ = (Constant*)malloc(sizeof(Constant));
