@@ -35,6 +35,7 @@ void codeNameList(NameL* nl,Type* t,int scope);
 void codeType(Type* t);
 void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
+void codeForDeAllocParams(Parameter* params);
 void codeCommandList(CommandL* cl);
 int codeExpAccess(Exp* e);
 void codeBlock(Block* b);
@@ -563,9 +564,6 @@ void codeDefFunc(DefFunc* df) {
 		currentBrIndex = 0;
 
 		
-		codeParams(df->params);
-		
-		codeForAllocParams(df->params);
 		codeBlock(df->b);
 		
 		
@@ -578,9 +576,9 @@ void codeDefFunc(DefFunc* df) {
 		// currentBrIndex = 0;f
 	}
 	else {
-		fprintf(output, "declare %s @%s(", typeStr,df->id);
-		codeParams(df->params);
-		fprintf(output, ")\n");
+		// fprintf(output, "declare %s @%s(", typeStr,df->id);
+		// codeParams(df->params);
+		// fprintf(output, ")\n");
 	}
 }
 void codeDefVarList(DefVarL* dvl) {
@@ -600,8 +598,8 @@ void codeDefList(Def* d) {
 			codeDefVarList(d->u.v);
 		break;
 		case DFunc:
-			if(strcmp(d->u.f->id,"main")==0) //only code main
-				codeDefFunc(d->u.f);
+			if(strcmp(d->u.f->id,"main")==0) //only code main 
+				codeDefFunc(d->u.f); //definition of main leaves implicit main call
 		break;
 	}
 	codeDefList(d->next);
@@ -632,31 +630,34 @@ void codeNameList(NameL* nl,Type* t,int scope) {
 }
 void codeType(Type* t);
 void codeParams(Parameter* params) {
-	if(!params)
-		return;
-	if(params->next) {
-		params->start_cell = currentAllocationIndex+=2;
-		codeParams(params->next);
-	}
+	// if(!params)
+	// 	return;
+	// if(params->next) {
+	// 	params->start_cell = currentAllocationIndex+=2;
+	// 	codeParams(params->next);
+	// }
 }
 void codeForAllocParams(Parameter* params) {
 	if(!params)
 		return;
 	
-	int index = currentFunctionTIndex;
 	Parameter* p = params;
 	while(p) {
-		char * tStr = stringForType(p->t);
-		fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex++, tStr);
+		p->start_cell = pushCells(cellsForType(p->t));
 		p = p->next;
 	}
-	p = params;
-	int i=0;
+	
+}
+void codeForDeAllocParams(Parameter* params) {
+	if(!params)
+		return;
+	
+	Parameter* p = params;
 	while(p) {
-		char * tStr = stringForType(p->t);
-		fprintf(output,"store %s %%%d, %s* %%t%d\n", tStr, i++, tStr, index++);
+		popCells(cellsForType(p->t));
 		p = p->next;
 	}
+	
 
 }
 /* 
@@ -859,50 +860,27 @@ int codeBinExp(Exp* e ,int* f) {
 }
 int codeCallExp(Exp* e) {
 
-	codeDefFunc((DefFunc*)e->call.def);
+	DefFunc* df = (DefFunc*)e->call.def;
 	
 	int toCall = -1;
 	int size=0;
-	ExpList *p = e->call.expList;
+	ExpList *q = e->call.expList;
+	Parameter *p = df->params;
 	//calculate size
-	while(p) {
-		size++;
+	//codeForAllocParams(df->params);
+	while(q) {
+		int temp = codeExp(q->e);
+		codeStr("@");
+		p->start_cell = pushCells(cellsForType(p->t));
+		incrementXbyY2 (p->start_cell,temp);
+		codeStr("@");
+		printf("param %s at %d\n",p->id,p->start_cell );
 		p = p->next;
-	}
-	//generate code for arguments
-	p = e->call.expList;
-	int * args = (int*)malloc(sizeof(int)*size);
-	int i=0;
-	while(p) {
-		int index = codeExp(p->e);
-		args[i] = index;
-		i++;
-		p=p->next;
+		q = q->next;
 	}
 
-	if(e->type == NULL) {
-		// fprintf(output, "call void @%s(",
-		// 	e->call.id);
-	}
-	else {
-		// char* fTypeStr = stringForType(e->type);
-		//  toCall = ++currentFunctionTIndex; 
-		// fprintf(output, "%%t%d = call %s @%s(",
-		// 	toCall,
-		// 	fTypeStr,
-		// 	e->call.id);
-	}
-	p = e->call.expList;
-	i=0;
-	while(p) {
-		char* tStr = stringForType(p->e->type);
-		fprintf(output, "%s %%t%d",tStr,args[i]);
-		if(p->next)
-			fprintf(output, ", ");
-		p = p->next;
-		i++;
-	}
-	
+	codeDefFunc((DefFunc*)e->call.def);
+	//codeForDeAllocParams(df->params);
 	return currentTempRegs[0];		
 }
 
@@ -968,7 +946,6 @@ int getAddressOfVar(Var* id) {
 }
 int codeExpVar(Exp* e) {
 	currentFunctionTIndex++;
-	char* tStr = stringForType(e->type);
 	if(e->var->declaration == NULL)
 	{
 		//printf(";params\n");
@@ -980,12 +957,8 @@ int codeExpVar(Exp* e) {
 			p=p->next;
 			t++;
 		}
+		return p->start_cell;
 
-		fprintf(output,"%%t%d = load %s, %s* %%t%d\n", 
-				currentFunctionTIndex,
-				 tStr,
-				 tStr,
-				 t);
 	}
 	else {
 		return e->var->declaration->start_cell;
