@@ -229,8 +229,11 @@ Exp* optimizeExpBin(Exp* e){
 			else if(e2->c->u.i == 0){
 				raiseWarning("cannot optimize",e->dbg_line);
 				return e; //abort optimization. Cannot optimize this
+			} 
+			else {
+				r = (char)e1->c->u.i / (char)e2->c->u.i; 
 			}
-			r = (char)e1->c->u.i / (char)e2->c->u.i; 
+			
 		}
 		else {
 			printf("SEVERE ERROR optimizer\n");
@@ -243,8 +246,9 @@ Exp* optimizeExpBin(Exp* e){
 		newExp->c = (Constant*)malloc(sizeof(Constant));
 		newExp->c->tag = KInt;
 		newExp->c->u.i = r;
-		newExp->type = e->type;
-		newExp->dbg_line = e->dbg_line;
+		newExp->c->start_cell = 0;
+
+		
 	} else {
 		//printf("optimizer inc dec\n");
 		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
@@ -256,7 +260,11 @@ Exp* optimizeExpBin(Exp* e){
 				newExp->opr.op = INC;
 			} else if(e->tag == ExpSub){
 				newExp->opr.op = DEC;
+			} else{
+				return e;
 			}
+			newExp->opr.e = e2;
+
 
 		} else if(e2->tag == ExpPrim) {
 			newExp = (Exp*)malloc(sizeof(Exp));
@@ -266,11 +274,16 @@ Exp* optimizeExpBin(Exp* e){
 				newExp->opr.op = INC;
 			} else if(e->tag == ExpSub){
 				newExp->opr.op = DEC;
+			} else {
+				return e;
 			}
-			newExp->dbg_line = e->dbg_line;
-	}
+			newExp->opr.e = e1;
+			
+		}
 
-	} 
+	}
+	newExp->dbg_line = e->dbg_line;
+	newExp->type = e->type; //self consistency 
 	//printf("Optimized exp\n");
 	//printExp(newExp,2);
 	return newExp;

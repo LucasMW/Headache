@@ -377,14 +377,20 @@ void printExp(Exp* e,int x) {
 			printType(e->cast.type,x+1); 
 		break;
 		case ExpOperator:
+			// Constant* c = (Constant*)malloc(sizeof(Constant));
+			// c->tag = KInt;
+			// c->u.i = e->opr.amount;
 			switch(e->opr.op) {
 				case INC:
-					printDepthLevel("++",x);
+					printDepthLevel("(++)",x);
+					//printConstant(c,x+1);
 				break;
 				case DEC:
-					printDepthLevel("--",x);
+					printDepthLevel("(--)",x);
+					//printConstant(c,x+1);
 				break; 
 			}
+			//free(c); //created only to call printConstant
 			printExp(e->opr.e,x+1);
 		break;
 	}

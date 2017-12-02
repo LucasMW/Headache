@@ -847,14 +847,14 @@ int sizeOfDvl(DefVarL* dvl ){
 
 }
 void codeBlock(Block* b) {
-	if(!b->limits) {
-		b->limits = (CellUsage*)malloc(sizeof(CellUsage));
-		b->limits->start = currentAllocationIndex++;
-	}
+	// if(!b->limits) {
+	// 	b->limits = (CellUsage*)malloc(sizeof(CellUsage));
+	// 	b->limits->start = currentAllocationIndex++;
+	// }
 	codeDefVarList(b->dvl);
 	codeCommandList(b->cl);
 
-	codeGoTo(b->limits->start);
+	//codeGoTo(b->limits->start);
 }
 int codeBinExp(Exp* e ,int* f) {
 	int te1,te2; 
@@ -933,7 +933,7 @@ int codeExpPrim(Exp* e) {
 	if(e->c->tag == KFloat) {
 		
 	} else {
-		if(!e->c->start_cell) {
+		if(e->c->start_cell == 0) {
 			e->c->start_cell = currentAllocationIndex += 2;
 			//printf("kint at %d\n",currentAllocationIndex);
 			char c = '+';

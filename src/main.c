@@ -97,7 +97,7 @@ static int isBreakingOption(const char* candidate){
 /* detects -O0 -O1 -O2 and eliminates it from argv
 	sets zero optimization as default */
 static int handleOptimization(int* refargc, char** argv){
-	char flag;
+	char flag=0;
 	int j;
 	int level=0;
 	const int argc = *refargc;
@@ -159,7 +159,7 @@ int main (int argc, char** argv)
 	char noBin = 1;
 	char noDebug = 0;
 
-	char* option;
+	char* option = NULL;
 	char* fileName;
 	int level = handleOptimization(&argc,argv);
 	if(argc >= 3)

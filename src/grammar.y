@@ -230,7 +230,7 @@ nameList: ID {
 
 block : '{'  defVar2   commandList  '}'
 {
-  $$ = (Block*) malloc (sizeof(Block));
+  $$=(Block*)malloc(sizeof(Block));
   $$->dvl = $2;
   $$->cl = $3;
 };
@@ -574,6 +574,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
+  //$$->start_cell = 0;
   switch($1->tag) {
     case KInt:
     $$->type = (Type*)malloc(sizeof(Type));
@@ -604,18 +605,21 @@ constant: TK_INT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KInt;
         $$->u.i = yylval.int_val;
+        $$->start_cell = 0;
         //printf("%d\n", $$->u.i);
       }
       | TK_FLOAT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KFloat;
         $$->u.d = yylval.double_val;
+        $$->start_cell = 0;
         //printf("%lf\n", $$->u.d);
       }
       | TK_STR    {//$$=(char*)$1;
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KStr;
         $$->u.str = yylval.str_val ;
+        $$->start_cell = 0;
         //printf("%s\n", $$->u.str);
       }
 ;
