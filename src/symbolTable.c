@@ -81,8 +81,8 @@ void raiseError(const char* message,int line) {
 	printf("Error: %s\n# near line %d\n",message,line);
 	exit(01);
 }
-void raiseWarning(const char* message) {
-	printf("Warning: %s\n",message);
+void raiseWarning(const char* message,int line) {
+	printf("Warning: %s\n# near line %d",message,line);
 	warningCount++;
 }
 void generateStardardDeclares(progNode* prog) {
@@ -373,9 +373,9 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
 					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
-					performCastToType(
-						c->expLeft->type,
-						&(c->expRight));
+					// performCastToType(
+					// 	c->expLeft->type,
+					// 	&(c->expRight));
 					}
 					else {
 						raiseError("Assigment left type differs from right type",c->expLeft->dbg_line);
@@ -809,7 +809,7 @@ void typeExp(Exp* e ) {
 				raiseError("Cast not avaible for these types",e->dbg_line);
 			}
 			if(typeEquals(e->cast.type,e->cast.e->type)){
-				raiseWarning("Cast to equal typing");
+				raiseWarning("Cast to equal typing",e->dbg_line);
 			}
 			e->type = e->cast.type;
 		break;

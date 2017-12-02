@@ -65,7 +65,8 @@ int lookForWrittenMemory(){
 void printMemory(int start) {
 	printf("start %d: ",start );
 	for(int i=start;i<start+18;i++){
-		printf("|%u",(unsigned char)memory[i]);
+		unsigned char c = (unsigned char)memory[i];
+		printf("|%u",(unsigned int)c);
 	}
 	printf("|\n");
 }
