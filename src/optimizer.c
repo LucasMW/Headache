@@ -2,6 +2,10 @@
 	#include "tree.h"
 	#define tree_h
 #endif
+#if !defined(symbolTable_h)
+	#include "symbolTable.h"
+	#define symbolTable_h
+#endif
 #include "optimizer.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -204,7 +208,7 @@ Exp* optimizeExpLogic(Exp* e){
 }
 
 Exp* optimizeExpBin(Exp* e){
-	printf("binexp\n");
+	//printf("binexp\n");
 	Exp* newExp = e;
 	Exp* e1 = optimizeExp(e->bin.e1);
 	Exp* e2 = optimizeExp(e->bin.e2);
@@ -217,26 +221,37 @@ Exp* optimizeExpBin(Exp* e){
 			r = (char)e1->c->u.i - (char)e2->c->u.i;
 		else if(e->tag == ExpMul)
 			r = (char)e1->c->u.i * (char)e2->c->u.i;
-		else if(e->tag == ExpDiv)
-			r = (char)e1->c->u.i / (char)e2->c->u.i; //might have different results due to 0/0
+		else if(e->tag == ExpDiv) {
+			//Dealing with 0
+			if(e2->c->u.i == 0 && e1->c->u.i == 0){
+				r = 0;
+			}
+			else if(e2->c->u.i == 0){
+				raiseWarning("cannot optimize",e->dbg_line);
+				return e; //abort optimization. Cannot optimize this
+			}
+			r = (char)e1->c->u.i / (char)e2->c->u.i; 
+		}
 		else {
 			printf("SEVERE ERROR optimizer\n");
 			printf("aborting optimization\n");
 			return e;
 		}
-		printf("\nr is %d\n", r);
+		//printf("\nr is %d\n", r);
 		newExp=(Exp*)malloc(sizeof(Exp));
 		newExp->tag = ExpPrim;
 		newExp->c = (Constant*)malloc(sizeof(Constant));
 		newExp->c->tag = KInt;
 		newExp->c->u.i = r;
 		newExp->type = e->type;
+		newExp->dbg_line = e->dbg_line;
 	} else {
-		printf("optimizer inc dec\n");
+		//printf("optimizer inc dec\n");
 		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
 			newExp = (Exp*)malloc(sizeof(Exp));
 			newExp->tag = ExpOperator;
 			newExp->opr.amount = e1->c->u.i;
+			newExp->dbg_line = e->dbg_line;
 			if(e->tag == ExpAdd){
 				newExp->opr.op = INC;
 			} else if(e->tag == ExpSub){
@@ -252,18 +267,20 @@ Exp* optimizeExpBin(Exp* e){
 			} else if(e->tag == ExpSub){
 				newExp->opr.op = DEC;
 			}
+			newExp->dbg_line = e->dbg_line;
 	}
 
 	} 
-	printf("Optimized exp\n");
-	printExp(newExp,2);
+	//printf("Optimized exp\n");
+	//printExp(newExp,2);
 	return newExp;
 }
 Exp* optimizeExp(Exp* e) {
 	
 	if(!e)
 		return e;
-	printExp(e,0);
+	//printf("e->dbg_line %d\n",e->dbg_line);
+	//printExp(e,10);
 	Exp* newExp = e; //case nothing happens, should return the same
 	// Exp* e1;
 	// Exp* e2;
