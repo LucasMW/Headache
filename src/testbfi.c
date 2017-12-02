@@ -80,7 +80,8 @@ static inline int isWritten(char* memory,int wide){
 } 
 void printAllWrittenMemory(){
   	int wide = 18;
-  	for(int i=0;i<30000;i+=wide){
+  	int limit = 30000 - wide-1;
+  	for(int i=0;i<limit;i+=wide){
 	    if(isWritten(memory+i,wide)) {
 	      	printMemory(i);
 	    }
