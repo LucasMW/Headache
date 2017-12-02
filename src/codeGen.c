@@ -40,7 +40,7 @@ void codeCommandList(CommandL* cl);
 int codeExpAccess(Exp* e);
 void codeBlock(Block* b);
 int codeExp(Exp* e);
-
+int codeExpOperator(Exp* e);
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
 int codeAccessElemPtr(Exp* e);
@@ -222,16 +222,18 @@ static void moveXToY(int x, int y){
 	codeZero(y);
 	bfalgo("$[$+$-]",x,y,x);
 }
-static void constantIncrement(int x, int q){
+static void codeConstantIncrement(int x, int q){
 	codeGoTo(x);
-	while(q--){
+	while(q){
 		bfalgo("+");
+		q--;
 	}
 }
-static void constantDecrement(int x, int q){
+static void codeConstantDecrement(int x, int q){
 	codeGoTo(x);
-	while(q--){
+	while(q){
 		bfalgo("-");
+		q--;
 	}
 }
 
@@ -1383,12 +1385,13 @@ int codeExp(Exp* e) {
 }
 int codeExpOperator(Exp* e) {
 	int result = codeExp(e->opr.e);
+	printf("amount %d\n",e->opr.amount);
 	switch(e->opr.op) {
 		case INC:
-			bfalgo("$+",result);
+			codeConstantIncrement(result,e->opr.amount);
 		break;
 		case DEC:
-			bfalgo("$-",result);
+			codeConstantDecrement(result,e->opr.amount);
 		break; 
 	}
 	return currentFunctionTIndex;

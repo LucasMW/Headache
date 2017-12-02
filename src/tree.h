@@ -125,6 +125,7 @@ typedef struct Exp{
 		struct {
 			struct Exp *e;
 			enum {INC, DEC} op;
+			int amount;
 		} opr;
 		Constant* c;
 		Var *var;

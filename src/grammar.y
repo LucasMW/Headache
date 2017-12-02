@@ -289,6 +289,7 @@ expOperator: expVar TK_INC {
         $$->tag = ExpOperator;
         $$->opr.op = INC;
         $$->opr.e = $1;
+        $$->opr.amount = 1;
         $$->dbg_line = yy_lines;
         
       } | TK_INC expVar{
@@ -296,6 +297,7 @@ expOperator: expVar TK_INC {
         $$->tag = ExpOperator;
         $$->opr.op = INC;
         $$->opr.e = $2;
+        $$->opr.amount = 1;
         $$->dbg_line = yy_lines;
         
       } | TK_DEC expVar{
@@ -303,6 +305,7 @@ expOperator: expVar TK_INC {
         $$->tag = ExpOperator;
         $$->opr.op = DEC;
         $$->opr.e = $2;
+        $$->opr.amount = 1;
         $$->dbg_line = yy_lines;
       
       } | expVar TK_DEC{
@@ -310,6 +313,7 @@ expOperator: expVar TK_INC {
         $$->tag = ExpOperator;
         $$->opr.op = DEC;
         $$->opr.e = $1;
+        $$->opr.amount = 1;
         $$->dbg_line = yy_lines;
       }
 ;

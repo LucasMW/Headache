@@ -158,6 +158,10 @@ void optimizeCommandList(CommandL* cl) {
 			case CDebug:
 				optimizeExp(c->printExp);
 			break;
+			case COperator:
+				optimizeExp(c->oprExp);
+			break;
+
 
 		}
 		c = c->next;
@@ -192,15 +196,15 @@ void optimizeConstant(Constant* c) {
 
 Exp* optimizeExpLogic(Exp* e){
 	Exp* newExp = e;
-	Exp* e1 = optimizeExp(e->bin.e1);
-	Exp* e2 = optimizeExp(e->bin.e2);
+	//Exp* e1 = optimizeExp(e->bin.e1);
+	//Exp* e2 = optimizeExp(e->bin.e2);
 	//printf("Optimized exp\n");
 	//printExp(newExp,2);
 	return newExp;	
 }
 
 Exp* optimizeExpBin(Exp* e){
-	//printf("binexp\n");
+	printf("binexp\n");
 	Exp* newExp = e;
 	Exp* e1 = optimizeExp(e->bin.e1);
 	Exp* e2 = optimizeExp(e->bin.e2);
@@ -208,38 +212,58 @@ Exp* optimizeExpBin(Exp* e){
 		//printf("Both prim\n");
 		char r; //same semantics as brainfuck cell
 		if(e->tag == ExpAdd)
-			r = e1->c->u.d + e2->c->u.d;
+			r = (char)e1->c->u.i + (char)e2->c->u.i;
 		else if(e->tag == ExpSub)
-			r = e1->c->u.d - e2->c->u.d;
+			r = (char)e1->c->u.i - (char)e2->c->u.i;
 		else if(e->tag == ExpMul)
-			r = e1->c->u.d * e2->c->u.d;
+			r = (char)e1->c->u.i * (char)e2->c->u.i;
 		else if(e->tag == ExpDiv)
-			r = e1->c->u.d / e2->c->u.d; //might have different results due to 0/0
+			r = (char)e1->c->u.i / (char)e2->c->u.i; //might have different results due to 0/0
 		else {
 			printf("SEVERE ERROR optimizer\n");
 			printf("aborting optimization\n");
 			return e;
 		}
-		//printf("r is %d\n", r);
+		printf("\nr is %d\n", r);
 		newExp=(Exp*)malloc(sizeof(Exp));
 		newExp->tag = ExpPrim;
 		newExp->c = (Constant*)malloc(sizeof(Constant));
-		newExp->c->u.d = r;
+		newExp->c->tag = KInt;
+		newExp->c->u.i = r;
 		newExp->type = e->type;
-	} else if(e1->tag == ExpPrim) { // translate to simple increments or decrements
+	} else {
+		printf("optimizer inc dec\n");
+		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
+			newExp = (Exp*)malloc(sizeof(Exp));
+			newExp->tag = ExpOperator;
+			newExp->opr.amount = e1->c->u.i;
+			if(e->tag == ExpAdd){
+				newExp->opr.op = INC;
+			} else if(e->tag == ExpSub){
+				newExp->opr.op = DEC;
+			}
 
-	} else if(e2->tag == ExpPrim) {
-
+		} else if(e2->tag == ExpPrim) {
+			newExp = (Exp*)malloc(sizeof(Exp));
+			newExp->tag = ExpOperator;
+			newExp->opr.amount = e2->c->u.i;
+			if(e->tag == ExpAdd){
+				newExp->opr.op = INC;
+			} else if(e->tag == ExpSub){
+				newExp->opr.op = DEC;
+			}
 	}
-	//printf("Optimized exp\n");
-	//printExp(newExp,2);
+
+	} 
+	printf("Optimized exp\n");
+	printExp(newExp,2);
 	return newExp;
 }
 Exp* optimizeExp(Exp* e) {
 	
 	if(!e)
 		return e;
-	//printExp(e,0);
+	printExp(e,0);
 	Exp* newExp = e; //case nothing happens, should return the same
 	// Exp* e1;
 	// Exp* e2;
@@ -279,7 +303,16 @@ Exp* optimizeExp(Exp* e) {
 			//printf("access\n");
 		break;
 		case ExpCast:
-			newExp->cast.e = optimizeExp(e->cast.e);
+			if(optimizationLevel >= 1)
+			{
+				newExp->cast.e = optimizeExp(e->cast.e);
+			}
+		break;
+		case ExpOperator:
+			if(optimizationLevel >= 1)
+			{
+				newExp->opr.e = optimizeExp(e->opr.e);
+			}
 		break;
 	}
 	//printExp(newExp,0);
