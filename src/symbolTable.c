@@ -513,6 +513,7 @@ Type* unaryType(Exp* e) {
 
 Type* CmpType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
+	t->tag = base;
 	t->b = WInt;
 	return t;
 }
