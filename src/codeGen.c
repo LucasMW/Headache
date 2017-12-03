@@ -706,8 +706,7 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
-	int temp = currentTempRegs[3];
-	//fprintf(output, ";begin codecond\n");
+	int temp = currentTempRegs[1];
 	i1 = codeExp(e);
 	codeZero(temp);
 	incrementXbyY2(temp,i1);
@@ -740,18 +739,20 @@ void codeCommandList(CommandL* cl) {
 				codeDebugMessage("end while");
 			break;
 			case CIf:
+				temp0 = pushCells(1);
+				codeZero(temp0);
 				i1 = codeCond(c->condExp);
-				bfalgo("[\n");
-				codeCommandList(c->cmdIf );
-				codeZero(currentTempRegs[2]);
-				codeGoTo(currentTempRegs[3]);
-				bfalgo("]\n");
+				bfalgo("$[",i1);
+				codeCommandList(c->cmdIf);
+				bfalgo("$]$",temp0,i1);
+
+
 				// leaveScope();
 			break;
 			case CIfElse:
 				i1 = codeCond(c->condExp);
-				temp0 = currentTempRegs[2];
-				temp1 = currentTempRegs[3];
+				temp0 = pushCells(1);
+				temp1 = pushCells(1);
 				bfalgo("$[-]+$[-]$[",temp0,temp1,i1);
  				codeCommandList(c->cmdIf);
  				bfalgo("$-$[$+$-]]$[$+$-]$[",temp0,i1,temp1,i1,temp1,i1,temp1,temp0);
