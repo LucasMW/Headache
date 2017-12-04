@@ -77,6 +77,7 @@
 "short" {return TK_WSHORT;}
 "void"	{return TK_WVOID;}
 "while"	{return TK_WWHILE;}
+"for"	{return TK_WFOR;}
 ">="	{return TK_GE;}
 ">"		{return '>';}
 "<=" 	{return TK_LE;}

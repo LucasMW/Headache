@@ -61,6 +61,7 @@ extern FILE *yyin;
 %token <int_val> TK_WRETURN
 %token <int_val> TK_WVOID
 %token <int_val> TK_WWHILE
+%token <int_val> TK_WFOR
 %token <int_val> TK_AND
 %token <int_val> TK_OR
 %token <int_val> TK_EQEQ
@@ -72,7 +73,7 @@ extern FILE *yyin;
 
 
 %type<prog> program  
-%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator commandFor
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
@@ -284,6 +285,17 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 }
 ;
 
+commandFor: TK_WFOR '(' command expCmp ';' command ')' command %prec "if" {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          
+          $$->tag = CFor;
+          //$$->beginExp = $3;
+          //$$->condExp = $5;
+          //$$->endExp = $7;
+          //$$->cmdIf = $9;
+
+};
+
 expOperator: expVar TK_INC {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpOperator;
@@ -354,6 +366,9 @@ command1: TK_WRETURN  ';' {
           $$->expRight = $3;
         }
         | commandWhile {
+          $$=$1;
+        } 
+        | commandFor {
           $$=$1;
         } 
         | commandPrint {
