@@ -285,7 +285,7 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 }
 ;
 
-commandFor: TK_WFOR '(' command expCmp ';' command ')' command %prec "if" {
+commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           
           $$->tag = CFor;
