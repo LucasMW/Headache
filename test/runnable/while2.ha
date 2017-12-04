@@ -1,19 +1,16 @@
 void main(){
-	byte i;
-	byte j;
-	byte x;
-	byte y;
-	byte r;
+	byte i,j;
+	byte x,y,r;
 	i = 2;
 	r = 0;
 	while(i){
-		j=i;
+		j=2;
 		while(j){
 			//@"y ";
-			j=j-1;
-			r = r + 1;
+			j--;
+			r++;
 		}
-		i = i-1;
+		i--;
 		//@"x\n";
 	}
 	@"Result is "; @r; @"\n";
