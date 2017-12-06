@@ -188,6 +188,8 @@ void insert(const char* symbolID,Type* type,void* d) {
 	variables[variablesTop].type = type;
 	variables[variablesTop].declaration = d;
 	variablesTop++;
+	incrementMemoryUsage(cellsForType(type));
+
 	//printf("variablesTop %d\n",variablesTop );
 }
 
@@ -221,7 +223,7 @@ void typeNameList(NameL* nl, Type* t,DefVar* dv) {
 	do  {
 		insert(p->name,t,dv);
 		p = p->next;
-		incrementMemoryUsage(cellsForType(t));
+		//incrementMemoryUsage(cellsForType(t));
 
 	} while(p);
 }
@@ -373,9 +375,9 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
 					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
-					// performCastToType(
-					// 	c->expLeft->type,
-					// 	&(c->expRight));
+					performCastToType(
+						c->expLeft->type,
+						&(c->expRight));
 					}
 					else {
 						raiseError("Assigment left type differs from right type",c->expLeft->dbg_line);
@@ -893,10 +895,13 @@ int cellsForType(Type* t){
 					return 8;
 				break;
 				case WFloat:
-					return 8;
+					return 4;
+				break;
+				case WShort:
+					return 2;
 				break;
 				case WByte:
-					return 2;
+					return 1;
 				break;
 			}
 		break;
