@@ -118,8 +118,11 @@ static int handleOptimization(int* refargc, char** argv){
 		}
 		if(flag == 1) {
 			//printf("detected  O%d\n",level );
-			if(i< argc-1) 
-				argv[i] = argv[i+1];
+			// must shift all of them
+			for(int k = i;k<argc; k++){
+				if(k < argc-1) 
+					argv[k] = argv[k+1];
+			}
 			*refargc= argc - 1;
 			return level;
 		}
