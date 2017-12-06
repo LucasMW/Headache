@@ -249,7 +249,7 @@ Exp* optimizeExpBin(Exp* e){
 		newExp->c->start_cell = 0;
 
 		
-	} else {
+	} else if(optimizationLevel >= 2) {
 		//printf("optimizer inc dec\n");
 		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
 			newExp = (Exp*)malloc(sizeof(Exp));
@@ -264,6 +264,7 @@ Exp* optimizeExpBin(Exp* e){
 				return e;
 			}
 			newExp->opr.e = e2;
+			newExp->start_cell = 0;
 
 
 		} else if(e2->tag == ExpPrim) {
@@ -278,6 +279,7 @@ Exp* optimizeExpBin(Exp* e){
 				return e;
 			}
 			newExp->opr.e = e1;
+			newExp->start_cell = 0;
 			
 		}
 
