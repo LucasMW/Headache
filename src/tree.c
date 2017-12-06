@@ -183,6 +183,9 @@ void printType(Type* t,int x) {
 				case WByte:
 				printDepthLevel("byte ",x);
 				break;
+				case WShort:
+				printDepthLevel("short ",x);
+				break;
 			}
 			
 		break;
