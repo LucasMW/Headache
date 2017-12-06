@@ -123,6 +123,15 @@ Is it worth it?
 Since the cost of adding two shady variables to control these semantics is inevitable, wouldn't it be better to the compiler to simply detect and raise an error like: 
 "Error: return is not last statement of function, line 131" and leaving to the programmer this type of control and rendering he aware of its safety implications?
 
+5/12/2017:
+
+Headache should have booleans as a base type. Can be called bit, boolean or bool. 
+Should have only assign, to other boolean exps. 
+true and false can be implemented as boolean constants.
+Logic operators should all return booleans. 
+They can be easy implemented in Headache
+
+
 
 
 
