@@ -69,17 +69,19 @@ extern FILE *yyin;
 %token <str_val> TK_STR
 %token <int_val> TK_INC
 %token <int_val> TK_DEC
+%token <int_val> TK_PLUSEQ
+%token <int_val> TK_MINUSEQ
 
 
 
 %type<prog> program  
-%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator commandFor
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator commandFor commandRead
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
 %type <dvl> defVar defVar2
 %type <dFunc> defFunc
-%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary expOperator
+%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary expOperator expOperator2
 %type <type> type;
 %type <dvl> nameList
 %type <int_val> baseType 
@@ -257,6 +259,12 @@ commandPrint: '@' exp ';' {
   $$->printExp = $2;
 }
 ;
+commandRead: '#' exp ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+  $$->tag = CPrint;
+  $$->printExp = $2;
+}
+;
 commandDebug: '%'';' {
   $$ = (CommandL*)malloc(sizeof(CommandL));
   $$->tag = CDebug;
@@ -296,6 +304,24 @@ commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
 
 };
 
+expOperator2: expVar TK_PLUSEQ constant {
+          $$ = (Exp*)malloc(sizeof(Exp));
+          $$->tag = ExpOperator;
+          $$->opr.op = INC;
+          $$->opr.e = $1;
+          $$->opr.amount = $3->u.i;
+          $$->dbg_line = yy_lines;
+
+          } | expVar TK_MINUSEQ constant {
+          $$ = (Exp*)malloc(sizeof(Exp));
+          $$->tag = ExpOperator;
+          $$->opr.op = DEC;
+          $$->opr.e = $1;
+          $$->opr.amount = $3->u.i;
+          $$->dbg_line = yy_lines;
+
+          }
+
 expOperator: expVar TK_INC {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpOperator;
@@ -327,6 +353,8 @@ expOperator: expVar TK_INC {
         $$->opr.e = $1;
         $$->opr.amount = 1;
         $$->dbg_line = yy_lines;
+      } | expOperator2 {
+        $$ = $1;
       }
 ;
 
@@ -374,9 +402,13 @@ command1: TK_WRETURN  ';' {
         | commandPrint {
           $$ = $1;
         }
+        | commandRead {
+          $$ = $1;
+        }
         | commandDebug {
           $$ = $1;
-        } | CommandOperator {
+        } 
+        | CommandOperator {
           $$ = $1;
         }
 ;
@@ -655,6 +687,7 @@ type : baseType { $$ = (Type*)malloc(sizeof(Type));
 baseType : TK_WINT { $$ = WInt;}
 | TK_WBYTE  { $$ = WByte;}
 | TK_WFLOAT {$$ = WFloat;}
+| TK_WSHORT {$$ = WShort;}
 ;
 %%
 
