@@ -96,6 +96,8 @@
 "||"	{return TK_OR;}
 "+"		{return '+';}
 "++"	{return TK_INC;}
+"+=" 	{return TK_PLUSEQ;}
+"-="	{return TK_MINUSEQ;}
 "--"	{return TK_DEC;}
 "-"		{return '-';}
 "*"		{return '*';}
