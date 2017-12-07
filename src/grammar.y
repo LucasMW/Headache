@@ -49,6 +49,7 @@ extern FILE *yyin;
 %token <int_val> TK_LE
 %token <int_val> TK_INT
 %token <int_val> TK_WSHORT
+%token <int_val> TK_WBIT
 %token <int_val> TK_WBYTE
 %token <int_val> TK_FLOAT
 %token <int_val> TK_WAS
@@ -688,6 +689,7 @@ baseType : TK_WINT { $$ = WInt;}
 | TK_WBYTE  { $$ = WByte;}
 | TK_WFLOAT {$$ = WFloat;}
 | TK_WSHORT {$$ = WShort;}
+| TK_WBIT {$$ = WBit;}
 ;
 %%
 

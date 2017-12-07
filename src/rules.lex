@@ -66,6 +66,7 @@
 %x IN_COMMENT
 %%
 "as"	{return TK_WAS;}
+"bit"	{return TK_WBIT;}
 "byte"	{return TK_WBYTE;}
 "char"	{return TK_WCHAR;}
 "else"	{return TK_WELSE; }
@@ -114,9 +115,13 @@
 [0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.double_val = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
+"true" { yylval.int_val = 1;
+				return TK_INT;}
+"false" { yylval.int_val = 0;
+				return TK_INT;}
+
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.str_val = makeNewStr();
 									return TK_VAR;}
-
 
 
 <INITIAL>{ //state machine based on the example of flex manual: http://flex.str_valourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html

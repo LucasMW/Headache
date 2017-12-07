@@ -903,6 +903,9 @@ int cellsForType(Type* t){
 				case WByte:
 					return 1;
 				break;
+				case WBit:
+					return 1;
+				break;
 			}
 		break;
 		case array:
