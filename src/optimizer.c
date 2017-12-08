@@ -77,26 +77,6 @@ void optimizeDefFunc(DefFunc* df)
 	optimizeBlock(df->b);
 }
 void optimizeType(Type* t) {
-	
-	if(!t) {
-		return;
-	}
-	switch(t->tag) {
-		case base:
-			switch(t->b) {
-				case WInt:
-				break;
-				case WFloat:
-				break;
-				case WByte:
-
-				break;
-			}
-			
-		break;
-		case array:
-		break;
-	}
 }
 
 void optimizeParams(Parameter* params)
@@ -255,7 +235,6 @@ Exp* optimizeExpBin(Exp* e){
 			newExp = (Exp*)malloc(sizeof(Exp));
 			newExp->tag = ExpOperator;
 			newExp->opr.amount = e1->c->u.i;
-			newExp->dbg_line = e->dbg_line;
 			if(e->tag == ExpAdd){
 				newExp->opr.op = INC;
 			} else if(e->tag == ExpSub){
