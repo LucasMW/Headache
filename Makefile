@@ -6,7 +6,7 @@ OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o 
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
-	emcc --pre-js stdin.js -Wall -o bin/hac.js src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+	emcc --pre-js stdin.js -Wall -o bin/hac.js $(SOURCES)
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
@@ -20,6 +20,9 @@ bfi: src/testbfi.c
 
 expander: src/expander.c
 	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+
+testoptimize: hac bfi
+	sh test/optimize/script.sh
 
 testrunnable: hac bfi
 	sh test/runnable/script.sh
