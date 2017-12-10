@@ -96,6 +96,8 @@ char * readFile(const char* path){
 	char c;
 	int i;
 	input = fopen(path,"rt");
+	if(!input)
+		return NULL;
 	fseek(input, 0, SEEK_END);
 	size = ftell(input);
 	rewind(input);
