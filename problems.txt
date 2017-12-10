@@ -126,10 +126,20 @@ Since the cost of adding two shady variables to control these semantics is inevi
 5/12/2017:
 
 Headache should have booleans as a base type. Can be called bit, boolean or bool. 
-Should have only assign, to other boolean exps. 
+Should have only assign, to other boolean exps, and toogle operator. 
 true and false can be implemented as boolean constants.
 Logic operators should all return booleans. 
 They can be easy implemented in Headache
+
+9/12/2017:
+
+There is no longer need for compiling to javascript (to run in node.js) to make headache run on Windows. 
+MinGW is able to compile it to .exe. However, the way the scripts are written don't properly work on Windows and render the development environment there quite manual.
+So, Windows builds of hac are possible, but it is not officially supported.
+
+10/12/2017:
+
+Wilfred's bfc can be integrated to headache as an extra/plugin. Make it pre-built into each plataform, being hosted in github branches, and make custom system integration code. It can be downloaded to a tools directory near the installation of Headache binaries.
 
 
 
