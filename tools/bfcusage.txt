@@ -1,0 +1,5 @@
+#Something like this:
+
+./tools/bfc a.bf --dump-llvm > a.ll
+#parse warning layer out of the a.ll file
+clang a.ll
