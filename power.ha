@@ -9,5 +9,9 @@ byte pow(byte x, byte y){
 	return r;
 }
 void main(){
-	@pow(2 as byte,9 as byte);@"\n";
+	byte a,b;
+	a=2;
+	b=9;
+	@"pow(";@a;@",";@b;@") = ";
+	@pow(a,b);@"\n";
 }
