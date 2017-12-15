@@ -10,6 +10,14 @@ bin/hac.js: src/main.c src/lex.c src/grammar.c
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
+install: bin/hac expander bfi
+	@rm -r $(HOME)/.Headache/
+	mkdir "$(HOME)/.Headache"
+	mv bin/hac "$(HOME)/.Headache/"
+	mv bfi "$(HOME)/.Headache/"
+	mv expander "$(HOME)/.Headache/"
+	@echo "Please add $(HOME)/.Headache/ to your path"
+
 test: testlexical testsyntax testtree testchecks
 
 bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift
