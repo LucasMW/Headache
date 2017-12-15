@@ -11,12 +11,15 @@ bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
 install: bin/hac expander bfi
-	@rm -r $(HOME)/.Headache/
-	mkdir "$(HOME)/.Headache"
-	mv bin/hac "$(HOME)/.Headache/"
-	mv bfi "$(HOME)/.Headache/"
-	mv expander "$(HOME)/.Headache/"
-	@echo "Please add $(HOME)/.Headache/ to your path"
+	@rm -rf $(HOME)/.Headache/
+	@echo "Installing Headache..."
+	@./bin/hac --version
+	@mkdir "$(HOME)/.Headache"
+	@cp bin/hac "$(HOME)/.Headache/"
+	@cp bfi "$(HOME)/.Headache/"
+	@cp expander "$(HOME)/.Headache/"
+	@echo "Please add $(HOME)/.Headache/ to your PATH"
+
 
 test: testlexical testsyntax testtree testchecks
 
