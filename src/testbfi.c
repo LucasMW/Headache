@@ -261,6 +261,7 @@ int main (int argc, char** argv){
 			return -1;
 		} else {
 			execute(program,DEFAULT_SIZE,extra);
+			free(memory);
 			free(program);
 			return 0;
 		}
