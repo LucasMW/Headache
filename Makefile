@@ -92,7 +92,7 @@ clean:
 zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
-	mv zipfolder.zip ../mongahac.zip
+	mv zipfolder.zip ../hac.zip
 
 bin/hac: $(OBJS)
 	ls temp
