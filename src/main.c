@@ -159,7 +159,7 @@ int main (int argc, char** argv)
 	char noTree =0;
 	char noChecks=0;
 	char noCode = 0;
-	char noBin = 1;
+	char noBin = 0;
 	char noDebug = 0;
 
 	char* option = NULL;
@@ -277,6 +277,7 @@ int main (int argc, char** argv)
 		printTree();
 	}
 	char * bf_name = "a.bf";
+	char * ll_name = "a.ll";
 	//char * bin_name = "a.out";
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
@@ -286,15 +287,8 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
-		char* str = handleClangOptions(argc,argv);
-		char* buff = (char*)malloc(
-			strlen(str) +
-			strlen("clang") +
-			strlen(bf_name)+1);
-		sprintf(buff,"clang %s %s",
-			str,
-			bf_name);
-		int s = system(buff);
+		system("./tools/bfc a.bf --dump-llvm > a.ll");
+		int s = system("clang a.ll -o a.out");
 		return s;
 	}
 	if(!noDebug)
