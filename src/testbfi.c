@@ -65,7 +65,8 @@ int lookForWrittenMemory(){
 void printMemory(int start) {
 	printf("start %d: ",start );
 	for(int i=start;i<start+18;i++){
-		printf("|%d",(unsigned int)memory[i]);
+		unsigned char c = (unsigned char)memory[i];
+		printf("|%u",(unsigned int)c);
 	}
 	printf("|\n");
 }
@@ -79,7 +80,8 @@ static inline int isWritten(char* memory,int wide){
 } 
 void printAllWrittenMemory(){
   	int wide = 18;
-  	for(int i=0;i<30000;i+=wide){
+  	int limit = 30000 - wide-1;
+  	for(int i=0;i<limit;i+=wide){
 	    if(isWritten(memory+i,wide)) {
 	      	printMemory(i);
 	    }
@@ -94,6 +96,8 @@ char * readFile(const char* path){
 	char c;
 	int i;
 	input = fopen(path,"rt");
+	if(!input)
+		return NULL;
 	fseek(input, 0, SEEK_END);
 	size = ftell(input);
 	rewind(input);
@@ -245,7 +249,8 @@ int main (int argc, char** argv){
 		if(strcmp(argv[2],"-debug")==0) {
 			extra = 1;
 		}
-	} else if(argc == 2){
+	} 
+	if(argc >= 2){
 		program = readFile(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);

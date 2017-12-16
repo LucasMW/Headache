@@ -59,8 +59,14 @@ int main (int argc, char** argv)
 			case '+':
 				printf("Plus\n");
 			break;
+			case TK_INC:
+				printf("Increment\n");
+			break;
 			case '-':
 				printf("Minus\n");
+			break;
+			case TK_DEC:
+				printf("Decrement\n");
 			break;
 			case '*':
 				printf("Asterisk\n");

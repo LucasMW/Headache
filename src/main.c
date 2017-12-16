@@ -76,7 +76,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 2;
 
-static char hacVersion[] = "alpha0.01";
+static char hacVersion[] = "beta0.41";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -97,7 +97,7 @@ static int isBreakingOption(const char* candidate){
 /* detects -O0 -O1 -O2 and eliminates it from argv
 	sets zero optimization as default */
 static int handleOptimization(int* refargc, char** argv){
-	char flag;
+	char flag=0;
 	int j;
 	int level=0;
 	const int argc = *refargc;
@@ -118,8 +118,11 @@ static int handleOptimization(int* refargc, char** argv){
 		}
 		if(flag == 1) {
 			//printf("detected  O%d\n",level );
-			if(i< argc-1) 
-				argv[i] = argv[i+1];
+			// must shift all of them
+			for(int k = i;k<argc; k++){
+				if(k < argc-1) 
+					argv[k] = argv[k+1];
+			}
 			*refargc= argc - 1;
 			return level;
 		}
@@ -159,7 +162,7 @@ int main (int argc, char** argv)
 	char noBin = 1;
 	char noDebug = 0;
 
-	char* option;
+	char* option = NULL;
 	char* fileName;
 	int level = handleOptimization(&argc,argv);
 	if(argc >= 3)
@@ -178,17 +181,18 @@ int main (int argc, char** argv)
 		{ 
 			if(strcmp("--help",argv[1])==0)
 			{
-				printf("Usage: %s [options] file.ha \n",argv[0] );
+				printf("Usage: %s [options] file.ha [optimization]\n",argv[0] );
 				printf("Available options: \n");
 				for(int i=0;i<hacOptionsCount;i++) {
 					printf("\t%s\n",hacOptions[i]);
 				}
+				printf("Available optimizations: -O0, -O1, -O2. (Default is -O0)\n");
 				printf("If no file is provided, it shall read from stdin\n");
 				return 0;
 			}
 			else if(strcmp("--version",argv[1])==0)
 			{
-				printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
+				printf("HAC (HeadAche Compiler). Version: %s\n",hacVersion );
 				return 0;
 			} 
 		} 

@@ -31,7 +31,7 @@ typedef struct Constant
 
 typedef enum defType { DFunc, DVar} defType;
 
-typedef enum BType { WInt, WByte ,WFloat} BType;
+typedef enum BType { WInt, WByte ,WFloat, WShort, WBit} BType;
 typedef enum Types { base, array} Types;
 
 typedef struct Type
@@ -53,7 +53,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator,CFor } CTypes;
 
 
 
@@ -71,7 +71,6 @@ typedef struct DefVar
 {
 	Type* t;
 	const char* id; //not used yet
-	NameL* nl;
 	int scope; //think is enough
 	int start_cell;
 	CellUsage* limits;
@@ -107,7 +106,8 @@ typedef enum ExpE {
 	ExpCmp,
 	ExpNew,
 	ExpAccess,
-	ExpCast
+	ExpCast,
+	ExpOperator
 } ExpE;
 
 
@@ -122,6 +122,11 @@ typedef struct Exp{
 			struct Exp *e;
 			enum {NOT, MINUS} op;
 		} unary;
+		struct {
+			struct Exp *e;
+			enum {INC, DEC} op;
+			int amount;
+		} opr;
 		Constant* c;
 		Var *var;
 		struct {
@@ -150,7 +155,7 @@ typedef struct Exp{
 	};
 	Type* type;
 	int dbg_line;
-	CellUsage* limits;
+	int start_cell; //type and start cell are enough to infer size
 } Exp;
 
 typedef struct ExpList
@@ -172,6 +177,7 @@ typedef struct CommandL
 	Exp* expRight;
 	Exp* retExp;
 	Exp* printExp;
+	Exp* oprExp;
 	void* block;
 } CommandL;
 
@@ -203,7 +209,7 @@ typedef struct Def {
 	defType tag;
 	union {
 		DefFunc* f;
-		DefVar* v;
+		DefVarL* v;
 	} u;
 	struct Def* next;
 	CellUsage* limits;

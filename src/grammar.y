@@ -1,4 +1,4 @@
-/* The grammar for monga*/
+/* The grammar for Headache*/
 /* grammar.y */
 
 %error-verbose /* instruct bison to generate verbose error messages*/
@@ -49,6 +49,7 @@ extern FILE *yyin;
 %token <int_val> TK_LE
 %token <int_val> TK_INT
 %token <int_val> TK_WSHORT
+%token <int_val> TK_WBIT
 %token <int_val> TK_WBYTE
 %token <int_val> TK_FLOAT
 %token <int_val> TK_WAS
@@ -61,29 +62,31 @@ extern FILE *yyin;
 %token <int_val> TK_WRETURN
 %token <int_val> TK_WVOID
 %token <int_val> TK_WWHILE
+%token <int_val> TK_WFOR
 %token <int_val> TK_AND
 %token <int_val> TK_OR
 %token <int_val> TK_EQEQ
 %token <str_val> TK_VAR
 %token <str_val> TK_STR
-%token <str_val> TK_INC
-%token <str_val> TK_DEC
+%token <int_val> TK_INC
+%token <int_val> TK_DEC
+%token <int_val> TK_PLUSEQ
+%token <int_val> TK_MINUSEQ
 
 
 
 %type<prog> program  
-%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint commandDebug CommandOperator commandFor commandRead
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
-%type <dVar> defVar 
+%type <dvl> defVar defVar2
 %type <dFunc> defFunc
-%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
+%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary expOperator expOperator2
 %type <type> type;
-%type <namelist> idList idList2 nameList
+%type <dvl> nameList
 %type <int_val> baseType 
 %type <str_val> ID
-%type <dvl> defVarList defVarList2
 %type <el> expList expList2
 %type <cons> constant;
 
@@ -109,7 +112,6 @@ definition : defVar {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.v = $1;
   $$->tag = DVar;
-  $$->next = NULL;
   //printDefVar($$->u.v);
 }
 | defFunc {
@@ -181,60 +183,64 @@ command : command1 {
 
 defVar : type nameList ';' {  //correct
   //printf("defVar\n");
-  $$ = (DefVar*)malloc(sizeof(DefVar));
-  $$->t = $1;
-  $$->nl = $2;
-  $$->scope = VGlobal;
-  $$->id = $2->name;
-  
+   DefVarL* p = $2;
+   
+   while(p) {
+    p->dv->t = $1;
+    p = p->next;
+   }
+   $$ = $2;
 }
-;
-
-nameList: ID idList {
+defVar2: /*Empty*/{
+  $$ = NULL;
+} | defVar defVar2{
   
-   $$ = (NameL*)malloc(sizeof(NameL));
-   $$->name = $1;
-   $$->next = $2;
-   //printf(" namelist: ");
-   //printNameList($$);
-   //printf("\n");
-}
-
-idList: {$$ = NULL;}
-    |idList2 { $$ = $1; //printf("ONE ID");
+  $$=$1;
+  DefVarL* p = $1;
+  while(p->next){
+    p=p->next;
   }
-idList2: ID { 
-    $$ = (NameL*)malloc(sizeof(NameL));
-    $$->name = $1;
-    $$->next = NULL;
-             //printf("<nl null>");
-}
-    | ',' ID idList {
-      $$ = (NameL*)malloc(sizeof(NameL));
-      $$->name = $2;
-      $$->next = $3;
-    }
+  p->next = $2;
+} 
 
-block : '{'  defVarList   commandList  '}'
+
+nameList: ID {
+
+   DefVar* d = (DefVar*)malloc(sizeof(DefVar));
+   d->t = NULL;
+   //d->nl = NULL;
+   d->scope = VGlobal;
+   d->id = $1;
+
+
+   $$ = (DefVarL*)malloc(sizeof(DefVarL));
+   $$->dv = d;
+   $$->next = NULL;
+
+} | ID ',' nameList {
+
+   DefVar* d = (DefVar*)malloc(sizeof(DefVar));
+   d->t = NULL;
+   //d->nl = NULL;
+   d->scope = VGlobal;
+   d->id = $1;
+
+
+   $$ = (DefVarL*)malloc(sizeof(DefVarL));
+   $$->dv = d;
+   $$->next = $3;
+}
+
+
+block : '{'  defVar2   commandList  '}'
 {
-  $$ = (Block*) malloc (sizeof(Block));
+  $$=(Block*)malloc(sizeof(Block));
   $$->dvl = $2;
   $$->cl = $3;
 };
 
 
-defVarList : {
-  $$ = NULL;
-}
-| defVarList2 {
-  $$ = $1;
-}
 
-defVarList2: defVar defVarList {
-  $$ = (DefVarL*)malloc(sizeof(DefVarL));
-  $$->dv = $1;
-  $$->next = $2;
-}
 
 commandList: {
   $$=NULL;
@@ -254,10 +260,16 @@ commandPrint: '@' exp ';' {
   $$->printExp = $2;
 }
 ;
-commandDebug: '%' exp ';' {
+commandRead: '#' exp ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+  $$->tag = CPrint;
+  $$->printExp = $2;
+}
+;
+commandDebug: '%'';' {
   $$ = (CommandL*)malloc(sizeof(CommandL));
   $$->tag = CDebug;
-  $$->printExp = $2;
+  //$$->printExp = $2;
 }
 ;
 commandIF: TK_WIF '(' exp ')' command %prec "if" {  
@@ -281,6 +293,77 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
           $$->cmdIf = $5;
 }
 ;
+
+commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          
+          $$->tag = CFor;
+          //$$->beginExp = $3;
+          //$$->condExp = $5;
+          //$$->endExp = $7;
+          //$$->cmdIf = $9;
+
+};
+
+expOperator2: expVar TK_PLUSEQ constant {
+          $$ = (Exp*)malloc(sizeof(Exp));
+          $$->tag = ExpOperator;
+          $$->opr.op = INC;
+          $$->opr.e = $1;
+          $$->opr.amount = $3->u.i;
+          $$->dbg_line = yy_lines;
+
+          } | expVar TK_MINUSEQ constant {
+          $$ = (Exp*)malloc(sizeof(Exp));
+          $$->tag = ExpOperator;
+          $$->opr.op = DEC;
+          $$->opr.e = $1;
+          $$->opr.amount = $3->u.i;
+          $$->dbg_line = yy_lines;
+
+          }
+
+expOperator: expVar TK_INC {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = INC;
+        $$->opr.e = $1;
+        $$->opr.amount = 1;
+        $$->dbg_line = yy_lines;
+        
+      } | TK_INC expVar{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = INC;
+        $$->opr.e = $2;
+        $$->opr.amount = 1;
+        $$->dbg_line = yy_lines;
+        
+      } | TK_DEC expVar{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = DEC;
+        $$->opr.e = $2;
+        $$->opr.amount = 1;
+        $$->dbg_line = yy_lines;
+      
+      } | expVar TK_DEC{
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpOperator;
+        $$->opr.op = DEC;
+        $$->opr.e = $1;
+        $$->opr.amount = 1;
+        $$->dbg_line = yy_lines;
+      } | expOperator2 {
+        $$ = $1;
+      }
+;
+
+CommandOperator: expOperator ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+   $$->tag = COperator;
+   $$->oprExp = $1;
+}
 
 command1: TK_WRETURN  ';' {
    $$ = (CommandL*)malloc(sizeof(CommandL));
@@ -314,10 +397,19 @@ command1: TK_WRETURN  ';' {
         | commandWhile {
           $$=$1;
         } 
+        | commandFor {
+          $$=$1;
+        } 
         | commandPrint {
           $$ = $1;
         }
+        | commandRead {
+          $$ = $1;
+        }
         | commandDebug {
+          $$ = $1;
+        } 
+        | CommandOperator {
           $$ = $1;
         }
 ;
@@ -497,8 +589,7 @@ expUnary: '!' expVar {
         $$->unary.op = MINUS;
         $$->unary.e = $2;
         $$->dbg_line = yy_lines;
-      }
-      | expVar  {
+      } | expVar  {
         $$=$1;
       }
 ;
@@ -531,6 +622,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
+  //$$->start_cell = 0;
   switch($1->tag) {
     case KInt:
     $$->type = (Type*)malloc(sizeof(Type));
@@ -555,23 +647,27 @@ primary: constant {
       | '(' exp ')' {
         $$ = $2; 
       }
+
 ;
 constant: TK_INT  {     
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KInt;
         $$->u.i = yylval.int_val;
+        $$->start_cell = 0;
         //printf("%d\n", $$->u.i);
       }
       | TK_FLOAT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KFloat;
         $$->u.d = yylval.double_val;
+        $$->start_cell = 0;
         //printf("%lf\n", $$->u.d);
       }
       | TK_STR    {//$$=(char*)$1;
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KStr;
         $$->u.str = yylval.str_val ;
+        $$->start_cell = 0;
         //printf("%s\n", $$->u.str);
       }
 ;
@@ -592,6 +688,8 @@ type : baseType { $$ = (Type*)malloc(sizeof(Type));
 baseType : TK_WINT { $$ = WInt;}
 | TK_WBYTE  { $$ = WByte;}
 | TK_WFLOAT {$$ = WFloat;}
+| TK_WSHORT {$$ = WShort;}
+| TK_WBIT {$$ = WBit;}
 ;
 %%
 

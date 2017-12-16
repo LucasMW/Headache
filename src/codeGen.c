@@ -35,11 +35,12 @@ void codeNameList(NameL* nl,Type* t,int scope);
 void codeType(Type* t);
 void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
+void codeForDeAllocParams(Parameter* params);
 void codeCommandList(CommandL* cl);
 int codeExpAccess(Exp* e);
 void codeBlock(Block* b);
 int codeExp(Exp* e);
-
+int codeExpOperator(Exp* e);
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
 int codeAccessElemPtr(Exp* e);
@@ -72,7 +73,6 @@ int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 regis
 
 static int pushCells(int x);
 static int popCells(int x);
-
 static int currentFuncHasReturn = 0;
 
 static char DBG_File = 1;
@@ -222,16 +222,18 @@ static void moveXToY(int x, int y){
 	codeZero(y);
 	bfalgo("$[$+$-]",x,y,x);
 }
-static void constantIncrement(int x, int q){
+static void codeConstantIncrement(int x, int q){
 	codeGoTo(x);
-	while(q--){
+	while(q){
 		bfalgo("+");
+		q--;
 	}
 }
-static void constantDecrement(int x, int q){
+static void codeConstantDecrement(int x, int q){
 	codeGoTo(x);
-	while(q--){
+	while(q){
 		bfalgo("-");
+		q--;
 	}
 }
 
@@ -564,9 +566,6 @@ void codeDefFunc(DefFunc* df) {
 		currentBrIndex = 0;
 
 		
-		codeParams(df->params);
-		
-		codeForAllocParams(df->params);
 		codeBlock(df->b);
 		
 		
@@ -579,9 +578,9 @@ void codeDefFunc(DefFunc* df) {
 		// currentBrIndex = 0;f
 	}
 	else {
-		fprintf(output, "declare %s @%s(", typeStr,df->id);
-		codeParams(df->params);
-		fprintf(output, ")\n");
+		// fprintf(output, "declare %s @%s(", typeStr,df->id);
+		// codeParams(df->params);
+		// fprintf(output, ")\n");
 	}
 }
 void codeDefVarList(DefVarL* dvl) {
@@ -598,11 +597,11 @@ void codeDefList(Def* d) {
 	//printf("coding DefList\n");
 	switch (d->tag) {
 		case DVar:
-			codeDefVar(d->u.v);
+			codeDefVarList(d->u.v);
 		break;
 		case DFunc:
-			if(strcmp(d->u.f->id,"main")==0) //only code main
-				codeDefFunc(d->u.f);
+			if(strcmp(d->u.f->id,"main")==0) //only code main 
+				codeDefFunc(d->u.f); //definition of main leaves implicit main call
 		break;
 	}
 	codeDefList(d->next);
@@ -633,31 +632,34 @@ void codeNameList(NameL* nl,Type* t,int scope) {
 }
 void codeType(Type* t);
 void codeParams(Parameter* params) {
-	if(!params)
-		return;
-	if(params->next) {
-		params->start_cell = currentAllocationIndex+=2;
-		codeParams(params->next);
-	}
+	// if(!params)
+	// 	return;
+	// if(params->next) {
+	// 	params->start_cell = currentAllocationIndex+=2;
+	// 	codeParams(params->next);
+	// }
 }
 void codeForAllocParams(Parameter* params) {
 	if(!params)
 		return;
 	
-	int index = currentFunctionTIndex;
 	Parameter* p = params;
 	while(p) {
-		char * tStr = stringForType(p->t);
-		fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex++, tStr);
+		p->start_cell = pushCells(cellsForType(p->t));
 		p = p->next;
 	}
-	p = params;
-	int i=0;
+	
+}
+void codeForDeAllocParams(Parameter* params) {
+	if(!params)
+		return;
+	
+	Parameter* p = params;
 	while(p) {
-		char * tStr = stringForType(p->t);
-		fprintf(output,"store %s %%%d, %s* %%t%d\n", tStr, i++, tStr, index++);
+		popCells(cellsForType(p->t));
 		p = p->next;
 	}
+	
 
 }
 /* 
@@ -704,14 +706,14 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
-	// int temp0 = currentTempRegs[3];
-	// codeZero(temp0);
-	//fprintf(output, ";begin codecond\n");
+	int temp = currentTempRegs[1];
 	i1 = codeExp(e);
+	codeZero(temp);
+	incrementXbyY2(temp,i1);
 	//unequals(i1,temp0);
-	codeGoTo(i1);
+	
 	codeDebugMessage("CodeCond");
-	return i1;
+	return temp;
 }
 void codeCommandList(CommandL* cl) {
 	codeDebugMessage("CL");
@@ -727,26 +729,30 @@ void codeCommandList(CommandL* cl) {
 		switch(c->tag) {
 			case CWhile:
 				codeDebugMessage("begin while");
+				temp0 = currentAllocationIndex;
 			 	i1 = codeCond(c->condExp);
 				bfalgo("$[\n",i1);
 					codeCommandList(c->cmdIf);
 				i2 = codeCond(c->condExp);
 				bfalgo("$\n]",i2);
+				
 				codeDebugMessage("end while");
 			break;
 			case CIf:
+				temp0 = pushCells(1);
+				codeZero(temp0);
 				i1 = codeCond(c->condExp);
-				bfalgo("[\n");
-				codeCommandList(c->cmdIf );
-				codeZero(currentTempRegs[1]);
-				codeGoTo(currentTempRegs[1]);
-				bfalgo("]\n");
+				bfalgo("$[",i1);
+				codeCommandList(c->cmdIf);
+				bfalgo("$]$",temp0,i1);
+
+
 				// leaveScope();
 			break;
 			case CIfElse:
 				i1 = codeCond(c->condExp);
-				temp0 = currentTempRegs[2];
-				temp1 = currentTempRegs[3];
+				temp0 = pushCells(1);
+				temp1 = pushCells(1);
 				bfalgo("$[-]+$[-]$[",temp0,temp1,i1);
  				codeCommandList(c->cmdIf);
  				bfalgo("$-$[$+$-]]$[$+$-]$[",temp0,i1,temp1,i1,temp1,i1,temp1,temp0);
@@ -763,7 +769,8 @@ void codeCommandList(CommandL* cl) {
 				}
 				else {
 					i1 = codeExp(c->retExp);
-					moveXToY(i1,currentTempRegs[0]);
+					codeZero(currentTempRegs[0]);
+					incrementXbyY2(currentTempRegs[0],i1);
 					codeDebugMessage("Return");
 				}
 			break;
@@ -794,8 +801,12 @@ void codeCommandList(CommandL* cl) {
 				else if(c->printExp->type->tag == base) {
 					switch(c->printExp->type->b) {
 						case WInt:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
+						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
 						codeDebugMessage("print int");
+						break;
+						case WShort:
+						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						codeDebugMessage("print Short");
 						break;
 						case WByte:
 						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
@@ -822,6 +833,10 @@ void codeCommandList(CommandL* cl) {
 				codeStr("@");
 				codeDebugMessage("Print All Memory");
 			break; 
+			case COperator:
+				codeExp(c->oprExp);
+				codeDebugMessage("Operator");
+			break; 
 		}
 		c = c->next;
 	}
@@ -837,14 +852,14 @@ int sizeOfDvl(DefVarL* dvl ){
 
 }
 void codeBlock(Block* b) {
-	if(!b->limits) {
-		b->limits = (CellUsage*)malloc(sizeof(CellUsage));
-		b->limits->start = currentAllocationIndex++;
-	}
+	// if(!b->limits) {
+	// 	b->limits = (CellUsage*)malloc(sizeof(CellUsage));
+	// 	b->limits->start = currentAllocationIndex++;
+	// }
 	codeDefVarList(b->dvl);
 	codeCommandList(b->cl);
 
-	codeGoTo(b->limits->start);
+	//codeGoTo(b->limits->start);
 }
 int codeBinExp(Exp* e ,int* f) {
 	int te1,te2; 
@@ -860,50 +875,27 @@ int codeBinExp(Exp* e ,int* f) {
 }
 int codeCallExp(Exp* e) {
 
-	codeDefFunc((DefFunc*)e->call.def);
+	DefFunc* df = (DefFunc*)e->call.def;
 	
 	int toCall = -1;
 	int size=0;
-	ExpList *p = e->call.expList;
+	ExpList *q = e->call.expList;
+	Parameter *p = df->params;
 	//calculate size
-	while(p) {
-		size++;
+	//codeForAllocParams(df->params);
+	while(q) {
+		int temp = codeExp(q->e);
+		//codeStr("@");
+		p->start_cell = pushCells(cellsForType(p->t));
+		incrementXbyY2 (p->start_cell,temp);
+		//codeStr("@");
+		printf("param %s at %d\n",p->id,p->start_cell );
 		p = p->next;
-	}
-	//generate code for arguments
-	p = e->call.expList;
-	int * args = (int*)malloc(sizeof(int)*size);
-	int i=0;
-	while(p) {
-		int index = codeExp(p->e);
-		args[i] = index;
-		i++;
-		p=p->next;
+		q = q->next;
 	}
 
-	if(e->type == NULL) {
-		// fprintf(output, "call void @%s(",
-		// 	e->call.id);
-	}
-	else {
-		// char* fTypeStr = stringForType(e->type);
-		//  toCall = ++currentFunctionTIndex; 
-		// fprintf(output, "%%t%d = call %s @%s(",
-		// 	toCall,
-		// 	fTypeStr,
-		// 	e->call.id);
-	}
-	p = e->call.expList;
-	i=0;
-	while(p) {
-		char* tStr = stringForType(p->e->type);
-		fprintf(output, "%s %%t%d",tStr,args[i]);
-		if(p->next)
-			fprintf(output, ", ");
-		p = p->next;
-		i++;
-	}
-	
+	codeDefFunc((DefFunc*)e->call.def);
+	//codeForDeAllocParams(df->params);
 	return currentTempRegs[0];		
 }
 
@@ -946,7 +938,7 @@ int codeExpPrim(Exp* e) {
 	if(e->c->tag == KFloat) {
 		
 	} else {
-		if(!e->c->start_cell) {
+		if(e->c->start_cell == 0) {
 			e->c->start_cell = currentAllocationIndex += 2;
 			//printf("kint at %d\n",currentAllocationIndex);
 			char c = '+';
@@ -969,7 +961,6 @@ int getAddressOfVar(Var* id) {
 }
 int codeExpVar(Exp* e) {
 	currentFunctionTIndex++;
-	char* tStr = stringForType(e->type);
 	if(e->var->declaration == NULL)
 	{
 		//printf(";params\n");
@@ -981,12 +972,8 @@ int codeExpVar(Exp* e) {
 			p=p->next;
 			t++;
 		}
+		return p->start_cell;
 
-		fprintf(output,"%%t%d = load %s, %s* %%t%d\n", 
-				currentFunctionTIndex,
-				 tStr,
-				 tStr,
-				 t);
 	}
 	else {
 		return e->var->declaration->start_cell;
@@ -1326,8 +1313,8 @@ int codeExp(Exp* e) {
 	int result =-1;
 	if(!e)
 		return -1;
-	e = optimizeExp(e);
-	printExp(e,10);
+	//e = optimizeExp(e);
+	//printExp(e,10);
 	switch(e->tag) {
 		int te1,te2;
 		case ExpAdd:
@@ -1393,11 +1380,27 @@ int codeExp(Exp* e) {
 			result = codeExpCast(e);
 			
 		break;
+		case ExpOperator:
+			result = codeExpOperator(e);
+			
+		break;
 	}
 
 	return result;
 }
-
+int codeExpOperator(Exp* e) {
+	int result = codeExp(e->opr.e);
+	printf("amount %d\n",e->opr.amount);
+	switch(e->opr.op) {
+		case INC:
+			codeConstantIncrement(result,e->opr.amount);
+		break;
+		case DEC:
+			codeConstantDecrement(result,e->opr.amount);
+		break; 
+	}
+	return currentFunctionTIndex;
+}
 void codeExpList(ExpList* el) {
 	char * tStr;
 	if(!el)

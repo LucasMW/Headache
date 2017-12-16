@@ -2,6 +2,10 @@
 	#include "tree.h"
 	#define tree_h
 #endif
+#if !defined(symbolTable_h)
+	#include "symbolTable.h"
+	#define symbolTable_h
+#endif
 #include "optimizer.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,7 +43,7 @@ void optimizeDefList(Def* d)
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
-				optimizeDefVar(df->u.v);
+				optimizeDefVarList(df->u.v);
 			break;
 			case DFunc:
 				optimizeDefFunc(df->u.f);
@@ -73,26 +77,6 @@ void optimizeDefFunc(DefFunc* df)
 	optimizeBlock(df->b);
 }
 void optimizeType(Type* t) {
-	
-	if(!t) {
-		return;
-	}
-	switch(t->tag) {
-		case base:
-			switch(t->b) {
-				case WInt:
-				break;
-				case WFloat:
-				break;
-				case WByte:
-
-				break;
-			}
-			
-		break;
-		case array:
-		break;
-	}
 }
 
 void optimizeParams(Parameter* params)
@@ -158,6 +142,10 @@ void optimizeCommandList(CommandL* cl) {
 			case CDebug:
 				optimizeExp(c->printExp);
 			break;
+			case COperator:
+				optimizeExp(c->oprExp);
+			break;
+
 
 		}
 		c = c->next;
@@ -192,35 +180,8 @@ void optimizeConstant(Constant* c) {
 
 Exp* optimizeExpLogic(Exp* e){
 	Exp* newExp = e;
-	Exp* e1 = optimizeExp(e->bin.e1);
-	Exp* e2 = optimizeExp(e->bin.e2);
-	if(e1->tag == ExpPrim && e2->tag == ExpPrim) {
-		//printf("Both prim\n");
-		char r; //same semantics as brainfuck cell
-		if(e->tag == ExpAdd)
-			r = e1->c->u.d + e2->c->u.d;
-		else if(e->tag == ExpSub)
-			r = e1->c->u.d - e2->c->u.d;
-		else if(e->tag == ExpMul)
-			r = e1->c->u.d * e2->c->u.d;
-		else if(e->tag == ExpDiv)
-			r = e1->c->u.d / e2->c->u.d; //might have different results due to 0/0
-		else {
-			printf("SEVERE ERROR optimizer\n");
-			printf("aborting optimization\n");
-			return e;
-		}
-		//printf("r is %d\n", r);
-		newExp=(Exp*)malloc(sizeof(Exp));
-		newExp->tag = ExpPrim;
-		newExp->c = (Constant*)malloc(sizeof(Constant));
-		newExp->c->u.d = r;
-		newExp->type = e->type;
-	} else if(e1->tag == ExpPrim) { // translate to simple increments or decrements
-
-	} else if(e2->tag == ExpPrim) {
-
-	}
+	//Exp* e1 = optimizeExp(e->bin.e1);
+	//Exp* e2 = optimizeExp(e->bin.e2);
 	//printf("Optimized exp\n");
 	//printExp(newExp,2);
 	return newExp;	
@@ -235,29 +196,75 @@ Exp* optimizeExpBin(Exp* e){
 		//printf("Both prim\n");
 		char r; //same semantics as brainfuck cell
 		if(e->tag == ExpAdd)
-			r = e1->c->u.d + e2->c->u.d;
+			r = (char)e1->c->u.i + (char)e2->c->u.i;
 		else if(e->tag == ExpSub)
-			r = e1->c->u.d - e2->c->u.d;
+			r = (char)e1->c->u.i - (char)e2->c->u.i;
 		else if(e->tag == ExpMul)
-			r = e1->c->u.d * e2->c->u.d;
-		else if(e->tag == ExpDiv)
-			r = e1->c->u.d / e2->c->u.d; //might have different results due to 0/0
+			r = (char)e1->c->u.i * (char)e2->c->u.i;
+		else if(e->tag == ExpDiv) {
+			//Dealing with 0
+			if(e2->c->u.i == 0 && e1->c->u.i == 0){
+				r = 0;
+			}
+			else if(e2->c->u.i == 0){
+				raiseWarning("cannot optimize",e->dbg_line);
+				return e; //abort optimization. Cannot optimize this
+			} 
+			else {
+				r = (char)e1->c->u.i / (char)e2->c->u.i; 
+			}
+			
+		}
 		else {
 			printf("SEVERE ERROR optimizer\n");
 			printf("aborting optimization\n");
 			return e;
 		}
-		//printf("r is %d\n", r);
+		//printf("\nr is %d\n", r);
 		newExp=(Exp*)malloc(sizeof(Exp));
 		newExp->tag = ExpPrim;
 		newExp->c = (Constant*)malloc(sizeof(Constant));
-		newExp->c->u.d = r;
-		newExp->type = e->type;
-	} else if(e1->tag == ExpPrim) { // translate to simple increments or decrements
+		newExp->c->tag = KInt;
+		newExp->c->u.i = r;
+		newExp->c->start_cell = 0;
 
-	} else if(e2->tag == ExpPrim) {
+		
+	} else if(optimizationLevel >= 2) {
+		//printf("optimizer inc dec\n");
+		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
+			newExp = (Exp*)malloc(sizeof(Exp));
+			newExp->tag = ExpOperator;
+			newExp->opr.amount = e1->c->u.i;
+			if(e->tag == ExpAdd){
+				newExp->opr.op = INC;
+			} else if(e->tag == ExpSub){
+				newExp->opr.op = DEC;
+			} else{
+				return e;
+			}
+			newExp->opr.e = e2;
+			newExp->start_cell = 0;
+
+
+		} else if(e2->tag == ExpPrim) {
+			newExp = (Exp*)malloc(sizeof(Exp));
+			newExp->tag = ExpOperator;
+			newExp->opr.amount = e2->c->u.i;
+			if(e->tag == ExpAdd){
+				newExp->opr.op = INC;
+			} else if(e->tag == ExpSub){
+				newExp->opr.op = DEC;
+			} else {
+				return e;
+			}
+			newExp->opr.e = e1;
+			newExp->start_cell = 0;
+			
+		}
 
 	}
+	newExp->dbg_line = e->dbg_line;
+	newExp->type = e->type; //self consistency 
 	//printf("Optimized exp\n");
 	//printExp(newExp,2);
 	return newExp;
@@ -266,7 +273,8 @@ Exp* optimizeExp(Exp* e) {
 	
 	if(!e)
 		return e;
-	//printExp(e,0);
+	//printf("e->dbg_line %d\n",e->dbg_line);
+	//printExp(e,10);
 	Exp* newExp = e; //case nothing happens, should return the same
 	// Exp* e1;
 	// Exp* e2;
@@ -306,7 +314,16 @@ Exp* optimizeExp(Exp* e) {
 			//printf("access\n");
 		break;
 		case ExpCast:
-			newExp->cast.e = optimizeExp(e->cast.e);
+			if(optimizationLevel >= 1)
+			{
+				newExp->cast.e = optimizeExp(e->cast.e);
+			}
+		break;
+		case ExpOperator:
+			if(optimizationLevel >= 1)
+			{
+				newExp->opr.e = optimizeExp(e->opr.e);
+			}
 		break;
 	}
 	//printExp(newExp,0);

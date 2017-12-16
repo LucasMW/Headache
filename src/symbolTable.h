@@ -19,4 +19,6 @@ void typeVar(Var* v);
 void typeConstant(Constant* c);
 void typeExpList(ExpList* el);
 int cellsForType(Type* t);
+void raiseWarning(const char* message,int line);
+void raiseError(const char* message,int line);
 static char flagDebug;

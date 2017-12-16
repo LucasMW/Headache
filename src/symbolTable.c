@@ -48,7 +48,7 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
-static currentAllocationIndex = 4; // four registers
+static int currentAllocationIndex = 4; // four registers
 static char* memory[30000]; //debugs and controlsfree memory
 
 
@@ -81,8 +81,8 @@ void raiseError(const char* message,int line) {
 	printf("Error: %s\n# near line %d\n",message,line);
 	exit(01);
 }
-void raiseWarning(const char* message) {
-	printf("Warning: %s\n",message);
+void raiseWarning(const char* message,int line) {
+	printf("Warning: %s\n# near line %d",message,line);
 	warningCount++;
 }
 void generateStardardDeclares(progNode* prog) {
@@ -188,6 +188,8 @@ void insert(const char* symbolID,Type* type,void* d) {
 	variables[variablesTop].type = type;
 	variables[variablesTop].declaration = d;
 	variablesTop++;
+	incrementMemoryUsage(cellsForType(type));
+
 	//printf("variablesTop %d\n",variablesTop );
 }
 
@@ -205,7 +207,7 @@ void typeDefList(Def* d)
 			case DVar:
 				// ndf = expandDefVar(d);
 				// df = ndf;
-				typeDefVar(df->u.v);
+				typeDefVarList(df->u.v);
 			break;
 			case DFunc:
 				typeDefFunc(df->u.f);
@@ -221,7 +223,7 @@ void typeNameList(NameL* nl, Type* t,DefVar* dv) {
 	do  {
 		insert(p->name,t,dv);
 		p = p->next;
-		incrementMemoryUsage(cellsForType(t));
+		//incrementMemoryUsage(cellsForType(t));
 
 	} while(p);
 }
@@ -230,7 +232,8 @@ void typeDefVar(DefVar* dv){
 	if(!dv)
 		return;
 	dv->scope = scopesTop;
-	typeNameList(dv->nl,dv->t,dv);
+	//typeNameList(dv->nl,dv->t,dv);
+	insert(dv->id,dv->t,dv);
 }
 void typeDefFunc(DefFunc* df)
 {
@@ -302,6 +305,15 @@ int checkCallability(Exp* callExp) {
 		return 0; //must be a function
 	Type* ft = df->retType;
 	return typeEquals(t,ft);
+}
+int checkIncDecremantability(Exp* oprExp){
+	if(!oprExp){
+		return 0;
+	}
+	if(oprExp->opr.e->tag == ExpPrim){
+		return 0;
+	}
+	return 1;
 }
 void typeCommandList(CommandL* cl ) {
 	if(!cl)
@@ -393,6 +405,12 @@ void typeCommandList(CommandL* cl ) {
 			case CDebug:
 				flagDebug = 1;
 			break;
+			case COperator:
+				typeExp(c->oprExp);
+				if (!checkIncDecremantability(c->oprExp)) {
+					raiseError("Expression is suitable for increment/decrement",c->oprExp->dbg_line);
+				}
+			break;
 		}
 		c = c->next;
 	}
@@ -443,9 +461,9 @@ static DefVar* paramToDefVar(Parameter* param){
 	DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
 	dv->id = param->id;
 	dv->t = param->t;
-	dv->nl = (NameL*)malloc(sizeof(NameL));
-	dv->nl->name = param->id;
-	dv->nl->next = NULL;
+	//dv->nl = (NameL*)malloc(sizeof(NameL));
+	//dv->nl->name = param->id;
+	//dv->nl->next = NULL;
 	return dv;
 }
 
@@ -497,6 +515,7 @@ Type* unaryType(Exp* e) {
 
 Type* CmpType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
+	t->tag = base;
 	t->b = WInt;
 	return t;
 }
@@ -793,9 +812,13 @@ void typeExp(Exp* e ) {
 				raiseError("Cast not avaible for these types",e->dbg_line);
 			}
 			if(typeEquals(e->cast.type,e->cast.e->type)){
-				raiseWarning("Cast to equal typing");
+				raiseWarning("Cast to equal typing",e->dbg_line);
 			}
 			e->type = e->cast.type;
+		break;
+		case ExpOperator:
+			typeExp(e->opr.e);
+			e->type = e->opr.e->type;
 		break;
 		
 	}
@@ -872,10 +895,16 @@ int cellsForType(Type* t){
 					return 8;
 				break;
 				case WFloat:
-					return 8;
+					return 4;
+				break;
+				case WShort:
+					return 2;
 				break;
 				case WByte:
-					return 2;
+					return 1;
+				break;
+				case WBit:
+					return 1;
 				break;
 			}
 		break;

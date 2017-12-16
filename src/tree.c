@@ -42,27 +42,27 @@ void DefVarLFix(DefVarL** dvlRef){
 		return;
 
 
-	DefVarL* oldNext = (*dvlRef)->next; // nextLine definitions
+	// DefVarL* oldNext = (*dvlRef)->next; // nextLine definitions
 	
-	DefVarL* internal = DefVarToDevL((*dvlRef)->dv); //result from expanded
+	// DefVarL* internal = DefVarToDevL((*dvlRef)->dv); //result from expanded
 
-	DefVarLinkEnd(internal,oldNext);
+	// DefVarLinkEnd(internal,oldNext);
 
-	(*dvlRef)->dv = internal->dv;
-	(*dvlRef)->next = internal->next;
+	// (*dvlRef)->dv = internal->dv;
+	// (*dvlRef)->next = internal->next;
 }
 
 DefVarL* DefVarToDevL(DefVar* dv){
-	if(!dv)
-		return NULL;
-	DefVarL* dvl =  (DefVarL*)malloc(sizeof(DefVarL));
-	dvl->next = NameLToDevL(dv->nl, dv->t,dv->scope);
-	//printf("\ninternal\n");
-	//printDefVarList(dvl->next,0);
-	//printf("\nevery\n");
-	//printDefVarList(dvl,0);
-	free(dv->nl);
-	dv->nl = NULL;
+	// if(!dv)
+	// 	return NULL;
+	 DefVarL* dvl =  (DefVarL*)malloc(sizeof(DefVarL));
+	// dvl->next = NameLToDevL(dv->nl, dv->t,dv->scope);
+	// //printf("\ninternal\n");
+	// //printDefVarList(dvl->next,0);
+	// //printf("\nevery\n");
+	// //printDefVarList(dvl,0);
+	// free(dv->nl);
+	// dv->nl = NULL;
 	return dvl;
 }
 
@@ -70,25 +70,25 @@ DefVarL* NameLToDevL(NameL* nl, Type* t, int scope ){
 	if(!nl)
 		return NULL;
 	DefVarL* dvl = (DefVarL*)malloc(sizeof(DefVarL));
-	DefVarL* currentDvl = dvl;
-	NameL* p = nl;
-	do  {
-		DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
-		DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
-		dv->scope = scope;
-		dv->t = t;
-		dv->id = malloc(strlen(p->name)+1);
-		strcpy((char*)dv->id,p->name);
-		dv->nl = NULL;
-		dv->start_cell = 0;
-		dv->limits = NULL;
-		ndvl->dv = dv;
-		currentDvl->next = ndvl;
-		currentDvl = ndvl;
+	// DefVarL* currentDvl = dvl;
+	// NameL* p = nl;
+	// do  {
+	// 	DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
+	// 	DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
+	// 	dv->scope = scope;
+	// 	dv->t = t;
+	// 	dv->id = malloc(strlen(p->name)+1);
+	// 	strcpy((char*)dv->id,p->name);
+	// 	dv->nl = NULL;
+	// 	dv->start_cell = 0;
+	// 	dv->limits = NULL;
+	// 	ndvl->dv = dv;
+	// 	currentDvl->next = ndvl;
+	// 	currentDvl = ndvl;
 
-		p = p->next;
-	} while(p);
-	currentDvl->next = NULL;
+	// 	p = p->next;
+	// } while(p);
+	// currentDvl->next = NULL;
 	//printf("first dvl:\n");
 	//printDefVarList(dvl,0);
 	return dvl;
@@ -123,7 +123,7 @@ void printDefList(Def* d,int x)
 		switch(df->tag) {
 			case DVar:
 				//printf("defVar \t");
-				printDefVar(df->u.v,x+1);
+				printDefVarList(df->u.v,x+1);
 			break;
 			case DFunc:
 				//printf("defFunc \t");
@@ -182,6 +182,12 @@ void printType(Type* t,int x) {
 				break;
 				case WByte:
 				printDepthLevel("byte ",x);
+				break;
+				case WShort:
+				printDepthLevel("short ",x);
+				break;
+				case WBit:
+				printDepthLevel("bit ",x);
 				break;
 			}
 			
@@ -272,6 +278,10 @@ void printCommandList(CommandL* cl,int x) {
 			case CDebug:
 				printDepthLevel("debug",x);
 				printExp(c->printExp,x+1);
+			break;
+			case COperator:
+				printDepthLevel("operator",x);
+				printExp(c->oprExp,x+1);
 			break;
 
 		}
@@ -371,6 +381,23 @@ void printExp(Exp* e,int x) {
 			printDepthLevel("cast",x);
 			printExp(e->cast.e,x+1);
 			printType(e->cast.type,x+1); 
+		break;
+		case ExpOperator:
+			// Constant* c = (Constant*)malloc(sizeof(Constant));
+			// c->tag = KInt;
+			// c->u.i = e->opr.amount;
+			switch(e->opr.op) {
+				case INC:
+					printDepthLevel("(++)",x);
+					//printConstant(c,x+1);
+				break;
+				case DEC:
+					printDepthLevel("(--)",x);
+					//printConstant(c,x+1);
+				break; 
+			}
+			//free(c); //created only to call printConstant
+			printExp(e->opr.e,x+1);
 		break;
 	}
 }

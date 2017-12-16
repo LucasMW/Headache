@@ -7,11 +7,11 @@ void main(){
 	while(i){
 		j=2;
 		while(j){
-			@"y ";
+			@j;@" ";
 			j=j-1;
 		}
 		i = i-1;
-		@"x\n";
+		@"\n";
 	}
-	@"\nFinished\n";
+	@"Finished\n";
 }

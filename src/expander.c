@@ -93,7 +93,10 @@ char * expand8to32(char b){
 #include <string.h>
 
 void cliError(char* prog){
-	printf("Error!\nProgram usage is: \n%s ./expander sourcecode\n",prog);
+	printf("Error!\nProgram usage is: \n");
+	printf("%s sourcepath [mode] \n",prog);
+	printf("%s -p \"source\" [mode]\n",prog);
+	printf("%s -i [mode] \n",prog);
 	exit(-1);
 }
 char* expand(char c, int mode){

@@ -7,5 +7,5 @@ void main() {
 	byte a;
  	@"Hello\n";
  	a = add(1 as byte,2 as byte);
- 	@a;
+ 	@a;@"\n";
 }

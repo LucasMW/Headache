@@ -1,14 +1,25 @@
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=c99 -g
 OUTFILE = hac
 SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c
-OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o
+OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
-	emcc --pre-js stdin.js -Wall -o bin/hac.js src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+	emcc --pre-js stdin.js -Wall -o bin/hac.js $(SOURCES)
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
+
+install: bin/hac expander bfi
+	@rm -rf $(HOME)/.Headache/
+	@echo "Installing Headache..."
+	@./bin/hac --version
+	@mkdir "$(HOME)/.Headache"
+	@cp bin/hac "$(HOME)/.Headache/"
+	@cp bfi "$(HOME)/.Headache/"
+	@cp expander "$(HOME)/.Headache/"
+	@echo "Please add $(HOME)/.Headache/ to your PATH"
+
 
 test: testlexical testsyntax testtree testchecks
 
@@ -20,6 +31,9 @@ bfi: src/testbfi.c
 
 expander: src/expander.c
 	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+
+testoptimize: hac bfi
+	sh test/optimize/script.sh
 
 testrunnable: hac bfi
 	sh test/runnable/script.sh
@@ -78,7 +92,7 @@ clean:
 zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
-	mv zipfolder.zip ../mongahac.zip
+	mv zipfolder.zip ../hac.zip
 
 bin/hac: $(OBJS)
 	ls temp
