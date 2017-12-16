@@ -159,7 +159,7 @@ int main (int argc, char** argv)
 	char noTree =0;
 	char noChecks=0;
 	char noCode = 0;
-	char noBin = 1;
+	char noBin = 0;
 	char noDebug = 0;
 
 	char* option = NULL;
@@ -286,15 +286,29 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
-		char* str = handleClangOptions(argc,argv);
-		char* buff = (char*)malloc(
-			strlen(str) +
-			strlen("clang") +
-			strlen(bf_name)+1);
-		sprintf(buff,"clang %s %s",
-			str,
-			bf_name);
-		int s = system(buff);
+		int s = 0;
+		typedef enum bfc_compile_mode { using_llc,just_bfc } bfc_compile_mode;
+		bfc_compile_mode bfc_mode = just_bfc;
+
+		switch(bfc_mode) {
+			case using_llc:
+				s = system("./extras/bfc a.bf --dump-llvm > a.ll");
+				s = system("llc a.ll");
+				s = system("gcc a.ll -o a.out");
+			break;
+			case just_bfc:
+				s = system("./extras/bfc a.bf");
+			break;
+		}
+		// char* str = handleClangOptions(argc,argv);
+		// char* buff = (char*)malloc(
+		// 	strlen(str) +
+		// 	strlen("clang") +
+		// 	strlen(bf_name)+1);
+		// sprintf(buff,"clang %s %s",
+		// 	str,
+		// 	bf_name);
+		// int s = system(buff);
 		return s;
 	}
 	if(!noDebug)
