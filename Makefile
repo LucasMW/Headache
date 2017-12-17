@@ -91,6 +91,7 @@ clean:
 #always generate zip
 zip:
 	rm -rf zipfolder
+	rm -f src/*.o
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../hac.zip
 
