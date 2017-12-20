@@ -5,6 +5,14 @@ Programming Language that compiles to 8-Bit Brainfuck.
 
 Just type 'make'.
 
+## Install
+
+Just type 'make install'
+
+then include $HOME/.Headache/ in your PATH variable.
+
+this will enable hac, bfi and expander in your shell 
+
 ## Usage
 
 ./hac file.ha
