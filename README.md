@@ -9,7 +9,11 @@ Just type 'make'.
 
 Just type 'make install'
 
-then include $HOME/.Headache/ in your PATH variable.
+then include 
+		
+	$HOME/.Headache/ 
+
+in your PATH variable.
 
 this will enable hac, bfi and expander in your shell 
 
