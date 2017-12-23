@@ -10,6 +10,8 @@ bin/hac.js: src/main.c src/lex.c src/grammar.c
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
+all: test/hac bfi expander bin/hac
+
 install: bin/hac expander bfi
 	@rm -rf $(HOME)/.Headache/
 	@echo "Installing Headache..."
