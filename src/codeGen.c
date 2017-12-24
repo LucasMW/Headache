@@ -100,7 +100,7 @@ static void bfalgo(char* str, ...){
   	}
   }
   //printf("count %d\n",count );
-  va_start (ap, count);         /* Initialize the argument list. */
+  va_start (ap, str);         /* Initialize the argument list. */
 
   for(i=0;str[i];i++){
   	if(str[i] == '$') {
