@@ -283,6 +283,7 @@ int main (int argc, char** argv)
 		setCodeOutput(bf_location);
 		codeTree();
 		fclose(bf_location);
+		freeTree();
 	}
 	if(!noBin)
 	{

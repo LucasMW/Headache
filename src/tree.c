@@ -547,6 +547,7 @@ void freeDefFunc(DefFunc* df)
 void freeType(Type* t) {
 	
 	if(!t) {
+		return;
 	}
 	switch(t->tag) {
 		case base:
