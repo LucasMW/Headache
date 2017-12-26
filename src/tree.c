@@ -519,6 +519,7 @@ void freeNameList(NameL* nl) {
 		NameL* p = nl;
 		while(p){
 			p=p->next;
+			free((void*)p->name);
 		}
 		free(p);
 	}
@@ -567,7 +568,7 @@ void freeParams(Parameter* params)
 	while(p) {
 		freeType(p->t);
 		if(p->id)
-			free(p->id);
+			free((void*)p->id);
 		p = p->next; 
 	}
 }
@@ -701,10 +702,9 @@ void freeExpList(ExpList* el) {
 void freeVar(Var* v) {
 	if(!v)
 		return;
-	free(v->id);
+	free((void*)v->id);
 }
 void freeConstant(Constant* c) {
-	char str[40] = "no string given";
 	if(!c)
 		return;
 	switch(c->tag) {
@@ -713,7 +713,7 @@ void freeConstant(Constant* c) {
 		case KFloat:
 		break;
 		case KStr:
-			free(c->u.str);
+			free((void*)c->u.str);
 		break;
 	}
 }

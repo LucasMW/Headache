@@ -236,6 +236,8 @@ void printExp(Exp* e,int x);
 void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
+void freeTree();
+
 
 /* Helping Parser */
 void DefVarLinkEnd(DefVarL* dvl, DefVarL* e);
