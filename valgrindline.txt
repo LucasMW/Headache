@@ -1,0 +1,1 @@
+valgrind --track-origins=yes ./hac expanding.ha
