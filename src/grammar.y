@@ -1,4 +1,4 @@
-/* The grammar for monga*/
+/* The grammar for Headache*/
 /* grammar.y */
 
 %error-verbose /* instruct bison to generate verbose error messages*/

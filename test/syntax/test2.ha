@@ -5,7 +5,7 @@ int main (float ae){
 
 	var3 = var1 - var2 ; 
 
-	/*float var4 = var1 * var3; monga does not have this*/
+	/*float var4 = var1 * var3; Headache does not have this*/
 
 	if(var3>0 && var2<0 && var1 == 0){
 

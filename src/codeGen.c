@@ -100,7 +100,7 @@ static void bfalgo(char* str, ...){
   	}
   }
   //printf("count %d\n",count );
-  va_start (ap, count);         /* Initialize the argument list. */
+  va_start (ap, str);         /* Initialize the argument list. */
 
   for(i=0;str[i];i++){
   	if(str[i] == '$') {
@@ -414,6 +414,17 @@ static void codeCellValuePrint(int start, int end){
 	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
 	popCells(10);
 }
+
+static void codeCellValuePrintAnySize(int start, int end){
+	pushCells(10);
+	incrementXbyY2(currentAllocationIndex-5,start);
+	bfalgo("$[$+$+$-]$",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-6);
+	codeStr("[>>+>+<<<-]>>>[<<<+>>>-]<<+>[<->[>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]++++++++[<++++++>-]>[<<+>>-]>[<<+>>-]<<]>]<[->>++++++++[<++++++>-]]<[.[-]<]<");
+	bfalgo("$[$+$-]$",currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-7,currentAllocationIndex-5);
+	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
+	popCells(10);
+}
+
 
 void setCodeOutput(FILE* out) {
 	setOutput(out);
@@ -801,17 +812,19 @@ void codeCommandList(CommandL* cl) {
 				else if(c->printExp->type->tag == base) {
 					switch(c->printExp->type->b) {
 						case WInt:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						codeCellValuePrintAnySize(i1,i1);
 						codeDebugMessage("print int");
 						break;
 						case WShort:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						codeCellValuePrintAnySize(i1,i1);
 						codeDebugMessage("print Short");
 						break;
 						case WByte:
 						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
 
-						codeCellValuePrint(i1,i1);
+						codeCellValuePrintAnySize(i1,i1);
 						codeDebugMessage("print byte");
 
 						break;
@@ -1179,10 +1192,16 @@ int sizeOfType(Type* t) {
 			case WInt:
 				return sizeof(int);
 			break;
+			case WShort:
+				return sizeof(short);
+			break;
 			case WFloat:
 				return sizeof(float);
 			break;
 			case WByte:
+				return sizeof(char);
+			break;
+			case WBit:
 				return sizeof(char);
 			break;
 		}

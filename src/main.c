@@ -76,7 +76,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 2;
 
-static char hacVersion[] = "beta0.31";
+static char hacVersion[] = "beta0.41";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -181,17 +181,18 @@ int main (int argc, char** argv)
 		{ 
 			if(strcmp("--help",argv[1])==0)
 			{
-				printf("Usage: %s [options] file.ha \n",argv[0] );
+				printf("Usage: %s [options] file.ha [optimization]\n",argv[0] );
 				printf("Available options: \n");
 				for(int i=0;i<hacOptionsCount;i++) {
 					printf("\t%s\n",hacOptions[i]);
 				}
+				printf("Available optimizations: -O0, -O1, -O2. (Default is -O0)\n");
 				printf("If no file is provided, it shall read from stdin\n");
 				return 0;
 			}
 			else if(strcmp("--version",argv[1])==0)
 			{
-				printf("Hac (HeadAche Compiler). Version: %s\n",hacVersion );
+				printf("HAC (HeadAche Compiler). Version: %s\n",hacVersion );
 				return 0;
 			} 
 		} 
@@ -282,6 +283,7 @@ int main (int argc, char** argv)
 		setCodeOutput(bf_location);
 		codeTree();
 		fclose(bf_location);
+		freeTree();
 	}
 	if(!noBin)
 	{
