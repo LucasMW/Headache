@@ -4,7 +4,7 @@ SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbol
 OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
-	cc $(CFLAGS) -o hac $(SOURCES)
+	gcc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
 	emcc --pre-js stdin.js -Wall -o bin/hac.js $(SOURCES)
 bin/hac.html: src/main.c src/lex.c src/grammar.c
@@ -16,10 +16,10 @@ bfide-bfi: src/bfide/main.swift src/bfide/BrainfuckInterpreter.swift
 	swiftc -o bfide-bfi src/bfide/*.swift
 
 bfi: src/testbfi.c
-	cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
+	gcc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi
 
 expander: src/expander.c
-	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+	gcc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
 
 testoptimize: hac bfi
 	sh test/optimize/script.sh
@@ -81,31 +81,31 @@ clean:
 zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
-	mv zipfolder.zip ../mongahac.zip
+	mv zipfolder.zip ../hac.zip
 
 bin/hac: $(OBJS)
 	ls temp
-	cc -o bin/hac temp/*.o -O3 
+	gcc -o bin/hac temp/*.o -O3 
 
 temp/optimizer.o:
-	cc -o temp/optimizer.o -Wall -O3 -c src/optimizer.c
+	gcc -o temp/optimizer.o -Wall -O3 -c src/optimizer.c
 temp/testbfi.o:
-	cc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
+	gcc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
 temp/compilerFunctions.o:
-	cc -o temp/compilerFunctions.o -Wall -O3 -c src/compilerFunctions.c
+	gcc -o temp/compilerFunctions.o -Wall -O3 -c src/compilerFunctions.c
 temp/codeEss.o:
-	cc -o temp/codeEss.o -Wall -O3 -c src/codeEss.c
+	gcc -o temp/codeEss.o -Wall -O3 -c src/codeEss.c
 temp/lextest.o: src/lextest.c
-	cc -o temp/lextest.o -Wall -O3 -c src/lextest.c
+	gcc -o temp/lextest.o -Wall -O3 -c src/lextest.c
 temp/codeGen.o: src/codeGen.c
-	cc -o temp/codeGen.o -Wall -O3 -c src/codeGen.c
+	gcc -o temp/codeGen.o -Wall -O3 -c src/codeGen.c
 temp/symbolTable.o: src/symbolTable.c src/compilerFunctions.c
-	cc -o temp/symbolTable.o -Wall -O3 -c src/symbolTable.c
+	gcc -o temp/symbolTable.o -Wall -O3 -c src/symbolTable.c
 temp/grammar.o: src/grammar.c
-	cc -o temp/grammar.o -Wall -O3 -c src/grammar.c
+	gcc -o temp/grammar.o -Wall -O3 -c src/grammar.c
 temp/tree.o: src/tree.c
-	cc -o temp/tree.o -Wall -O3 -c src/tree.c
+	gcc -o temp/tree.o -Wall -O3 -c src/tree.c
 temp/main.o:  src/main.c
-	cc -o temp/main.o -Wall -O3 -c src/main.c
+	gcc -o temp/main.o -Wall -O3 -c src/main.c
 temp/lex.o: src/lex.c
-	cc -o temp/lex.o -Wall -O3 -c src/lex.c
+	gcc -o temp/lex.o -Wall -O3 -c src/lex.c
