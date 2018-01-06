@@ -454,6 +454,9 @@ char* stringForType(Type* t) {
 				case WByte:
 					return "i8";
 				break;
+				case WBit:
+					return "i1";
+				break;
 			}
 		break;
 		case array:
@@ -824,7 +827,7 @@ void codeCommandList(CommandL* cl) {
 						case WByte:
 						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]");
 
-						codeCellValuePrintAnySize(i1,i1);
+						codeCellValuePrintAnySize (i1,i1);
 						codeDebugMessage("print byte");
 
 						break;
