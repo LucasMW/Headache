@@ -7,6 +7,7 @@ Programming Language that compiles to 8-Bit Brainfuck.
 ## Build
 
 Requires MinGW to build
+
 Just type 'make'.
 
 ## Install
