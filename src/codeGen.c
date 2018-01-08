@@ -57,9 +57,13 @@ int allocateCellsForType(Type* t);
 
 static FILE* output = NULL;
 
+
+static const int registerCount = 4;
+int currentTempRegs[registerCount] = {0,1,2,3};
+static int currentAllocationIndex = registerCount;
 static int currentCell = 0;
-static int currentAllocationIndex = 4; // four registers
-static char* memory[30000]; //debugs and controlsfree memory
+
+static char* memory[30000]; //debugs and controls free memory
 
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
@@ -68,7 +72,7 @@ static int currentStringConstant = 0;
 static int declareTop = 0;
 char* stringsToDeclare[100];
 
-int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 registers
+
 
 
 static int pushCells(int x);
