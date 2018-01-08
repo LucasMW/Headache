@@ -109,9 +109,9 @@ void testLex ()
 			case TK_INT:
 				printf("Int %d\n",yylval.int_val);
 			break;
-			case TK_FLOAT:
-				printf("Float %g\n",yylval.double_val);
-			break;
+			// case TK_FLOAT:
+			// 	printf("Float %g\n",yylval.double_val);
+			// break;
 			case TK_WCHAR:
 				printf("reserved word char\n");
 			break;
