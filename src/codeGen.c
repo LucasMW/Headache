@@ -11,7 +11,7 @@
 #endif
 #if !defined(codeEss_h)
 	#include "codeEss.h"
-	#define tree_h
+	#define codeEss_h
 #endif
 #if !defined(compilerFunctions_h)
 	#include "compilerFunctions.h"
@@ -31,7 +31,7 @@ void codeDefVar(DefVar* dv);
 void codeDefFunc(DefFunc* df);
 void codeDefVarList(DefVarL* dvl);
 void codeDefList(Def* d);
-void codeNameList(NameL* nl,Type* t,int scope);
+
 void codeType(Type* t);
 void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
@@ -220,7 +220,6 @@ static void codeZero(int x) {
 /*	temp0[-]
 		y[x+temp0+y-]
 		temp0[y+temp0-]	*/
-
 
 static void moveXToY(int x, int y){
 	codeZero(y);
@@ -485,7 +484,7 @@ static char* stringForDefaultValue(Type* t) {
 		return "void";
 	}
 	if(t->tag == base) {
-		if(t->b == WInt || t->b == WByte) {
+		if(t->b == WInt || t->b == WByte || t->b == WShort) {
 			return "0";
 		}
 		else {
@@ -496,15 +495,7 @@ static char* stringForDefaultValue(Type* t) {
 	}
 
 }
-// static void codeDefaultReturn(Type* t) {
-// 	if(!t) {
-// 		fprintf(output, "ret void\n");
-// 		return;
-// 	}
-// 	char* tStr = stringForType(t);
-// 	char* value = stringForDefaultValue(t);
-// 	fprintf(output, "ret %s %s\n", tStr,value);
-// }
+
 
 static void pushStringToDeclare(char* str) {
 	//printf("%s\n",str );
@@ -565,8 +556,7 @@ void codeTree() {
 } 
 void codeDefVar(DefVar* dv) {
 	dv->start_cell = currentAllocationIndex += cellsForType(dv->t);
-	printf("var address: %d\n",dv->start_cell);
-	//codeNameList(dv->nl,dv->t,dv->scope);	
+	printf("var address: %d\n",dv->start_cell);	
 
 }
 void codeDefFunc(DefFunc* df) {
@@ -582,23 +572,7 @@ void codeDefFunc(DefFunc* df) {
 		declareTop = 0;
 		currentFuncHasReturn = 0;
 		currentBrIndex = 0;
-
-		
 		codeBlock(df->b);
-		
-		
-		// codeDefaultReturn(df->retType);
-		// fprintf(output, "}\n");
-		// currentFunctionTIndex = 0;
-		// currentParameters = NULL;
-		// declateStringsToDeclare();
-		// currentFuncHasReturn = 0;
-		// currentBrIndex = 0;f
-	}
-	else {
-		// fprintf(output, "declare %s @%s(", typeStr,df->id);
-		// codeParams(df->params);
-		// fprintf(output, ")\n");
 	}
 }
 void codeDefVarList(DefVarL* dvl) {
@@ -625,29 +599,7 @@ void codeDefList(Def* d) {
 	codeDefList(d->next);
 
 }
-void codeNameList(NameL* nl,Type* t,int scope) {
-	char* tStr = stringForType(t);
-	char* vStr = stringForDefaultValue(t);
-	NameL* p = nl;
-	if(scope) {
-		int q = cellsForType(t);
-		while(p) {
-			currentAllocationIndex+=q;
-			p=p->next;
-		}
-	} else {
-		while(p) {
-			char* string = stringForVarAddress(p->name,scope);
 
-			fprintf(output, "%s = global %s %s \n", 
-				string,  
-				tStr,
-				vStr );
-			free(string);
-			p=p->next;
-		}
-	}
-}
 void codeType(Type* t);
 void codeParams(Parameter* params) {
 	// if(!params)
