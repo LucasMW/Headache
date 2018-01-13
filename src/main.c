@@ -42,6 +42,8 @@
 Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 FILE* yyin;
+
+char forceExpand=0;
 void lexError(const char* message, int ret)
 {
 	printf("Lexical error detected in source:\n");
@@ -281,6 +283,7 @@ int main (int argc, char** argv)
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
+		forceExpand = 0;
 		codeTree();
 		fclose(bf_location);
 		freeTree();
@@ -297,6 +300,13 @@ int main (int argc, char** argv)
 			bf_name);
 		int s = system(buff);
 		return s;
+	}
+	if(forceExpand){
+		printf("should forceExpand %d\n",forceExpand );
+		for(int i=0;i<forceExpand;i++){
+			system("expander a.bf > exa.bf");
+			system("mv exa.bf a.bf");
+		}
 	}
 	if(!noDebug)
 	{

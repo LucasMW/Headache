@@ -73,7 +73,7 @@ static int declareTop = 0;
 char* stringsToDeclare[100];
 
 
-
+extern char forceExpand; 
 
 static int pushCells(int x);
 static int popCells(int x);
@@ -746,6 +746,13 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CAssign:
 				 i1 = codeExp(c->expRight);
+				 /* gambiarra para short e int sem esforço*/
+				 if(c->expRight->type == WShort){
+				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
+				 }
+				 else if(c->expRight->type == WInt){
+				 	forceExpand = forceExpand > 2 ? forceExpand : 2;
+				 }
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
 				 //printExp(c->expRight,0);
