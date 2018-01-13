@@ -1,6 +1,6 @@
-void foo(int a, float b)
+void foo(int a)
 {
-	if(a==b) {
+	if(a=="sas") {
 		@ "sld";
 	}
 }

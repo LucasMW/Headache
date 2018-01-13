@@ -1,6 +1,6 @@
 
 
-int main (float ae){
+void main (short ae){
 	
 	int var1, var2, var3,var4 ;
 	
@@ -8,7 +8,7 @@ int main (float ae){
 	var2 = -3;
 	var3 = var1 - var2 ; 
 
-	/*float var4 = var1 * var3; Headache does not have this*/
+	/*short var4 = var1 * var3; Headache does not have this*/
 	var4 = -1;
 	if(var3>0){
 
@@ -24,5 +24,4 @@ int main (float ae){
 
 	   @ var4;
 	}
-	return 0;
 }

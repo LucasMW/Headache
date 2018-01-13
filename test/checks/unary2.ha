@@ -1,11 +1,11 @@
 void main() {
-	float f; 
+	short f; 
 	int i; 
 	byte c;
 
-	f = -1.1+2.1;
+	f = -11+21;
 	
-	i = (-1.0 + 2.0) as int;
+	i = (-10 + 20) as int;
 	
 	c = 'a'+ (-'A' +'C' );
 	@f; @"\n";

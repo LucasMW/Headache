@@ -1,1 +1,1 @@
-byte char else for int if int new return short void while as
+byte else for if int return short void while as
