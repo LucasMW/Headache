@@ -747,11 +747,17 @@ void codeCommandList(CommandL* cl) {
 			case CAssign:
 				 i1 = codeExp(c->expRight);
 				 /* gambiarra para short e int sem esforço*/
-				 if(c->expRight->type == WShort){
+				 printType(c->expLeft->type,0);
+				 if(c->expLeft->type->b == WShort){
+				 	printf("forceExpand %d\n",forceExpand);
 				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
 				 }
-				 else if(c->expRight->type == WInt){
+				 else if(c->expLeft->type->b == WInt){
+				 	printf("forceExpand %d\n",forceExpand);
 				 	forceExpand = forceExpand > 2 ? forceExpand : 2;
+				 }
+				 else {
+				 	printf("don't forceExpand %d\n",forceExpand);
 				 }
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
