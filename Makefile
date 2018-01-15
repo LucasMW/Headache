@@ -97,7 +97,12 @@ zip:
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../hac.zip
 
-bin/hac: $(OBJS)
+temp: 
+	mkdir temp
+bin: 
+	mkdir bin
+
+bin/hac: temp bin $(OBJS) 
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
