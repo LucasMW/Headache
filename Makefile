@@ -102,7 +102,7 @@ temp:
 bin: 
 	mkdir bin
 
-bin/hac: temp bin $(OBJS) 
+bin/hac: src/grammar.c src/lex.c temp bin $(OBJS)
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
