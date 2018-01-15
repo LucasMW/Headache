@@ -1,8 +1,6 @@
 void main(){
 	byte i;
 	byte j;
-	byte x;
-	byte y;
 	i = 2;
 	while(i){
 		j=2;

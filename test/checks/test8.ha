@@ -5,7 +5,7 @@ void main () {
 	b = 1;
 	a =  2 + 2 + 3 / 2 + 5 * 7 + 3  - b;
 	@ a;
-	@main();
+	@ main();
 }
 /* output:
 root

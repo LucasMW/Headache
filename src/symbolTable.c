@@ -374,9 +374,9 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expLeft);
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
-					printf("not equal types\n");
+					//printf("not equal types\n");
 					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
-						printf("auto cast\n");
+						//printf("auto cast\n");
 					performCastToType(
 						c->expLeft->type,
 						&(c->expRight));
@@ -642,7 +642,7 @@ int checkPrintability(Exp* e) {
 	if(!e)
 		return 0;
 	if(e->type == NULL)
-		return 1;
+		return 0;
 	if(e->type->tag == base) {
 		return 1;
 	}
