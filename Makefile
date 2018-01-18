@@ -34,6 +34,9 @@ bfi: src/testbfi.c
 expander: src/expander.c
 	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
 
+bfalgoConverter: src/bfalgoConverter.c
+	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
+
 testoptimize: hac bfi
 	sh test/optimize/script.sh
 

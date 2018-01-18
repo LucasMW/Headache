@@ -16,8 +16,8 @@ static int xmark = 1000;
 int main() {
 	char c;
 	int n;
-	char string[strlen("temp")];
-	char * p = string;
+	//char string[strlen("temp")];
+	//char * p = string;
 	char bigStr[1024*1024]; //1MB
 	int tempList[999]; 
 	int * tempListPtr = tempList;
@@ -47,17 +47,20 @@ int main() {
 			}
 			else {
 				*bigStrPtr = c;
-				bigStrPtr++;
 				if(c == 'x'){
+					*bigStrPtr = '$';
 					*tempListPtr = xmark;
 					tempListPtr++;
 				} else if (c == 'y'){
+					*bigStrPtr = '$';
 					*tempListPtr = ymark;
 					tempListPtr++;
 				} else if (c == 'z'){
+					*bigStrPtr = '$';
 					*tempListPtr = zmark;
 					tempListPtr++;
 				}
+				bigStrPtr++;
 				continue;
 			}
 		}
