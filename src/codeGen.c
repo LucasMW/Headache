@@ -423,15 +423,22 @@ void unequals2(int x, int y){
 	bfalgo("$[$-$-]$[[-]$+$]",x,y,x,y,x,y);
 }
 
-/*temp0[-]
+
+/*
+Attribution: User:ais523
+
+temp0[-]
 temp1[-] >[-]+ >[-] <<
 y[temp0+ temp1+ y-]
 temp1[y+ temp1-]
 x[temp1+ x-]
 temp1[>-]> [< x+ temp0[-] temp1>->]<+<
-temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
-
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]
+The temporaries and x are left at 0; y is set to y-x. 
+*/
 //z = x > y
+
+
 void greater(int x, int y, int z){
 	int temp0 = currentTempRegs[0];
 	int temp1 = currentTempRegs[1];
@@ -456,13 +463,13 @@ temp1[>-]> [< x+ temp0[-] temp1>->]<+<
 temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
 
 //x = x < y
-void lesser(int x, int y){
+void less(int x, int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = pushCells(3);
 	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+< $[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
 		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
 	//generated line
-	codeDebugMessage("lesser");
+	codeDebugMessage("less than");
 
 	//popCells(3);
 }
@@ -1289,22 +1296,35 @@ int codeCondToValue(int b1,int b2,int b3) {
 }
 int codeSimpleCompare(Exp* e) {
 	int i1,i2;
-	int t1,t2;
+	int t1,t2,t3;
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
 	switch(e->cmp.op){
 		case GT:
-			t1 = pushCells(cellsForType(e->cmp.e1));
+			t1 = pushCells(cellsForType(e->type));
+			t2 = pushCells(cellsForType(e->type));
+			t3 = pushCells(cellsForType(e->type));
+			//preserve x and y
+			codeZero(t2);
+			incrementXbyY2(t2,i1);
+			codeZero(t3);
+			incrementXbyY2(t3,i2);
+			//greater algorithm
 			codeZero(t1);
 			incrementXbyY2(t1,i1);
 			greater(i1,i2,t1); //z = x > y => greater(x,y,z);
+			//revert x and y
+			incrementXbyY2(i1,t2); //x is left to zero
+			codeZero(i2);
+			incrementXbyY2(i2,t3);
+			//popCells(cellsForType(e->type)*2);
 			return t1;
 		break;
 		case LS: //a < x <=> x-a > 0
 			t1 = pushCells(cellsForType(e->cmp.e2));
 			codeZero(t1);
 			incrementXbyY2(t1,i1);
-			lesser(t1,i2);
+			less(t1,i2);
 			return t1;
 		break;
 		case EqEq: //a == x <=> x-a == 0
