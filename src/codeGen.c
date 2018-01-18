@@ -407,6 +407,51 @@ void unequals(int x,int y){
 	codeDebugMessage("unequals");
 }
 
+/*temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
+
+//z = x > y
+void greater(int x, int y, int z){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[-]$[ $+$[- $[-] $+ $]$[- $+ $]$[- $+ $]$- $- ]",
+		temp0,temp1,z,x,temp0,y,temp0,temp1,y,temp0,z,temp0,temp1,y,temp1,y,x);
+	//generated line
+	codeDebugMessage("greater");
+}
+/*
+Attribution: Ian Kelly
+
+x and y are unsigned. 
+temp1 is the first of three consecutive temporary cells. 
+The algorithm returns either 0 (false) or 1 (true).
+
+temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
+
+//x = x < y
+void lesser(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = pushCells(3);
+	bfalgo("$[-]$[-] >[-]+ >[-] <<y[$+ $+ y-]$[y+ $-]x[$+ x-]$[>-]> [< x+ $[-] $>->]<+<$[$- [>-]> [< x+ $[-]+ $>->]<+< $-]",
+		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,
+x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
+	//generated line
+	codeDebugMessage("lesser");
+
+	popCells(3);
+}
+
 
 static void codeCellValuePrint(int start, int end){
 	pushCells(10);
@@ -1233,21 +1278,18 @@ int codeSimpleCompare(Exp* e) {
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
 	switch(e->cmp.op){
-		case GT: //a > x <=> a-x > 0 
+		case GT:
 			t1 = pushCells(cellsForType(e->cmp.e1));
 			codeZero(t1);
 			incrementXbyY2(t1,i1);
-			decrementXbyY(t1,i2);
-			printf("i1:%d i2:%d t1:%d\n",i1,i2,t1);
-			codeDebugMessage("greater than");
+			greater(i1,i2,t1); //z = x > y => greater(x,y,z);
 			return t1;
 		break;
 		case LS: //a < x <=> x-a > 0
 			t1 = pushCells(cellsForType(e->cmp.e2));
 			codeZero(t1);
-			incrementXbyY2(t1,i2);
-			decrementXbyY(t1,i1);
-			codeDebugMessage("lesser than");
+			incrementXbyY2(t1,i1);
+			lesser(t1,i2);
 			return t1;
 		break;
 		case EqEq: //a == x <=> x-a == 0
