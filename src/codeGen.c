@@ -389,12 +389,17 @@ void equals(int x,int y){
 void equals2(int x,int y){
 	bfalgo("$[-$-$]+$[$-$[-]]",x,y,x,y,x,y);
 }
-/*temp0[-]
+/*
+Attribution: Jeffry Johnston
+
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
 temp1[-]
 x[temp1+x-]
 y[temp1-temp0+y-]
 temp0[y+temp0-]
 temp1[x+temp1[-]] */
+//x = x != y
 void unequals(int x,int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = currentTempRegs[1];
@@ -405,6 +410,17 @@ void unequals(int x,int y){
 		temp0,y,temp0,
 		temp1,x,temp1);
 	codeDebugMessage("unequals");
+}
+/*Attribution: Yuval Meshorer
+
+Sets x to be 1 if x == y, 0 otherwise.
+x[
+ y-x-]
+y[[-]
+ x+y]*/
+//x = x != y
+void unequals2(int x, int y){
+	bfalgo("$[$-$-]$[[-]$+$]",x,y,x,y,x,y);
 }
 
 /*temp0[-]
@@ -443,13 +459,12 @@ temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
 void lesser(int x, int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = pushCells(3);
-	bfalgo("$[-]$[-] >[-]+ >[-] <<y[$+ $+ y-]$[y+ $-]x[$+ x-]$[>-]> [< x+ $[-] $>->]<+<$[$- [>-]> [< x+ $[-]+ $>->]<+< $-]",
-		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,
-x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
+	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+< $[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
+		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
 	//generated line
 	codeDebugMessage("lesser");
 
-	popCells(3);
+	//popCells(3);
 }
 
 
