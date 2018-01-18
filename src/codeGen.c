@@ -419,6 +419,7 @@ static void codeCellValuePrint(int start, int end){
 }
 
 static void codeCellValuePrintAnySize(int start, int end){
+	printf("priting cell %d\n", start);
 	pushCells(10);
 	incrementXbyY2(currentAllocationIndex-5,start);
 	bfalgo("$[$+$+$-]$",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-6);
@@ -749,15 +750,15 @@ void codeCommandList(CommandL* cl) {
 				 /* gambiarra para short e int sem esforço*/
 				 printType(c->expLeft->type,0);
 				 if(c->expLeft->type->b == WShort){
-				 	printf("forceExpand %d\n",forceExpand);
+				 	//printf("forceExpand %d\n",forceExpand);
 				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
 				 }
 				 else if(c->expLeft->type->b == WInt){
-				 	printf("forceExpand %d\n",forceExpand);
+				 	//printf("forceExpand %d\n",forceExpand);
 				 	forceExpand = forceExpand > 2 ? forceExpand : 2;
 				 }
 				 else {
-				 	printf("don't forceExpand %d\n",forceExpand);
+				 	//printf("don't forceExpand %d\n",forceExpand);
 				 }
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
@@ -1226,41 +1227,48 @@ int codeCondToValue(int b1,int b2,int b3) {
 	// b2 );
 	return currentFunctionTIndex;
 }
-int codeSimpleCompare(Exp* e,const char* oprStr ) {
+int codeSimpleCompare(Exp* e) {
 	int i1,i2;
+	int t1,t2;
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
-	currentFunctionTIndex++;
-	// fprintf(output, "%%t%d = icmp %s i32 %%t%d, %%t%d\n",
-	// 	currentFunctionTIndex,
-	// 	oprStr,
-	// 	i1,
-	// 	i2 );
-	return currentFunctionTIndex;
+	switch(e->cmp.op){
+		case GT: //a > x <=> a-x > 0 
+			t1 = pushCells(cellsForType(e->cmp.e1));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			decrementXbyY(t1,i2);
+			printf("i1:%d i2:%d t1:%d\n",i1,i2,t1);
+			codeDebugMessage("greater than");
+			return t1;
+		break;
+		case LS: //a < x <=> x-a > 0
+			t1 = pushCells(cellsForType(e->cmp.e2));
+			codeZero(t1);
+			incrementXbyY2(t1,i2);
+			decrementXbyY(t1,i1);
+			codeDebugMessage("lesser than");
+			return t1;
+		break;
+		case EqEq: //a == x <=> x-a == 0
+			t1 = pushCells(cellsForType(e->cmp.e2));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			equals(t1,i2);
+			printf("i1:%d i2:%d t1:%d\n",i1,i2,t1);
+			codeDebugMessage("equal than");
+			return t1;
+		break;
+	}
 
 }
 int codeExpCompare(Exp* e) {
-	int i1,i2;
+	//int i1,i2;
 	int b1 = currentBrIndex++;
 	int b2 = currentBrIndex++;
 	int b3 = currentBrIndex++;
 	int ln;
 	switch(e->cmp.op) {
-		case GT:
-			codeSimpleCompare(e,"sgt");
-		break;
-		case GTE:
-			codeSimpleCompare(e,"sge");
-		break;
-		case LS:
-			codeSimpleCompare(e,"slt");
-		break;
-		case LSE:
-			codeSimpleCompare(e,"sle");
-		break;
-		case EqEq:
-			codeSimpleCompare(e,"eq");
-		break;
 		case OR:
 			// i1 = codeExp(e->cmp.e1);
 			// currentFunctionTIndex++;
@@ -1294,6 +1302,9 @@ int codeExpCompare(Exp* e) {
 			// i2);
 			// codeBranches(currentFunctionTIndex,b1,b2);
 			return codeCondToValue(b1,b2,b3);
+		break;
+		default:
+			return codeSimpleCompare(e);
 		break;
 	}
 	//codeBranches(currentFunctionTIndex,b1,b2);
