@@ -1050,7 +1050,6 @@ int codeExpUnary(Exp* e) {
 	char* tStr = stringForType(e->type);
 	int i1,i2;
 	i1 = codeExp(e->unary.e);
-	currentFunctionTIndex++;
 	switch(e->unary.op) {
 		case MINUS:
 			i2 = pushCells(cellsForType(e->type));
@@ -1060,8 +1059,11 @@ int codeExpUnary(Exp* e) {
 			return i2;
 		break;
 		case NOT:
-			logicalnot(i1);
-			return i1;
+			i2 = pushCells(cellsForType(e->type));
+			codeZero(i2);
+			incrementXbyY2(i2,i1);
+			logicalnot(i2);
+			return i2;
 		break; 
 	}
 }
