@@ -464,3 +464,257 @@ Constant* makeConstant(constantType t)
 	k->tag = t;
 	return k;
 }
+
+/* Free Section */
+
+void freeDefFunc(DefFunc* df);
+void freeDefVarList(DefVarL* dvl);
+void freeDefList(Def* d);
+void freeNameList(NameL* nl);
+void freeType(Type* t);
+void freeParams(Parameter* params);
+void freeCommandList(CommandL* cl);
+void freeBlock(Block* b);
+void freeExp(Exp* e);
+void freeVar(Var* v);
+void freeConstant(Constant* c);
+void freeExpList(ExpList* el);
+void freeTree();
+
+void freeTree() {
+	if(globalTree->next == NULL) {
+		return;
+	}
+	else {
+		freeDefList(globalTree->next);
+		free(globalTree->next);
+	}
+	
+}
+void freeDefList(Def* d)
+{
+	Def* df = d;
+	while(df!=NULL) {
+		switch(df->tag) {
+			case DVar:
+				//printf("defVar \t");
+				freeDefVarList(df->u.v);
+				free(df->u.v);
+			break;
+			case DFunc:
+				//printf("defFunc \t");
+				freeDefFunc(df->u.f);
+				free(df->u.f);
+			break;
+		}
+		df = df->next;
+		
+	}
+}
+
+void freeNameList(NameL* nl) {
+	if(!nl)
+		return;
+	while(nl) {
+		NameL* p = nl;
+		while(p){
+			p=p->next;
+			free((void*)p->name);
+		}
+		free(p);
+	}
+	
+
+}
+void freeDefVar(DefVar* dv){
+	
+	if(!dv)
+		return;
+	freeType(dv->t);
+
+}
+void freeDefFunc(DefFunc* df)
+{
+	if(!df)
+		return;
+	freeType(df->retType);
+	freeParams(df->params);
+	freeBlock(df->b);
+	free(df->retType);
+	free(df->params);
+	free(df->b);
+
+}
+void freeType(Type* t) {
+	
+	if(!t) {
+		return;
+	}
+	switch(t->tag) {
+		case base:
+		break;
+		case array:
+			freeType(t->of);
+		break;
+	}
+}
+
+void freeParams(Parameter* params)
+{
+	if(!params) {
+		return;
+	}
+	Parameter* p = params;
+	while(p) {
+		freeType(p->t);
+		if(p->id)
+			free((void*)p->id);
+		p = p->next; 
+	}
+}
+void freeBlock(Block* b) {
+	if(!b)
+		return;
+	freeDefVarList(b->dvl);
+	freeCommandList(b->cl);
+}
+void freeDefVarList(DefVarL* dvl) {
+	if(!dvl)
+		return;
+	DefVarL* d = dvl;
+	while(d){
+		freeDefVar(d->dv);
+		d = d->next;
+	}
+}
+void freeCommandList(CommandL* cl) {
+	if(!cl)
+		return;
+	CommandL* c = cl;
+	while(c) {
+		switch(c->tag) {
+			case CWhile:
+				freeExp(c->condExp);
+				freeCommandList(c->cmdIf);
+			break;
+			case CIf:
+				freeExp(c->condExp);
+				freeCommandList(c->cmdIf);
+			break;
+			case CIfElse:
+				freeExp(c->condExp);
+				freeCommandList(c->cmdIf);
+				freeCommandList(c->cmdElse);
+			break;
+			case CReturn:
+				freeExp(c->retExp);
+			break;
+			case CAssign:
+				freeExp(c->expLeft);
+				freeExp(c->expRight);
+			break;
+			case CBlock:
+				freeBlock((Block*)c->block);
+			break;
+			case CCall:
+				freeExp(c->expRight);
+			break;
+			case CPrint:
+				freeExp(c->printExp);
+			break;
+			case CDebug:
+				freeExp(c->printExp);
+			break;
+			case COperator:
+				freeExp(c->oprExp);
+			break;
+
+		}
+		c = c->next;
+	}
+}
+void freeExp(Exp* e) {
+	if(!e)
+		return;
+
+	freeType(e->type);
+	switch(e->tag) {
+		case ExpAdd: 
+			freeExp(e->bin.e1);
+			freeExp(e->bin.e2);
+		break;
+		case ExpSub:
+			freeExp(e->bin.e1);
+			freeExp(e->bin.e2);
+		break;
+		case ExpMul:
+			freeExp(e->bin.e1);
+			freeExp(e->bin.e2);
+		break;
+		case ExpDiv:
+			freeExp(e->bin.e1);
+			freeExp(e->bin.e2);
+		break;
+		case ExpCall:
+			freeExpList(e->call.expList);
+		break;
+		case ExpVar:
+			freeVar(e->var);
+		break;
+		case ExpUnary:
+			freeExp(e->unary.e);
+		break;
+		case ExpPrim:
+			freeConstant(e->c);
+		break;
+		case ExpNew:
+			freeType(e->eNew.t);
+			freeExp(e->eNew.e);
+		break;
+		case ExpCmp:
+			freeExp(e->cmp.e1);
+			freeExp(e->cmp.e2);
+		break;
+		case ExpAccess:
+			freeExp(e->access.varExp);
+			freeExp(e->access.indExp);
+			freeType(e->type);
+		break;
+		case ExpCast:
+			freeExp(e->cast.e);
+			freeType(e->cast.type); 
+		break;
+		case ExpOperator:
+			freeExp(e->opr.e);
+		break;
+	}
+}
+void freeExpList(ExpList* el) {
+	if(!el)
+		return;
+	ExpList *p = el;
+	while(p) {
+		freeExp(p->e);
+		p = p->next;
+	}
+
+}
+void freeVar(Var* v) {
+	if(!v)
+		return;
+	free((void*)v->id);
+}
+void freeConstant(Constant* c) {
+	if(!c)
+		return;
+	switch(c->tag) {
+		case KInt:
+		break;
+		case KFloat:
+		break;
+		case KStr:
+			free((void*)c->u.str);
+		break;
+	}
+}
+

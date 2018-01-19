@@ -13,7 +13,7 @@ CellUsage* makeCellUsage(int start, int end);
 
 
 
-typedef enum constantType { KFloat, KInt, KStr } constantType;
+typedef enum constantType { KFloat, KInt, KStr, KBit } constantType;
 typedef struct Constant
 {
 	constantType tag;
@@ -236,6 +236,8 @@ void printExp(Exp* e,int x);
 void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
+void freeTree();
+
 
 /* Helping Parser */
 void DefVarLinkEnd(DefVarL* dvl, DefVarL* e);

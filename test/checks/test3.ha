@@ -4,12 +4,12 @@ int abs(int a) {
 	return a;
 }
 
-float diff(float a,float b) 
+short diff(short a,short b) 
 {
-	return abs(a as int) * abs(b as int) as float;
+	return abs(a as int) * abs(b as int) as short;
 }
 
 int main() {
-	@ diff(3.5, -4 as float);
-	return 0;
+	@ diff(35 as short, -4 as short);
+	return 0 as int;
 }

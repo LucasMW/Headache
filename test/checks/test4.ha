@@ -1,9 +1,7 @@
 int f();
-float ad (float[] vector) 
+void ad (short vector) 
 {
 	int a;
-	/* int f; already declared */
+	int f;
 	a = -a;
-	vector = new float[f()];
-	return vector[0] + 1.0;
 }

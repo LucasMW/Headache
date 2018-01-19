@@ -1,10 +1,10 @@
-reserved word char
+reserved word byte
 reserved word else
-reserved word float
+reserved word for
 reserved word if
 reserved word int
-reserved word new
 reserved word return
+reserved word short
 reserved word void
 reserved word while
 reserved word as

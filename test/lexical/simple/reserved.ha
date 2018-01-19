@@ -1,1 +1,1 @@
-char else float if int new return void while as
+byte else for if int return short void while as

@@ -10,6 +10,8 @@ bin/hac.js: src/main.c src/lex.c src/grammar.c
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
+all: test/hac bfi expander bin/hac
+
 install: bin/hac expander bfi
 	@rm -rf $(HOME)/.Headache/
 	@echo "Installing Headache..."
@@ -31,6 +33,9 @@ bfi: src/testbfi.c
 
 expander: src/expander.c
 	cc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+
+bfalgoConverter: src/bfalgoConverter.c
+	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
 
 testoptimize: hac bfi
 	sh test/optimize/script.sh
@@ -91,10 +96,16 @@ clean:
 #always generate zip
 zip:
 	rm -rf zipfolder
+	rm -f src/*.o
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../hac.zip
 
-bin/hac: $(OBJS)
+temp: 
+	mkdir temp
+bin: 
+	mkdir bin
+
+bin/hac: src/grammar.c src/lex.c temp bin $(OBJS)
 	ls temp
 	cc -o bin/hac temp/*.o -O3 
 
