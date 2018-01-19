@@ -485,7 +485,82 @@ void less(int x, int y){
 
 	//popCells(3);
 }
+/*Attribution: Jeffry Johnston
 
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+temp1[-]
+x[temp1+x-]
+temp1[
+ temp1[-]
+ y[temp1+temp0+y-]
+ temp0[y+temp0-]
+ temp1[x+temp1[-]]
+]*/
+//x = x and y
+void and(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[$+$-]$[$[-]$[$+$+$-]$[$+$-]$[$+$[-]]]",
+		temp0,temp1,x,temp1,x,temp1,temp1,y,temp1,temp0,y,temp0,y,temp0,temp1,x,temp1);
+	//generated line
+}
+/* Attribution: Sunjay Varma
+
+Consumes x and y (leaves them as zero at the end of the algorithm) and stores the result in z. For short-circuit evaluation, don't evaluate x or y until just before they are used.
+
+The algorithm returns either 0 (false) or 1 (true).
+z[-]
+x[
+ y[z+y-]
+ x-
+]
+y[-]
+*/
+//z = x and y
+void and2(int x, int y, int z){
+	bfalgo("$[-]$[$[$+$-]$-]$[-]",z,x,y,z,y,x,y);
+	//generated line
+}
+/*
+z = x or y (boolean, logical)
+Attribution: Sunjay Varma
+
+Consumes x and y (leaves them as zero at the end of the algorithm) and stores the result in z. For short-circuit evaluation, don't evaluate x or y until just before they are used.
+
+If you don't care about short-circuit evaluation, temp0 can be removed completely. If temp0 is removed and both x and y are 1, z will be 2, not 1. This is usually not a problem since it is still non-zero, but you should keep that in mind.
+
+The algorithm returns either 0 (false) or 1 (true).
+z[-]
+temp0[-]+
+x[
+ z+
+ temp0-
+ x-
+]
+temp0[-
+ y[
+  z+
+  y-
+ ]
+]
+y[-]*/
+void or(int x, int y, int z){
+	int temp0 = currentTempRegs[0];
+	bfalgo("$[-]$[-]+$[$+$-$-]$[-$[$+$-]]$[-]",z,temp0,x,z,temp0,x,temp0,y,z,y,y);
+}
+
+/*
+Attribution: Yuval Meshorer
+
+Consumes x and y, does not use a temporary cell. Makes z 1 (true) or 0 (false) if either x or y are one.
+z[-]
+x[y+x-]
+y[[-]
+z+y]*/
+void or2(int x,int y, int z){
+	bfalgo("$[-]$[$+$-]$[[-]$+$]",z,x,y,x,y,z,y);
+}
 
 static void codeCellValuePrint(int start, int end){
 	pushCells(10);
@@ -1298,7 +1373,7 @@ int codeSimpleCompare(Exp* e) {
 			incrementXbyY2(t3,i2);
 			//greater algorithm
 			codeZero(t1);
-			incrementXbyY2(t1,i1);
+			//incrementXbyY2(t1,i1); this shouldn't be necessary
 			greater(i1,i2,t1); //z = x > y => greater(x,y,z);
 			//revert x and y
 			incrementXbyY2(i1,t2); //x is left to zero
@@ -1327,52 +1402,44 @@ int codeSimpleCompare(Exp* e) {
 
 }
 int codeExpCompare(Exp* e) {
-	//int i1,i2;
-	int b1 = currentBrIndex++;
-	int b2 = currentBrIndex++;
-	int b3 = currentBrIndex++;
-	int ln;
+	int i1,i2;
+	int t1,t2,t3;
+	//yep, no short circuit now
+	i1 = codeExp(e->cmp.e1);
+	i2 = codeExp(e->cmp.e2);
+	// there are ways to implement short circuit by sharding the algorithms
+	// and evaluating exps only when is absolutely necessary, but that's for later.
 	switch(e->cmp.op) {
-		case OR:
-			// i1 = codeExp(e->cmp.e1);
-			// currentFunctionTIndex++;
-			// fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			// currentFunctionTIndex,
-			// i1);
-			// ln = currentBrIndex++;
-			// codeBranches(currentFunctionTIndex,b1,ln); 
-			// codeLabel(ln);
-			// i2 = codeExp(e->cmp.e2);
-			// currentFunctionTIndex++;
-			// fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			// currentFunctionTIndex,
-			// i2);
-			// codeBranches(currentFunctionTIndex,b1,b2);
-			return codeCondToValue(b1,b2,b3);
+
+		case OR: 
+			t1 = pushCells(cellsForType(e->type));
+			t2 = pushCells(cellsForType(e->type));
+			t3 = pushCells(cellsForType(e->type));
+			//preserve x and y
+			codeZero(t2);
+			incrementXbyY2(t2,i1);
+			codeZero(t3);
+			incrementXbyY2(t3,i2);
+			//or algorithm
+			codeZero(t1);
+			or2(i1,i2,t1); //z = x > y => or(x,y,z);
+			//revert x and y
+			incrementXbyY2(i1,t2); //x is left to zero
+			codeZero(i2);
+			incrementXbyY2(i2,t3);
+			return t1;
 		break;
 		case AND:
-			// i1 = codeExp(e->cmp.e1);
-			// currentFunctionTIndex++;
-			// fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			// currentFunctionTIndex,
-			// i1);
-			// ln = currentBrIndex++;
-			// codeBranches(currentFunctionTIndex,ln,b2); 
-			// codeLabel(ln);
-			// i2 = codeExp(e->cmp.e2);
-			// currentFunctionTIndex++;
-			// fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			// currentFunctionTIndex,
-			// i2);
-			// codeBranches(currentFunctionTIndex,b1,b2);
-			return codeCondToValue(b1,b2,b3);
+			t1 = pushCells(cellsForType(e->cmp.e2));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			and(t1,i2);
+			return t1;
 		break;
 		default:
 			return codeSimpleCompare(e);
 		break;
 	}
-	//codeBranches(currentFunctionTIndex,b1,b2);
-	return codeCondToValue(b1,b2,b3);
 }
 
 int codeExp(Exp* e) {
