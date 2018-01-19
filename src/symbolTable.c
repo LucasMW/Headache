@@ -588,7 +588,7 @@ int checkTypeUnary(Exp* e) {
 	Type* t = e->type;
 	if(!t)
 		return 0;
-	return t->tag == base && t->b == WInt;
+	return t->tag == base;
 }
 
 int checkTypeLogic(Exp* e) {
