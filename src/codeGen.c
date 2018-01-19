@@ -368,6 +368,18 @@ void sigswitchX(int x){
 	codeGoTo(temp0);codeStr("[");codeGoTo(x);codeStr("-");codeGoTo(temp0);codeStr("+]");
 }
 
+/*
+Attribution: Jeffry Johnston
+
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+x[temp0+x[-]]+
+temp0[x-temp0-]*/
+void logicalnot(int x){
+	int temp0=currentTempRegs[0];
+	bfalgo("$[-]$[$+$[-]]+$[$-$-]",temp0,x,temp0,x,temp0,x,temp0);
+}
+
 /* temp0[-]
 temp1[-]
 x[temp1+x-]+
@@ -1041,44 +1053,17 @@ int codeExpUnary(Exp* e) {
 	currentFunctionTIndex++;
 	switch(e->unary.op) {
 		case MINUS:
-			if(e->type->b == WFloat) {
-				fprintf(output, "%%t%d = fsub %s 0.0, %%t%d\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-				
-			}
-			else {
-				fprintf(output, "%%t%d = sub nsw %s 0, %%t%d\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-			}
+			i2 = pushCells(cellsForType(e->type));
+			codeZero(i2);
+			incrementXbyY2(i2,i1);
+			sigswitchX(i2);
+			return i2;
 		break;
 		case NOT:
-			if(e->type->b == WFloat) {
-				fprintf(output, "%%t%d = fcmp oeq float %%t%d, 0.0\n",
-				 currentFunctionTIndex,
-				 i1);
-			i2 = currentFunctionTIndex++;
-  			fprintf(output, "%%t%d = uitofp i1 %%t%d to float\n",
-				currentFunctionTIndex,
-				i2);
-			}
-			else {
-				fprintf(output, "%%t%d = icmp eq %s %%t%d, 0\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-				i2 = currentFunctionTIndex++;
-				fprintf(output, "%%t%d = zext i1 %%t%d to %s\n",
-				currentFunctionTIndex,
-				i2,
-				tStr );
-			}
+			logicalnot(i1);
+			return i1;
 		break; 
 	}
-	return currentFunctionTIndex;
 }
 int codeExpCast(Exp* e) {
 	int i1 = codeExp(e->cast.e);
