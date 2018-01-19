@@ -25,7 +25,7 @@
 	#include "optimizer.h"
 	#define optimizer_h
 #endif
-
+#define REGISTER_COUNT 4
 
 void codeDefVar(DefVar* dv);
 void codeDefFunc(DefFunc* df);
@@ -58,9 +58,9 @@ int allocateCellsForType(Type* t);
 static FILE* output = NULL;
 
 
-static const int registerCount = 4;
-int currentTempRegs[registerCount] = {0,1,2,3};
-static int currentAllocationIndex = registerCount;
+static const int registerCount = REGISTER_COUNT;
+int currentTempRegs[REGISTER_COUNT] = {0,1,2,3};
+static int currentAllocationIndex = REGISTER_COUNT;
 static int currentCell = 0;
 
 static char* memory[30000]; //debugs and controls free memory
