@@ -32,6 +32,10 @@
 	#include "testbfi.h"
 	#define testbfi_h
 #endif
+#if !defined(expander_h)
+	#include "expander.h"
+	#define expander_h
+#endif
 #if !defined(optimizer_h)
 	#include "optimizer.h"
 	#define optimizer_h
@@ -304,8 +308,12 @@ int main (int argc, char** argv)
 	if(forceExpand){
 		printf("should forceExpand %d\n",forceExpand );
 		for(int i=0;i<forceExpand;i++){
-			system("expander a.bf > exa.bf");
-			system("mv exa.bf a.bf");
+			char* bfprogram = readFile(bf_name);
+			FILE* bf_location = fopen(bf_name,"wt");
+			runStr(bf_location,bfprogram,0);
+			fclose(bf_location);
+			// system("expander a.bf > exa.bf");
+			// system("mv exa.bf a.bf");
 		}
 	}
 	if(!noDebug)

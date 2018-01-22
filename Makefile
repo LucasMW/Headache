@@ -1,7 +1,7 @@
 CFLAGS = -Wall -std=c99 -g
 OUTFILE = hac
-SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c
-OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o
+SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c
+OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
@@ -111,6 +111,8 @@ bin/hac: src/grammar.c src/lex.c temp bin $(OBJS)
 
 temp/optimizer.o:
 	cc -o temp/optimizer.o -Wall -O3 -c src/optimizer.c
+temp/expander.o:
+	cc -o temp/expander.o -Wall -O3 -c src/expander.c
 temp/testbfi.o:
 	cc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
 temp/compilerFunctions.o:

@@ -12,3 +12,4 @@ even if it's applied twice to create a 1→4 conversion."
 char * expand8to16NoCopy(char b);
 char * expand8to16(char b);
 char * expand8to32(char b);
+void runStr(FILE* out, char* str, int mode);
