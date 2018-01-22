@@ -92,6 +92,9 @@ clean:
 	rm -rf *.o
 	rm -f hac
 	rm -f bfide-bfi
+	rm -f bfi
+	rm -f expander
+	rm -f bfalgoConverter
 
 #always generate zip
 zip:
