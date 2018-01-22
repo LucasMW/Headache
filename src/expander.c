@@ -141,11 +141,11 @@ int main (int argc, char** argv){
 		option = argv[1];
 		program = argv[2];
 		mode = atoi(argv[3]);
-		runStr(program,mode);
+		runStr(stdin,program,mode);
 	}
 	if (argc == 3){
 		if(strcmp("-p",argv[1])==0) {
-			runStr(argv[2],0);
+			runStr(stdin,argv[2],0);
 		} else if(strcmp("-i",argv[1])==0) {
 			run(NULL,mode);
 		} else{
