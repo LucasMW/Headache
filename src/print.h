@@ -1,2 +1,0 @@
-
-void printValueOfAnySizedCell(int x);
