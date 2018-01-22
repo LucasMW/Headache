@@ -286,7 +286,7 @@ int main (int argc, char** argv)
 		forceExpand = 0;
 		codeTree();
 		fclose(bf_location);
-		freeTree();
+		//freeTree();
 	}
 	if(!noBin)
 	{

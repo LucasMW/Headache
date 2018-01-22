@@ -295,13 +295,18 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 ;
 
 commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          
-          $$->tag = CFor;
-          //$$->beginExp = $3;
-          //$$->condExp = $5;
-          //$$->endExp = $7;
-          //$$->cmdIf = $9;
+          $$ = $3;
+          CommandL* loop = (CommandL*)malloc(sizeof(CommandL));
+          loop->tag = CWhile;
+          loop->condExp = $4;
+          loop->cmdIf = $8;
+          $$->next = loop;
+          CommandL* opr = (CommandL*)malloc(sizeof(CommandL));
+          opr->tag = COperator;
+          opr->oprExp = $6;
+          loop->next = opr;
+          printCommandList($$,0);
+
 
 };
 
@@ -620,7 +625,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
-  //$$->start_cell = 0;
+  $$->start_cell = 0;
   switch($1->tag) {
     case KInt:
     $$->type = (Type*)malloc(sizeof(Type));
@@ -631,6 +636,11 @@ primary: constant {
     $$->type = (Type*)malloc(sizeof(Type));
     $$->type->tag = base; 
     $$->type->b = WFloat;
+    break;
+    case KBit:
+    $$->type = (Type*)malloc(sizeof(Type));
+    $$->type->tag = base; 
+    $$->type->b = WBit;
     break;
     case KStr:
     $$->type = (Type*)malloc(sizeof(Type));

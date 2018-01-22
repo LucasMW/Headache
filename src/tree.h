@@ -53,7 +53,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator,CFor } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator } CTypes;
 
 
 
