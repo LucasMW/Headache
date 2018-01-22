@@ -48,8 +48,8 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
-static int currentAllocationIndex = 4; // four registers
-static char* memory[30000]; //debugs and controlsfree memory
+//static int currentAllocationIndex = 4; // four registers
+//static char* memory[30000]; //debugs and controlsfree memory
 
 
 
@@ -846,6 +846,9 @@ Type* typeOfConstant(Constant* c) {
 			t->of = (Type*)malloc(sizeof(Type));
 			t->of->tag = base;
 			t->of->b = WByte;
+		break;
+		case KBit:
+			t->b = WBit;
 		break;
 	}
 		return t;

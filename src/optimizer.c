@@ -175,6 +175,9 @@ void optimizeConstant(Constant* c) {
 		break;
 		case KStr:
 		break;
+		case KBit:
+		break;
+
 	}
 }
 
