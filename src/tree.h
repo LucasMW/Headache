@@ -13,7 +13,7 @@ CellUsage* makeCellUsage(int start, int end);
 
 
 
-typedef enum constantType { KFloat, KInt, KStr } constantType;
+typedef enum constantType { KFloat, KInt, KStr, KBit } constantType;
 typedef struct Constant
 {
 	constantType tag;
@@ -53,7 +53,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator,CFor } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator } CTypes;
 
 
 

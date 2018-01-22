@@ -68,6 +68,34 @@ make testrunnable
 	
 	Runs only the tests which tests if programs are compiled and run succesfully.
 
+## Resources
+
+wiki: https://github.com/LucasMW/Headache/wiki
+
+
+## Support Headache
+
+Help Headache launch on Homebrew. This repository needs 50 stargazers to become a brew package. 
+
+### Donation Addresses:
+
+Support Headache with cryptocurrency:
+
+BTC: 1NcdcAjkKj9ywiCfinwFi1W3QfsvFSFsAH
+
+Doge: D5wEBGcwLeBSQvwnBckco1EvQQcuXCBvRj
+
+LTC: Ldj6ax1CzdYFRbSiZjpCvcPoxQ2BvX42Kb
+
+ZEC: t1PsMPGuoZfD5YwAgmyd3j2cb8siysxR9fE
+
+Dash: Xt7qYtLiLx6mHR1fUeQVYiHgEbX7YNugM2
+
+BCH: 1NCYSnFb44ybHtzwG51cUYWLa67PZdsREG
+
+XMR: 4CTKuktQ8eQFriMu3xDALEawuu9iWQhFYffgffqgC3RHCWgcLGTG9oyNWgvLiAoDPpYUvsJmRkTAudGSXNqnRFsuT9LNU3Up81F2x3fzkj
+
+
 
 
 

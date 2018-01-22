@@ -32,6 +32,10 @@
 	#include "testbfi.h"
 	#define testbfi_h
 #endif
+#if !defined(expander_h)
+	#include "expander.h"
+	#define expander_h
+#endif
 #if !defined(optimizer_h)
 	#include "optimizer.h"
 	#define optimizer_h
@@ -42,6 +46,8 @@
 Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 FILE* yyin;
+
+char forceExpand=0;
 void lexError(const char* message, int ret)
 {
 	printf("Lexical error detected in source:\n");
@@ -76,7 +82,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 2;
 
-static char hacVersion[] = "beta0.41";
+static char hacVersion[] = "beta0.51";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -281,9 +287,10 @@ int main (int argc, char** argv)
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
+		forceExpand = 0;
 		codeTree();
 		fclose(bf_location);
-		freeTree();
+		//freeTree();
 	}
 	if(!noBin)
 	{
@@ -297,6 +304,17 @@ int main (int argc, char** argv)
 			bf_name);
 		int s = system(buff);
 		return s;
+	}
+	if(forceExpand){
+		printf("should forceExpand %d\n",forceExpand );
+		for(int i=0;i<forceExpand;i++){
+			char* bfprogram = readFile(bf_name);
+			FILE* bf_location = fopen(bf_name,"wt");
+			runStr(bf_location,bfprogram,0);
+			fclose(bf_location);
+			// system("expander a.bf > exa.bf");
+			// system("mv exa.bf a.bf");
+		}
 	}
 	if(!noDebug)
 	{

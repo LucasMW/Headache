@@ -1,7 +1,7 @@
 CFLAGS = -Wall -std=c99 -g
 OUTFILE = hac
-SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c
-OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o
+SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c
+OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	gcc $(CFLAGS) -o hac $(SOURCES)
@@ -10,7 +10,7 @@ bin/hac.js: src/main.c src/lex.c src/grammar.c
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
-all: test/hac bfi expander bin/hac
+all: test/hac bfi expander bin/hac bfalgoConverter
 
 install: bin/hac expander bfi
 	@rm -rf $(HOME)/.Headache/
@@ -33,6 +33,9 @@ bfi: src/testbfi.c
 
 expander: src/expander.c
 	gcc $(CFLAGS) -DSTANDALONE src/expander.c -o expander
+
+bfalgoConverter: src/bfalgoConverter.c
+	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
 
 testoptimize: hac bfi
 	sh test/optimize/script.sh
@@ -89,6 +92,9 @@ clean:
 	rm -rf *.o
 	rm -f hac
 	rm -f bfide-bfi
+	rm -f bfi
+	rm -f expander
+	rm -f bfalgoConverter
 
 #always generate zip
 zip:
@@ -97,12 +103,19 @@ zip:
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../hac.zip
 
-bin/hac: $(OBJS)
+temp: 
+	mkdir temp
+bin: 
+	mkdir bin
+
+bin/hac: src/grammar.c src/lex.c temp bin $(OBJS)
 	ls temp
 	gcc -o bin/hac temp/*.o -O3 
 
 temp/optimizer.o:
 	gcc -o temp/optimizer.o -Wall -O3 -c src/optimizer.c
+temp/expander.o:
+	gcc -o temp/expander.o -Wall -O3 -c src/expander.c
 temp/testbfi.o:
 	gcc -o temp/testbfi.o -Wall -O3 -c src/testbfi.c
 temp/compilerFunctions.o:

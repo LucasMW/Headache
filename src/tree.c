@@ -423,6 +423,13 @@ void printConstant(Constant* c,int x) {
 	if(!c)
 		return;
 	switch(c->tag) {
+		case KBit:
+			if(c->u.i)
+				sprintf(str, "true");
+			else 
+				sprintf(str, "false");
+			printDepthLevel(str,x);
+		break;
 		case KInt:
 			sprintf(str, "%d", c->u.i);
 			printDepthLevel(str,x);
@@ -708,6 +715,8 @@ void freeConstant(Constant* c) {
 	if(!c)
 		return;
 	switch(c->tag) {
+		case KBit:
+		break;
 		case KInt:
 		break;
 		case KFloat:

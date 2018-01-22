@@ -48,8 +48,8 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
-static int currentAllocationIndex = 4; // four registers
-static char* memory[30000]; //debugs and controlsfree memory
+//static int currentAllocationIndex = 4; // four registers
+//static char* memory[30000]; //debugs and controlsfree memory
 
 
 
@@ -374,7 +374,9 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expLeft);
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
+					//printf("not equal types\n");
 					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
+						//printf("auto cast\n");
 					performCastToType(
 						c->expLeft->type,
 						&(c->expRight));
@@ -425,14 +427,9 @@ void performCastToType(Type* lt,Exp** right) {
 	*right = eCast;
 }
 int typesBothIntegers(Type* t1,Type* t2) {
-	return ((t1->b == WByte) && (t2->b == WInt)) || 
-		((t1->b == WInt) && (t2->b == WByte));
+	return t1->tag == base && t2->tag == base; // there is only byte, short and int for now
 }
 int typeEquals(Type* t1, Type* t2) {
-	// printType(t1,3);
-	// printf("typeEqual\n");
-	// printType(t2,3);
-	// printf("\n");
 	if(t1 == NULL || t2 == NULL) {
 		return t2 == NULL && t1 == NULL;
 	}
@@ -500,7 +497,11 @@ void promoteType(Exp ** eptr) {
 BType BTypeOfArith(Exp* e1,Exp *e2) {
 	if(e1->type->b == WFloat || e2->type->b == WFloat)
 		return WFloat;
-	return WInt;
+	else if(e1->type->b == WShort || e2->type->b == WShort)
+		return WShort;
+	else if(e1->type->b == WInt || e2->type->b == WInt)
+		return WInt;
+	return WByte;
 }
 Type* arithType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
@@ -587,7 +588,7 @@ int checkTypeUnary(Exp* e) {
 	Type* t = e->type;
 	if(!t)
 		return 0;
-	return t->tag == base && t->b == WInt;
+	return t->tag == base;
 }
 
 int checkTypeLogic(Exp* e) {
@@ -641,7 +642,7 @@ int checkPrintability(Exp* e) {
 	if(!e)
 		return 0;
 	if(e->type == NULL)
-		return 1;
+		return 0;
 	if(e->type->tag == base) {
 		return 1;
 	}
@@ -831,7 +832,10 @@ Type* typeOfConstant(Constant* c) {
 	t->tag = base;
 	switch(c->tag) {
 		case KInt:
-			t->b = WInt;
+			t->b = WByte;
+			// if(c->u.i>255){
+			// 	t->b = WShort;
+			// }
 			incrementMemoryUsage(2);
 		break;
 		case KFloat:
@@ -842,6 +846,9 @@ Type* typeOfConstant(Constant* c) {
 			t->of = (Type*)malloc(sizeof(Type));
 			t->of->tag = base;
 			t->of->b = WByte;
+		break;
+		case KBit:
+			t->b = WBit;
 		break;
 	}
 		return t;

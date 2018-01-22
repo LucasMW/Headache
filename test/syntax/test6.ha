@@ -1,8 +1,7 @@
 int a,b,c;
-float d,e;
+short d,e;
 byte r,s,t;
+bit flag1,flag2;
 int ab;
 int cd;
-int[] vi;
-int[][] vvi;
-float[] x,y,z,w;
+
