@@ -1,4 +1,4 @@
-/* The grammar for monga*/
+/* The grammar for Headache*/
 /* grammar.y */
 
 %error-verbose /* instruct bison to generate verbose error messages*/
@@ -51,7 +51,7 @@ extern FILE *yyin;
 %token <int_val> TK_WSHORT
 %token <int_val> TK_WBIT
 %token <int_val> TK_WBYTE
-%token <int_val> TK_FLOAT
+//%token <int_val> TK_FLOAT
 %token <int_val> TK_WAS
 %token <int_val> TK_WCHAR
 %token <int_val> TK_WELSE
@@ -295,13 +295,18 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 ;
 
 commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          
-          $$->tag = CFor;
-          //$$->beginExp = $3;
-          //$$->condExp = $5;
-          //$$->endExp = $7;
-          //$$->cmdIf = $9;
+          $$ = $3;
+          CommandL* loop = (CommandL*)malloc(sizeof(CommandL));
+          loop->tag = CWhile;
+          loop->condExp = $4;
+          loop->cmdIf = $8;
+          $$->next = loop;
+          CommandL* opr = (CommandL*)malloc(sizeof(CommandL));
+          opr->tag = COperator;
+          opr->oprExp = $6;
+          loop->next = opr;
+          printCommandList($$,0);
+
 
 };
 
@@ -594,16 +599,7 @@ expUnary: '!' expVar {
       }
 ;
 
-expVar: expVar '[' exp ']' {
-        $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpAccess; 
-        $$->access.varExp = $1;
-        $$->access.indExp = $3;
-        $$->dbg_line = yy_lines;
-
-
-}
-      | ID {
+expVar: ID {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpVar; 
         $$->var = (Var*)malloc(sizeof(Var));
@@ -611,6 +607,13 @@ expVar: expVar '[' exp ']' {
         $$->var->declaration = NULL;
         $$->dbg_line = yy_lines;
       }
+      /*| expVar '[' exp ']' {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpAccess; 
+        $$->access.varExp = $1;
+        $$->access.indExp = $3;
+        $$->dbg_line = yy_lines;
+      }*/
       | primary {
         $$ = $1;
       }
@@ -622,7 +625,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
-  //$$->start_cell = 0;
+  $$->start_cell = 0;
   switch($1->tag) {
     case KInt:
     $$->type = (Type*)malloc(sizeof(Type));
@@ -633,6 +636,11 @@ primary: constant {
     $$->type = (Type*)malloc(sizeof(Type));
     $$->type->tag = base; 
     $$->type->b = WFloat;
+    break;
+    case KBit:
+    $$->type = (Type*)malloc(sizeof(Type));
+    $$->type->tag = base; 
+    $$->type->b = WBit;
     break;
     case KStr:
     $$->type = (Type*)malloc(sizeof(Type));
@@ -656,13 +664,13 @@ constant: TK_INT  {
         $$->start_cell = 0;
         //printf("%d\n", $$->u.i);
       }
-      | TK_FLOAT  {
+      /*| TK_FLOAT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KFloat;
         $$->u.d = yylval.double_val;
         $$->start_cell = 0;
         //printf("%lf\n", $$->u.d);
-      }
+      }*/
       | TK_STR    {//$$=(char*)$1;
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KStr;
@@ -679,11 +687,11 @@ type : baseType { $$ = (Type*)malloc(sizeof(Type));
                   $$->tag = base; 
                   //printf("base %d\n",$1); 
                  $$->b = $1; }
-    | type '[' ']' {
+    /*| type '[' ']' {
       $$ = (Type*)malloc(sizeof(Type)); 
       $$->tag =array;
       $$->of = $1;
-    }
+    }*/
 ;
 baseType : TK_WINT { $$ = WInt;}
 | TK_WBYTE  { $$ = WByte;}

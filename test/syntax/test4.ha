@@ -1,4 +1,4 @@
-float ad () 
+int ad () 
 {
-	vector = new float[f(a)];
+	return true;
 }

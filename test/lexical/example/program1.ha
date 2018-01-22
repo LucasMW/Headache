@@ -9,18 +9,14 @@
 void main()
 {
 	char value;
-	float fvalue;
-	char[] array;
+	short svalue;
 	if(value > 0)
 	{
-		/* only need to alloc array inside the if */
-		array = new char[3];
-		fvalue = 87; 
-		array[1] = value; /* need to overwrite the array */
+		svalue = 87; 
 	}
 	else
 	{
-		fvalue = 90;
+		svalue = 90;
 	}
 	printf("value is %f\n",fvalue);
 	printf("END\n");

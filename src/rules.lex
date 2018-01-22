@@ -70,7 +70,7 @@
 "byte"	{return TK_WBYTE;}
 "char"	{return TK_WCHAR;}
 "else"	{return TK_WELSE; }
-"float"	{return TK_WFLOAT;}
+
 "if"	{return TK_WIF;}
 "int"	{return TK_WINT;}
 "new"	{return TK_WNEW;}
@@ -112,8 +112,7 @@
 				return TK_INT;}
 [0-9]+	{ yylval.int_val = atoi( yytext );
 		return TK_INT;}
-[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.double_val = strtod(yytext,NULL);
-				return TK_FLOAT;}
+
 
 "true" { yylval.int_val = 1;
 				return TK_INT;}

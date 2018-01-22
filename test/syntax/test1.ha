@@ -1,4 +1,4 @@
-float ppt (float ar) 
+short ppt (short ar) 
 {
 	int result;
 	result = a*a*a/a+a;
@@ -15,19 +15,16 @@ int fat(int n)
 		
 
 int main() {
-	float result, x;
+	short result, x;
 	int y;
-	int [] vector;
-	x = 5.0;
+	x = 550;
 	y = 3;
-	vector = new int[fat(10)];
 	result = ppt(x);
 	if (result > x) {
 		y = 0;
 	} else {
 		y = 1;
 	}
-	string = new byte[10];
 	return 0;
 	
 	

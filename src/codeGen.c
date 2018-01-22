@@ -11,7 +11,7 @@
 #endif
 #if !defined(codeEss_h)
 	#include "codeEss.h"
-	#define tree_h
+	#define codeEss_h
 #endif
 #if !defined(compilerFunctions_h)
 	#include "compilerFunctions.h"
@@ -25,13 +25,13 @@
 	#include "optimizer.h"
 	#define optimizer_h
 #endif
-
+#define REGISTER_COUNT 5
 
 void codeDefVar(DefVar* dv);
 void codeDefFunc(DefFunc* df);
 void codeDefVarList(DefVarL* dvl);
 void codeDefList(Def* d);
-void codeNameList(NameL* nl,Type* t,int scope);
+
 void codeType(Type* t);
 void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
@@ -57,9 +57,13 @@ int allocateCellsForType(Type* t);
 
 static FILE* output = NULL;
 
+
+const int registerCount = REGISTER_COUNT;
+int currentTempRegs[REGISTER_COUNT] = {0,1,2,3,4};
+static int currentAllocationIndex = REGISTER_COUNT;
 static int currentCell = 0;
-static int currentAllocationIndex = 4; // four registers
-static char* memory[30000]; //debugs and controlsfree memory
+
+//static char* memory[30000]; //debugs and controls free memory
 
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
@@ -68,8 +72,8 @@ static int currentStringConstant = 0;
 static int declareTop = 0;
 char* stringsToDeclare[100];
 
-int currentTempRegs[4] = {0,1,2,3}; //no known algorithm needs more than 4 registers
 
+extern char forceExpand; 
 
 static int pushCells(int x);
 static int popCells(int x);
@@ -87,7 +91,7 @@ static void codeDebugMessage(const char* str){
 }
 
 
-static void bfalgo(char* str, ...){
+void bfalgo(char* str, ...){
 
 //based on http://www.gnu.org/software/libc/manual/html_node/Variadic-Example.html
   va_list ap;
@@ -100,7 +104,7 @@ static void bfalgo(char* str, ...){
   	}
   }
   //printf("count %d\n",count );
-  va_start (ap, count);         /* Initialize the argument list. */
+  va_start (ap, str);         /* Initialize the argument list. */
 
   for(i=0;str[i];i++){
   	if(str[i] == '$') {
@@ -130,16 +134,16 @@ int allocateCellsForType(Type* t){
 	return currentAllocationIndex;
 }
 static int pushCells(int x){
-	for(int i=0;i<x;i++){
-		memory[currentAllocationIndex+i] = 1;
-	}
+	// for(int i=0;i<x;i++){
+	// 	memory[currentAllocationIndex+i] = 1;
+	// }
 	currentAllocationIndex+=x;
 	return currentAllocationIndex;
 }
 static int popCells(int x){
-	for(int i=0;i<x;i++){
-		memory[currentAllocationIndex-i] = 0;
-	}
+	// for(int i=0;i<x;i++){
+	// 	memory[currentAllocationIndex-i] = 0;
+	// }
 	currentAllocationIndex-=x;
 	return currentAllocationIndex;
 }
@@ -217,7 +221,6 @@ static void codeZero(int x) {
 		y[x+temp0+y-]
 		temp0[y+temp0-]	*/
 
-
 static void moveXToY(int x, int y){
 	codeZero(y);
 	bfalgo("$[$+$-]",x,y,x);
@@ -238,18 +241,20 @@ static void codeConstantDecrement(int x, int q){
 }
 
 static void incrementXbyY2(int x, int y){
-	int temp0 = currentTempRegs[2];
+	int temp0 = pushCells(1);
 	bfalgo("$[-] $[$+$+$-] $[$+$-]",temp0,y,x,temp0,y,
 		temp0,y,temp0);
+	popCells(1);
 }
 static void incrementXbyY(int x,int y) {
 	//printf("add %d to %d\n", x,y);
-	int temp0 = currentTempRegs[2];
+	int temp0 = pushCells(1);
 	codeGoTo(temp0); codeStr("[-]");
 	codeGoTo(y); codeStr("["); codeGoTo(x); codeStr("+"); 
 	codeGoTo(temp0); codeStr("+"); codeGoTo(y); codeStr("-]");
 	codeGoTo(temp0); codeStr("[");  codeGoTo(y); codeStr("+"); 
 	codeGoTo(temp0); codeStr("-]");
+	popCells(1);
 }
 
 /*
@@ -268,7 +273,7 @@ static void decrementXbyY(int x,int y) {
 	x[-]
 	y[x+temp0+y-]
 	temp0[y+temp0-]	*/
-static void setXtoY(int x, int y) {
+void setXtoY(int x, int y) {
 	printf("set %d to %d\n",x,y );
 	int temp0 = currentTempRegs[2];
 	printf("temp %d\n",temp0 );
@@ -365,6 +370,18 @@ void sigswitchX(int x){
 	codeGoTo(temp0);codeStr("[");codeGoTo(x);codeStr("-");codeGoTo(temp0);codeStr("+]");
 }
 
+/*
+Attribution: Jeffry Johnston
+
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+x[temp0+x[-]]+
+temp0[x-temp0-]*/
+void logicalnot(int x){
+	int temp0=currentTempRegs[0];
+	bfalgo("$[-]$[$+$[-]]+$[$-$-]",temp0,x,temp0,x,temp0,x,temp0);
+}
+
 /* temp0[-]
 temp1[-]
 x[temp1+x-]+
@@ -386,12 +403,17 @@ void equals(int x,int y){
 void equals2(int x,int y){
 	bfalgo("$[-$-$]+$[$-$[-]]",x,y,x,y,x,y);
 }
-/*temp0[-]
+/*
+Attribution: Jeffry Johnston
+
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
 temp1[-]
 x[temp1+x-]
 y[temp1-temp0+y-]
 temp0[y+temp0-]
 temp1[x+temp1[-]] */
+//x = x != y
 void unequals(int x,int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = currentTempRegs[1];
@@ -403,7 +425,174 @@ void unequals(int x,int y){
 		temp1,x,temp1);
 	codeDebugMessage("unequals");
 }
+/*Attribution: Yuval Meshorer
 
+Sets x to be 1 if x == y, 0 otherwise.
+x[
+ y-x-]
+y[[-]
+ x+y]*/
+//x = x != y
+void unequals2(int x, int y){
+	bfalgo("$[$-$-]$[[-]$+$]",x,y,x,y,x,y);
+}
+
+
+/*
+Attribution: User:ais523
+
+temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]
+The temporaries and x are left at 0; y is set to y-x. 
+*/
+//z = x > y
+
+
+void greater(int x, int y, int z){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[-]$[ $+$[- $[-] $+ $]$[- $+ $]$[- $+ $]$- $- ]",
+		temp0,temp1,z,x,temp0,y,temp0,temp1,y,temp0,z,temp0,temp1,y,temp1,y,x);
+	//generated line
+	codeDebugMessage("greater");
+}
+/*
+Attribution: Ian Kelly
+
+x and y are unsigned. 
+temp1 is the first of three consecutive temporary cells. 
+The algorithm returns either 0 (false) or 1 (true).
+
+temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
+
+//x = x <= y
+void lessequal(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = pushCells(3);
+	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+< $[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
+		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
+	//generated line
+	codeDebugMessage("less or equal than");
+
+	//popCells(3);
+}
+/* Attribution: Ian Kelly
+x and y are unsigned. 
+temp1 is the first of three consecutive temporary cells. 
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-] */
+void less(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = pushCells(3);
+	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+<$[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
+		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
+	codeDebugMessage("less");
+}
+/*Attribution: Jeffry Johnston
+
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+temp1[-]
+x[temp1+x-]
+temp1[
+ temp1[-]
+ y[temp1+temp0+y-]
+ temp0[y+temp0-]
+ temp1[x+temp1[-]]
+]*/
+//x = x and y
+void and(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = currentTempRegs[1];
+	bfalgo("$[-]$[-]$[$+$-]$[$[-]$[$+$+$-]$[$+$-]$[$+$[-]]]",
+		temp0,temp1,x,temp1,x,temp1,temp1,y,temp1,temp0,y,temp0,y,temp0,temp1,x,temp1);
+	//generated line
+}
+/* Attribution: Sunjay Varma
+
+Consumes x and y (leaves them as zero at the end of the algorithm) and stores the result in z. For short-circuit evaluation, don't evaluate x or y until just before they are used.
+
+The algorithm returns either 0 (false) or 1 (true).
+z[-]
+x[
+ y[z+y-]
+ x-
+]
+y[-]
+*/
+//z = x and y
+void and2(int x, int y, int z){
+	bfalgo("$[-]$[$[$+$-]$-]$[-]",z,x,y,z,y,x,y);
+	//generated line
+}
+/*
+z = x or y (boolean, logical)
+Attribution: Sunjay Varma
+
+Consumes x and y (leaves them as zero at the end of the algorithm) and stores the result in z. For short-circuit evaluation, don't evaluate x or y until just before they are used.
+
+If you don't care about short-circuit evaluation, temp0 can be removed completely. If temp0 is removed and both x and y are 1, z will be 2, not 1. This is usually not a problem since it is still non-zero, but you should keep that in mind.
+
+The algorithm returns either 0 (false) or 1 (true).
+z[-]
+temp0[-]+
+x[
+ z+
+ temp0-
+ x-
+]
+temp0[-
+ y[
+  z+
+  y-
+ ]
+]
+y[-]*/
+void or(int x, int y, int z){
+	int temp0 = currentTempRegs[0];
+	bfalgo("$[-]$[-]+$[$+$-$-]$[-$[$+$-]]$[-]",z,temp0,x,z,temp0,x,temp0,y,z,y,y);
+}
+
+/*
+Attribution: Yuval Meshorer
+
+Consumes x and y, does not use a temporary cell. Makes z 1 (true) or 0 (false) if either x or y are one.
+z[-]
+x[y+x-]
+y[[-]
+z+y]*/
+void or2(int x,int y, int z){
+	bfalgo("$[-]$[$+$-]$[[-]$+$]",z,x,y,x,y,z,y);
+}
+/*
+Attribution: Yuval Meshorer
+
+Consumes x and y. Makes z 1 (true) or 0 (false) if x does not equal y. Finishes at y.
+ z[-]
+x[y-
+ x-]
+y[z+
+ y[-]] */
+void xor(int x, int y, int z){
+	bfalgo("$[-]$[$-$-]$[$+$[-]]",z,x,y,x,y,z,y);
+}  
 
 static void codeCellValuePrint(int start, int end){
 	pushCells(10);
@@ -414,6 +603,18 @@ static void codeCellValuePrint(int start, int end){
 	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
 	popCells(10);
 }
+
+static void codeCellValuePrintAnySize(int start, int end){
+	printf("priting cell %d\n", start);
+	pushCells(10);
+	incrementXbyY2(currentAllocationIndex-5,start);
+	bfalgo("$[$+$+$-]$",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-6);
+	codeStr("[>>+>+<<<-]>>>[<<<+>>>-]<<+>[<->[>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]++++++++[<++++++>-]>[<<+>>-]>[<<+>>-]<<]>]<[->>++++++++[<++++++>-]]<[.[-]<]<");
+	bfalgo("$[$+$-]$",currentAllocationIndex-7,currentAllocationIndex-5,currentAllocationIndex-7,currentAllocationIndex-5);
+	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
+	popCells(10);
+}
+
 
 void setCodeOutput(FILE* out) {
 	setOutput(out);
@@ -427,107 +628,14 @@ static void defaultOutput() {
 
 static Parameter* currentParameters = NULL;
 
-char* stringForType(Type* t) {
-	char* tStr = NULL;
-	if(t == NULL)
-		return "void";
-	switch(t->tag) {
-		case base:
-			switch(t->b) {
-				case WInt:
-					return "i32";
-				break;
-				case WFloat:
-					return "float";
-				break;
-				case WByte:
-					return "i8";
-				break;
-			}
-		break;
-		case array:
-			
-			tStr = stringForType(t->of);
-			int tlen = strlen(tStr);
-			char* new = malloc(tlen+2);
-			strcpy(new,tStr);
-			//free(tStr); // no need anymore
-			new[tlen] = '*';
-			new[tlen+1] = '\0';
-			return new;
 
-		break;
-	}
-	return tStr;
-}
 
-static char* stringForDefaultValue(Type* t) {
-	if(!t) {
-		printf(";That's probably an error\n");
-		return "void";
-	}
-	if(t->tag == base) {
-		if(t->b == WInt || t->b == WByte) {
-			return "0";
-		}
-		else {
-			return "0.0";
-		}
-	} else {
-		return "null";
-	}
 
-}
-// static void codeDefaultReturn(Type* t) {
-// 	if(!t) {
-// 		fprintf(output, "ret void\n");
-// 		return;
-// 	}
-// 	char* tStr = stringForType(t);
-// 	char* value = stringForDefaultValue(t);
-// 	fprintf(output, "ret %s %s\n", tStr,value);
-// }
 
-static void pushStringToDeclare(char* str) {
-	//printf("%s\n",str );
-	char* nstr = malloc(strlen(str)+1);
-	strcpy(nstr,str);
-	nstr[strlen(str)] = '\0';
-	stringsToDeclare[declareTop] = nstr ;
-	declareTop++;
-}
-// static void declateStringsToDeclare() {
-// 	int x = currentStringConstant - declareTop;
-// 	for(int i = 0;i<declareTop;i++,x++) {
-// 		//printf("ihihiz\n");
-// 		int len = strlen(stringsToDeclare[i])+1;
-// 		fprintf(output, "@.cstr.%d = private unnamed_addr constant [%d x i8] c\"%s\\00\"\n",
-// 		x+1,
-// 		len,
-// 		 stringsToDeclare[i]);
-// 		free(stringsToDeclare[i]);
-// 		stringsToDeclare[i] = NULL;
-// 	}
-// 	declareTop = 0;
-// }
 
-char* stringForVarAddress(const char* name,int scope) {
-	char string[50] = "no string yet";
-	if(strlen(name) >= 50) {
-		printf("SevereError. var name is to big\n");
-	}
-	if(scope == 0) {
-		sprintf(string,"@g%s",name);
-	}
-	else {
-		sprintf(string,"%%l%d%s",scope,name);
-	}
-	
-	char* str = (char*)malloc(strlen(string)+1);
-	strcpy(str,string);
-	str[strlen(string)] = '\0';
-	return str;
-}
+
+
+
 static void codeSignature() {
 	//char version[] = "v_alpha_0_1";
 	fprintf(output, "Generated by HAC (HeadAche Comp) \n" );
@@ -547,8 +655,7 @@ void codeTree() {
 } 
 void codeDefVar(DefVar* dv) {
 	dv->start_cell = currentAllocationIndex += cellsForType(dv->t);
-	printf("var address: %d\n",dv->start_cell);
-	//codeNameList(dv->nl,dv->t,dv->scope);	
+	printf("var address: %d\n",dv->start_cell);	
 
 }
 void codeDefFunc(DefFunc* df) {
@@ -557,30 +664,13 @@ void codeDefFunc(DefFunc* df) {
 	if(checkCompilerFunctions(df->id) >= 0){
 		codeCompilerFunctions(df->id);
 	}
-	char* typeStr = stringForType(df->retType);
 	if(df->b) {
 		currentFunctionTIndex = 0;
 		currentParameters = df->params;
 		declareTop = 0;
 		currentFuncHasReturn = 0;
 		currentBrIndex = 0;
-
-		
 		codeBlock(df->b);
-		
-		
-		// codeDefaultReturn(df->retType);
-		// fprintf(output, "}\n");
-		// currentFunctionTIndex = 0;
-		// currentParameters = NULL;
-		// declateStringsToDeclare();
-		// currentFuncHasReturn = 0;
-		// currentBrIndex = 0;f
-	}
-	else {
-		// fprintf(output, "declare %s @%s(", typeStr,df->id);
-		// codeParams(df->params);
-		// fprintf(output, ")\n");
 	}
 }
 void codeDefVarList(DefVarL* dvl) {
@@ -607,29 +697,7 @@ void codeDefList(Def* d) {
 	codeDefList(d->next);
 
 }
-void codeNameList(NameL* nl,Type* t,int scope) {
-	char* tStr = stringForType(t);
-	char* vStr = stringForDefaultValue(t);
-	NameL* p = nl;
-	if(scope) {
-		int q = cellsForType(t);
-		while(p) {
-			currentAllocationIndex+=q;
-			p=p->next;
-		}
-	} else {
-		while(p) {
-			char* string = stringForVarAddress(p->name,scope);
 
-			fprintf(output, "%s = global %s %s \n", 
-				string,  
-				tStr,
-				vStr );
-			free(string);
-			p=p->next;
-		}
-	}
-}
 void codeType(Type* t);
 void codeParams(Parameter* params) {
 	// if(!params)
@@ -662,51 +730,10 @@ void codeForDeAllocParams(Parameter* params) {
 	
 
 }
-/* 
- %t315 = getelementptr i32* @g25, i32 0
- ~= i315 = &g25[0];
-*/
-// void getelementptr(char* str) {
-// 	fprintf(output, "%s\n", );
-// }
-char* adressOfLeftAssign(Exp* e) {
-	//printf("addr left assig\n");
-	if(e->tag == ExpVar) {
-		//printf("e->var.id %s\n",e->var->id);
-		
-		if (e->var->declaration == NULL){
-			Parameter* p = currentParameters;
-			int t=0;
-			while(p) {
-				if(strcmp(e->var->id,p->id)==0)
-					break;
-				p=p->next;
-				t++;
-			}
-			char * str = (char*)malloc(t/10+3);
-			sprintf(str,"%%t%d",t);
-			return str;
-		}
-		else {
-			int scope = e->var->declaration->scope;
-			char* varAddr = stringForVarAddress(e->var->id,scope);
-			return varAddr;
-		}
-	}
-	else if(e->tag == ExpAccess) {
-		int i1 = codeExpAccess(e)-1;  //received getElemPtr
-		char * str = (char*)malloc(i1/10+3);
-		sprintf(str,"%%t%d",i1);
-		return str;
-	}
-	else {
-		fprintf(output, ";SevereError\n");
-	}
-	return NULL;
-}
+
 int codeCond(Exp* e) {
 	int i1;
-	int temp = currentTempRegs[1];
+	int temp = currentTempRegs[4];
 	i1 = codeExp(e);
 	codeZero(temp);
 	incrementXbyY2(temp,i1);
@@ -776,6 +803,19 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CAssign:
 				 i1 = codeExp(c->expRight);
+				 /* gambiarra para short e int sem esforço*/
+				 printType(c->expLeft->type,0);
+				 if(c->expLeft->type->b == WShort){
+				 	//printf("forceExpand %d\n",forceExpand);
+				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
+				 }
+				 else if(c->expLeft->type->b == WInt){
+				 	//printf("forceExpand %d\n",forceExpand);
+				 	forceExpand = forceExpand > 2 ? forceExpand : 2;
+				 }
+				 else {
+				 	//printf("don't forceExpand %d\n",forceExpand);
+				 }
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
 				 //printExp(c->expRight,0);
@@ -801,11 +841,13 @@ void codeCommandList(CommandL* cl) {
 				else if(c->printExp->type->tag == base) {
 					switch(c->printExp->type->b) {
 						case WInt:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						codeCellValuePrintAnySize(i1,i1);
 						codeDebugMessage("print int");
 						break;
 						case WShort:
-						fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						//fprintf(output, ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+>>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<");
+						codeCellValuePrintAnySize(i1,i1);
 						codeDebugMessage("print Short");
 						break;
 						case WByte:
@@ -814,6 +856,19 @@ void codeCommandList(CommandL* cl) {
 						codeCellValuePrint(i1,i1);
 						codeDebugMessage("print byte");
 
+						break;
+						case WFloat:
+						codeDebugMessage("Not implemented");
+						break;
+						case WBit:
+						temp0 = pushCells(1);
+						temp1 = pushCells(1);
+						bfalgo("$[-]+$[-]$[",temp0,temp1,i1);
+		 				codePrint("true");
+		 				bfalgo("$-$[$+$-]]$[$+$-]$[",temp0,i1,temp1,i1,temp1,i1,temp1,temp0);
+		 				codePrint("false");
+		 				bfalgo("$-]",temp0);
+						codeDebugMessage("print bit");
 						break;
 					}
 				}
@@ -876,9 +931,6 @@ int codeBinExp(Exp* e ,int* f) {
 int codeCallExp(Exp* e) {
 
 	DefFunc* df = (DefFunc*)e->call.def;
-	
-	int toCall = -1;
-	int size=0;
 	ExpList *q = e->call.expList;
 	Parameter *p = df->params;
 	//calculate size
@@ -899,36 +951,11 @@ int codeCallExp(Exp* e) {
 	return currentTempRegs[0];		
 }
 
-char* stringForConstant(Constant* c) {
-	//char str[40] = "no string given";
-	char* str;
-	double nd;
-	int exponent = 0;
-	if(!c)
-		return NULL;
-	switch(c->tag) {
-		case KInt:
-			str = (char*)malloc(40);
-			sprintf(str, "%d", c->u.i);
-		break;
-		case KFloat:
-			nd = frexp(c->u.d, &exponent);
-			str = "No floats";//hexaStringForFloat(c->u.d);
-		break;
-		case KStr:
-			str = (char*)c->u.str;
-		break;
-	}
-	return &str[0];
-}
+
 int codeExpPrim(Exp* e) {
-	currentFunctionTIndex++;
 	//char* tStr = stringForType(e->type);
 	if(e->c->tag == KStr) {
-		currentStringConstant++;
-		char* cStr = stringForConstant(e->c);
-		
-		pushStringToDeclare(cStr);
+
 
 		return currentFunctionTIndex;
 	}
@@ -939,7 +966,7 @@ int codeExpPrim(Exp* e) {
 		
 	} else {
 		if(e->c->start_cell == 0) {
-			e->c->start_cell = currentAllocationIndex += 2;
+			e->c->start_cell = currentAllocationIndex += 1;
 			//printf("kint at %d\n",currentAllocationIndex);
 			char c = '+';
 			int number = e->c->u.i;
@@ -982,55 +1009,27 @@ int codeExpVar(Exp* e) {
 	return currentFunctionTIndex;
 }
 int codeExpUnary(Exp* e) {
-	char* tStr = stringForType(e->type);
 	int i1,i2;
 	i1 = codeExp(e->unary.e);
-	currentFunctionTIndex++;
 	switch(e->unary.op) {
 		case MINUS:
-			if(e->type->b == WFloat) {
-				fprintf(output, "%%t%d = fsub %s 0.0, %%t%d\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-				
-			}
-			else {
-				fprintf(output, "%%t%d = sub nsw %s 0, %%t%d\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-			}
+			i2 = pushCells(cellsForType(e->type));
+			codeZero(i2);
+			incrementXbyY2(i2,i1);
+			sigswitchX(i2);
+			return i2;
 		break;
 		case NOT:
-			if(e->type->b == WFloat) {
-				fprintf(output, "%%t%d = fcmp oeq float %%t%d, 0.0\n",
-				 currentFunctionTIndex,
-				 i1);
-			i2 = currentFunctionTIndex++;
-  			fprintf(output, "%%t%d = uitofp i1 %%t%d to float\n",
-				currentFunctionTIndex,
-				i2);
-			}
-			else {
-				fprintf(output, "%%t%d = icmp eq %s %%t%d, 0\n",
-				 currentFunctionTIndex,
-				 tStr,
-				 i1);
-				i2 = currentFunctionTIndex++;
-				fprintf(output, "%%t%d = zext i1 %%t%d to %s\n",
-				currentFunctionTIndex,
-				i2,
-				tStr );
-			}
+			i2 = pushCells(cellsForType(e->type));
+			codeZero(i2);
+			incrementXbyY2(i2,i1);
+			logicalnot(i2);
+			return i2;
 		break; 
 	}
-	return currentFunctionTIndex;
 }
 int codeExpCast(Exp* e) {
 	int i1 = codeExp(e->cast.e);
-	char* orTStr = stringForType(e->cast.e->type);
-	char* toTStr = stringForType(e->type);
 	currentFunctionTIndex++;
 	//printf("%di1\n",i1);
 	codeDebugMessage("Cast");
@@ -1069,120 +1068,26 @@ char* adressOfParameter(const char* id) {
 		return str;
 		
 }
-char* addressOfVector(Exp* e) {
-	//printf("addressOfVector\n");
-	if(e->tag == ExpAccess) {
-		//printf("gacr\n");
-		return addressOfVector(e->access.varExp);
-	}
-	else if(e->tag == ExpVar) {
-		//printf("gVar\n");
 
-		if(e->var->declaration == NULL)
-		{
-			return adressOfParameter(e->var->id);
-		}
-		return adressOfLeftAssign(e);
-	}
-	else {
-		return "%%SevereError";
-	}
-}
-int codeGetElemPtr(Type* type,int arrayTemp,int indexTemp) {
-	currentFunctionTIndex++;
-	char* tStr = stringForType(type);
-	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
-	currentFunctionTIndex,
-	tStr,
-	tStr,
-	arrayTemp,
-	indexTemp);
-	return currentFunctionTIndex;
-}
-int codeAccessElemPtr(Exp* e) {
-	//fprintf(output,";getelementptr\n");
-	int i1 = codeExp(e->access.indExp);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
-			currentFunctionTIndex,
-			i1 );
-	
-	char* tStr = stringForType(e->type);
-	int index = currentFunctionTIndex++;
-	char* str = addressOfVector(e->access.varExp);
-	
-	fprintf(output, "%%t%d = load %s*, %s** %s\n",
-	currentFunctionTIndex,
-	tStr,
-	tStr,
-	str );
-	//fprintf(output,"; %s mark1\n",stringForType(e->type));
 
-	int startArrayAddress = currentFunctionTIndex++;
-	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
-	currentFunctionTIndex,
-	tStr,
-	tStr,
-	startArrayAddress,
-	index);
-	return currentFunctionTIndex;
-}
-int codeExpAccess(Exp* e) {
-	//fprintf(output,";Exp Access\n");
 
-	int i1,i2;
-	char* tStr;
-	int access;
-	switch (e->tag) {
-		case ExpAccess :
-		i1 = codeExp(e->access.indExp);
-		currentFunctionTIndex++;
-		fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
-			currentFunctionTIndex,
-			i1 );
-		tStr = stringForType(e->type);
-		int index = currentFunctionTIndex++;
-		access = codeExp(e->access.varExp);
-		currentFunctionTIndex++;
 
-		i2 =  codeGetElemPtr(e->type,
-			access,
-			index);
-		// char* str = stringForVarAddress(e->access.varExp);
-		currentFunctionTIndex++;
-		fprintf(output, "%%t%d = load %s, %s* %%t%d\n",
-		currentFunctionTIndex,
-		tStr,
-		tStr,
-		i2 );
-		
-		return currentFunctionTIndex;
-		break;
-		default:
-		//fprintf(output, ";default reached\n" );
-		tStr = stringForType(e->type);
-		char* str = addressOfVector(e);
-		currentFunctionTIndex++;
-		fprintf(output, "%%t%d = load %s, %s* %s\n",
-		currentFunctionTIndex,
-		tStr,
-		tStr,
-		str );
-		return currentFunctionTIndex;
-		break;
-	}
-	return currentFunctionTIndex;	
-}
 int sizeOfType(Type* t) {
 	if(t->tag == base) {
 		switch(t->b) {
 			case WInt:
 				return sizeof(int);
 			break;
+			case WShort:
+				return sizeof(short);
+			break;
 			case WFloat:
 				return sizeof(float);
 			break;
 			case WByte:
+				return sizeof(char);
+			break;
+			case WBit:
 				return sizeof(char);
 			break;
 		}
@@ -1191,25 +1096,7 @@ int sizeOfType(Type* t) {
 		return sizeof(int*); //pointer size
 	}
 }
-int codeExpNew(Exp* e) {
-	int i1 = codeExp(e->eNew.e);
-	char * tStr = stringForType(e->type);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = mul i32 %%t%d, %d\n",
-		currentFunctionTIndex, 
-		i1,
-		sizeOfType(e->type));
-	i1 = currentFunctionTIndex++;
-	fprintf(output, " %%t%d = tail call i8* @malloc(i32 %%t%d)\n",
-	currentFunctionTIndex,
-	i1);
-	int i2 = currentFunctionTIndex++;
-	fprintf(output, "%%t%d = bitcast i8* %%t%d to %s\n",
-	currentFunctionTIndex,
-	i2,
-	tStr );
-	return currentFunctionTIndex;
-}
+
 void codeLabel(int label) {
 	fprintf(output, "b%d:\n",label);
 }
@@ -1221,92 +1108,115 @@ void codeBranches(int cond, int lt,int lf) {
 }
 
 int codeCondToValue(int b1,int b2,int b3) {
-	fprintf(output, "b%d:\n", b1);
-	fprintf(output, "br label %%b%d\n",
-		b3);
-	fprintf(output, "b%d:\n", b2);
-	fprintf(output, "br label %%b%d\n",
-		b3);
-	fprintf(output, "b%d:\n", b3);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = phi i32 [ 1, %%b%d ], [0, %%b%d]\n",
-	currentFunctionTIndex,
-	b1,
-	b2 );
+	// fprintf(output, "b%d:\n", b1);
+	// fprintf(output, "br label %%b%d\n",
+	// 	b3);
+	// fprintf(output, "b%d:\n", b2);
+	// fprintf(output, "br label %%b%d\n",
+	// 	b3);
+	// fprintf(output, "b%d:\n", b3);
+	// currentFunctionTIndex++;
+	// fprintf(output, "%%t%d = phi i32 [ 1, %%b%d ], [0, %%b%d]\n",
+	// currentFunctionTIndex,
+	// b1,
+	// b2 );
 	return currentFunctionTIndex;
 }
-int codeSimpleCompare(Exp* e,const char* oprStr ) {
+int codeSimpleCompare(Exp* e) {
 	int i1,i2;
+	int t1,t2,t3;
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = icmp %s i32 %%t%d, %%t%d\n",
-		currentFunctionTIndex,
-		oprStr,
-		i1,
-		i2 );
-	return currentFunctionTIndex;
+	switch(e->cmp.op){
+		case GT:
+			t1 = pushCells(cellsForType(e->type));
+			t2 = pushCells(cellsForType(e->type));
+			t3 = pushCells(cellsForType(e->type));
+			//preserve x and y
+			codeZero(t2);
+			incrementXbyY2(t2,i1);
+			codeZero(t3);
+			incrementXbyY2(t3,i2);
+			//greater algorithm
+			codeZero(t1);
+			//incrementXbyY2(t1,i1); this shouldn't be necessary
+			greater(i1,i2,t1); //z = x > y => greater(x,y,z);
+			//revert x and y
+			incrementXbyY2(i1,t2); //x is left to zero
+			codeZero(i2);
+			incrementXbyY2(i2,t3);
+			//popCells(cellsForType(e->type)*2);
+			return t1;
+		break;
+		case LS: //a <= x <=> x-a > 0
+			t1 = pushCells(cellsForType(e->cmp.e2->type));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			less(t1,i2);
+			return t1;
+		break;
+		case LSE: //a <= x <=> x-a > 0
+			t1 = pushCells(cellsForType(e->cmp.e2->type));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			lessequal(t1,i2);
+			return t1;
+		break;
+		case EqEq: //a == x <=> x-a == 0
+			t1 = pushCells(cellsForType(e->cmp.e2->type));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			equals(t1,i2);
+			printf("i1:%d i2:%d t1:%d\n",i1,i2,t1);
+			codeDebugMessage("equal than");
+			return t1;
+		break;
+		default:
+			codeStr("Not implemented");
+			return -1;
+		break;
+	}
 
 }
 int codeExpCompare(Exp* e) {
 	int i1,i2;
-	int b1 = currentBrIndex++;
-	int b2 = currentBrIndex++;
-	int b3 = currentBrIndex++;
-	int ln;
+	int t1,t2,t3;
+	//yep, no short circuit now
+	i1 = codeExp(e->cmp.e1);
+	i2 = codeExp(e->cmp.e2);
+	// there are ways to implement short circuit by sharding the algorithms
+	// and evaluating exps only when is absolutely necessary, but that's for later.
 	switch(e->cmp.op) {
-		case GT:
-			codeSimpleCompare(e,"sgt");
-		break;
-		case GTE:
-			codeSimpleCompare(e,"sge");
-		break;
-		case LS:
-			codeSimpleCompare(e,"slt");
-		break;
-		case LSE:
-			codeSimpleCompare(e,"sle");
-		break;
-		case EqEq:
-			codeSimpleCompare(e,"eq");
-		break;
-		case OR:
-			i1 = codeExp(e->cmp.e1);
-			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			currentFunctionTIndex,
-			i1);
-			ln = currentBrIndex++;
-			codeBranches(currentFunctionTIndex,b1,ln); 
-			codeLabel(ln);
-			i2 = codeExp(e->cmp.e2);
-			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			currentFunctionTIndex,
-			i2);
-			codeBranches(currentFunctionTIndex,b1,b2);
-			return codeCondToValue(b1,b2,b3);
+
+		case OR: 
+			t1 = pushCells(cellsForType(e->type));
+			t2 = pushCells(cellsForType(e->type));
+			t3 = pushCells(cellsForType(e->type));
+			//preserve x and y
+			codeZero(t2);
+			incrementXbyY2(t2,i1);
+			codeZero(t3);
+			incrementXbyY2(t3,i2);
+			//or algorithm
+			codeZero(t1);
+			or2(i1,i2,t1); //z = x > y => or(x,y,z);
+			//revert x and y
+			incrementXbyY2(i1,t2); //x is left to zero
+			codeZero(i2);
+			incrementXbyY2(i2,t3);
+			return t1;
 		break;
 		case AND:
-			i1 = codeExp(e->cmp.e1);
-			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			currentFunctionTIndex,
-			i1);
-			ln = currentBrIndex++;
-			codeBranches(currentFunctionTIndex,ln,b2); 
-			codeLabel(ln);
-			i2 = codeExp(e->cmp.e2);
-			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			currentFunctionTIndex,
-			i2);
-			codeBranches(currentFunctionTIndex,b1,b2);
-			return codeCondToValue(b1,b2,b3);
+			t1 = pushCells(cellsForType(e->cmp.e2->type));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			and(t1,i2);
+			return t1;
+		break;
+		default:
+			return codeSimpleCompare(e);
 		break;
 	}
-	codeBranches(currentFunctionTIndex,b1,b2);
-	return codeCondToValue(b1,b2,b3);
 }
 
 int codeExp(Exp* e) {
@@ -1367,13 +1277,13 @@ int codeExp(Exp* e) {
 			result = codeExpPrim(e);	
 		break;
 		case ExpNew:
-			result = codeExpNew(e);
+			result = -1; //codeExpNew(e);
 		break;
 		case ExpCmp:
 			result = codeExpCompare(e);
 		break;
 		case ExpAccess:
-			result = codeExpAccess(e);
+			result = -1; //codeExpAccess(e);
 			
 		break;
 		case ExpCast:
@@ -1400,20 +1310,4 @@ int codeExpOperator(Exp* e) {
 		break; 
 	}
 	return currentFunctionTIndex;
-}
-void codeExpList(ExpList* el) {
-	char * tStr;
-	if(!el)
-		return;
-	ExpList *p = el;
-	while(p) {
-		int index = codeExp(p->e);
-		tStr = stringForType(p->e->type);
-		fprintf(output, "%s %%t%d",tStr,index);
-		if(p->next)
-			fprintf(output, ", ");
-		p = p->next;
-	}
-	return;
-
 }

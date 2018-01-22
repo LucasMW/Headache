@@ -1,7 +1,7 @@
 //From https://esolangs.org/wiki/Brainfuck_bitwidth_conversions
 
 #include <stdlib.h>
-
+#include <stdio.h>
 char* other(char b){
 	char* s;
 	switch(b){
@@ -88,7 +88,7 @@ char * expand8to32(char b){
 	}
 	return other(b);
 }
-#ifdef STANDALONE
+
 #include <stdio.h>
 #include <string.h>
 
@@ -125,12 +125,12 @@ void run(char* path,int mode){
 			printf("%s", expand(c,mode));
 	}
 }
-void runStr(char* str, int mode){
+void runStr(FILE* out,char* str, int mode){
 	for(char* p = str;*p;p++) {
-		printf("%s\n", expand(*p,mode));
+		fprintf(out,"%s\n", expand(*p,mode));
 	}
 }
-
+#ifdef STANDALONE
 int main (int argc, char** argv){
 	//expects ./expander filepath [1]
 	//expects ./expander -p "bfprogram" [1]
@@ -141,11 +141,11 @@ int main (int argc, char** argv){
 		option = argv[1];
 		program = argv[2];
 		mode = atoi(argv[3]);
-		runStr(program,mode);
+		runStr(stdin,program,mode);
 	}
 	if (argc == 3){
 		if(strcmp("-p",argv[1])==0) {
-			runStr(argv[2],0);
+			runStr(stdin,argv[2],0);
 		} else if(strcmp("-i",argv[1])==0) {
 			run(NULL,mode);
 		} else{
