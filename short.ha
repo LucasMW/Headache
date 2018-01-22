@@ -1,7 +1,6 @@
 void main(){
-	byte a;
+	short a;
 	a = 0;
 	a--;
-	%;
 	@a;@"\n";
 }
