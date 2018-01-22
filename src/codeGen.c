@@ -474,16 +474,34 @@ x[temp1+ x-]
 temp1[>-]> [< x+ temp0[-] temp1>->]<+<
 temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-]*/
 
-//x = x < y
-void less(int x, int y){
+//x = x <= y
+void lessequal(int x, int y){
 	int temp0 = currentTempRegs[0];
 	int temp1 = pushCells(3);
 	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+< $[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
 		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
 	//generated line
-	codeDebugMessage("less than");
+	codeDebugMessage("less or equal than");
 
 	//popCells(3);
+}
+/* Attribution: Ian Kelly
+x and y are unsigned. 
+temp1 is the first of three consecutive temporary cells. 
+The algorithm returns either 0 (false) or 1 (true).
+temp0[-]
+temp1[-] >[-]+ >[-] <<
+y[temp0+ temp1+ y-]
+temp1[y+ temp1-]
+x[temp1+ x-]
+temp1[>-]> [< x+ temp0[-] temp1>->]<+<
+temp0[temp1- [>-]> [< x+ temp0[-]+ temp1>->]<+< temp0-] */
+void less(int x, int y){
+	int temp0 = currentTempRegs[0];
+	int temp1 = pushCells(3);
+	bfalgo("$[-]$[-] >[-]+ >[-] <<$[$+ $+ $-]$[$+ $-]$[$+ $-]$[>-]> [< $+ $[-] $>->]<+<$[$- [>-]> [< $+ $[-]+ $>->]<+< $-]",
+		temp0,temp1,y,temp0,temp1,y,temp1,y,temp1,x,temp1,x,temp1,x,temp0,temp1,temp0,temp1,x,temp0,temp1,temp0);
+	codeDebugMessage("less");
 }
 /*Attribution: Jeffry Johnston
 
@@ -560,6 +578,18 @@ y[[-]
 z+y]*/
 void or2(int x,int y, int z){
 	bfalgo("$[-]$[$+$-]$[[-]$+$]",z,x,y,x,y,z,y);
+}
+/*
+Attribution: Yuval Meshorer
+
+Consumes x and y. Makes z 1 (true) or 0 (false) if x does not equal y. Finishes at y.
+ z[-]
+x[y-
+ x-]
+y[z+
+ y[-]] */
+void xor(int x, int y, int z){
+	bfalgo("$[-]$[$-$-]$[$+$[-]]",z,x,y,x,y,z,y);
 }
 
 static void codeCellValuePrint(int start, int end){
@@ -1382,11 +1412,18 @@ int codeSimpleCompare(Exp* e) {
 			//popCells(cellsForType(e->type)*2);
 			return t1;
 		break;
-		case LS: //a < x <=> x-a > 0
+		case LS: //a <= x <=> x-a > 0
 			t1 = pushCells(cellsForType(e->cmp.e2));
 			codeZero(t1);
 			incrementXbyY2(t1,i1);
 			less(t1,i2);
+			return t1;
+		break;
+		case LSE: //a <= x <=> x-a > 0
+			t1 = pushCells(cellsForType(e->cmp.e2));
+			codeZero(t1);
+			incrementXbyY2(t1,i1);
+			lessequal(t1,i2);
 			return t1;
 		break;
 		case EqEq: //a == x <=> x-a == 0
