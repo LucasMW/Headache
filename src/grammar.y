@@ -295,8 +295,18 @@ commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
 ;
 
 commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
-          $$ = $3;
-          CommandL* loop = (CommandL*)malloc(sizeof(CommandL));
+          
+          CommandL* opr = (CommandL*)malloc(sizeof(CommandL));
+          opr->tag = COperator;
+          opr->oprExp = $6;
+
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CFor;
+          $$->cFor.begin = $3;
+          $$->cFor.end = opr;
+          $$->cFor.cmpExp = $4;
+          $$->cFor.block = $8
+          /* CommandL* loop = (CommandL*)malloc(sizeof(CommandL));
           loop->tag = CWhile;
           loop->condExp = $4;
           loop->cmdIf = $8;
@@ -305,7 +315,8 @@ commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
           opr->tag = COperator;
           opr->oprExp = $6;
           loop->next = opr;
-          printCommandList($$,0);
+          printCommandList($$,3);
+          $$ = loop; */
 
 
 };

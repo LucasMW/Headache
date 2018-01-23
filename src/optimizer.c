@@ -114,6 +114,12 @@ void optimizeCommandList(CommandL* cl) {
 				optimizeExp(c->condExp);
 				optimizeCommandList(c->cmdIf);
 			break;
+			case CFor:
+				optimizeExp(c->cFor.cmpExp);
+				optimizeCommandList(c->cFor.begin);
+				optimizeCommandList(c->cFor.end);
+				optimizeCommandList(c->cFor.block);
+			break;
 			case CIf:
 				optimizeExp(c->condExp);
 				optimizeCommandList(c->cmdIf);

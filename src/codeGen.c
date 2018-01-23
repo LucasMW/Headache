@@ -795,6 +795,18 @@ void codeCommandList(CommandL* cl) {
 				
 				codeDebugMessage("end while");
 			break;
+			case CFor:
+				codeDebugMessage("begin for");
+				codeCommandList(c->cFor.begin);
+				temp0 = currentAllocationIndex;
+			 	i1 = codeCond(c->cFor.cmpExp);
+				bfalgo("$[\n",i1);
+					codeCommandList(c->cFor.block);
+					codeCommandList(c->cFor.end);
+				i2 = codeCond(c->cFor.cmpExp);
+				bfalgo("$\n]",i2);
+				codeDebugMessage("end for");
+			break;
 			case CIf:
 				temp0 = pushCells(1);
 				codeZero(temp0);
@@ -917,6 +929,7 @@ void codeCommandList(CommandL* cl) {
 			case CRead:
 				i1 =  codeExp(c->printExp);
 				read(i1);
+				codeDebugMessage("Read");
 			break; 
 			case CDebug:
 				codeStr("@");

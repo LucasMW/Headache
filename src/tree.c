@@ -243,6 +243,13 @@ void printCommandList(CommandL* cl,int x) {
 				printExp(c->condExp,x+1);
 				printCommandList(c->cmdIf,x+1);
 			break;
+			case CFor: 
+				printDepthLevel("For",x);
+				printCommandList(c->cFor.begin,x+1);
+				printExp(c->cFor.cmpExp,x+1);
+				printCommandList(c->cFor.block,x+1);
+				printCommandList(c->cFor.end,x+1);
+			break;
 			case CIf:
 				printDepthLevel("If",x);
 				printExp(c->condExp,x+1);
@@ -607,6 +614,12 @@ void freeCommandList(CommandL* cl) {
 			case CWhile:
 				freeExp(c->condExp);
 				freeCommandList(c->cmdIf);
+			break;
+			case CFor:
+				freeCommandList(c->cFor.begin);
+				freeExp(c->cFor.cmpExp);
+				freeCommandList(c->cFor.end);
+				freeCommandList(c->cFor.block);
 			break;
 			case CIf:
 				freeExp(c->condExp);

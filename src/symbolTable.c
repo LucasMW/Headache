@@ -333,6 +333,19 @@ void typeCommandList(CommandL* cl ) {
 				typeCommandList(c->cmdIf );
 				leaveScope();
 			break;
+			case CFor:
+				typeCommandList(c->cFor.begin);
+
+				typeExp(c->cFor.cmpExp);
+				if(!checkTypeLogic(c->cFor.cmpExp)) {
+					raiseError("expression not suitble for condition",
+						c->cFor.cmpExp->dbg_line);
+				}
+				enterScope();
+				typeCommandList(c->cFor.block);
+				typeCommandList(c->cFor.end);
+				leaveScope();
+			break;
 			case CIf:
 				typeExp(c->condExp );
 				if(!checkTypeLogic(c->condExp)) {

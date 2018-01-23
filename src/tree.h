@@ -53,7 +53,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator, CRead } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint, CDebug, COperator, CRead, CFor } CTypes;
 
 
 
@@ -173,6 +173,12 @@ typedef struct CommandL
 	Exp* condExp;
 	struct CommandL* cmdIf;
 	struct CommandL* cmdElse;
+	struct {
+			struct CommandL* begin;
+			struct  Exp* cmpExp;
+			struct CommandL* end;
+			struct CommandL* block;
+		} cFor;
 	Exp* expLeft;
 	Exp* expRight;
 	Exp* retExp;

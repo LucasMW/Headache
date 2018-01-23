@@ -105,7 +105,9 @@
 "/"		{return '/';}
 ","		{return ',';}
 "@"		{return '@';}
+"print"		{return '@';}
 "#"		{return '#';}
+"read"		{return '#';}
 "%"		{return '%';}
 
 "0x"([0-9]|[A-F]|[a-f])+	{yylval.int_val = strtol(yytext, NULL, 0);
