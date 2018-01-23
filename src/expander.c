@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 char* other(char b){
-	char* s;
+
+	static char charStr[2];
 	switch(b){
 		case '.':
 			return ".";
@@ -12,10 +13,9 @@ char* other(char b){
 			return ",";
 		break;
 		default:
-			s = (char*)malloc(2);
-			s[0]=b;
-			s[1]='\0';
-			return s;
+			charStr[0]=b;
+			charStr[1]='\0';
+			return charStr;
 		break;
 	}
 }
@@ -63,7 +63,7 @@ char * expand8to16(char b){
 			return ">[<+>[->>+<<]]>>[-<<+>>]<[<<+>>[->+<]]>[-<+>]<<<]";
 		break;
 	}
-	return other(b);;
+	return other(b);
 }
 char * expand8to32(char b){
 	switch(b){
@@ -124,6 +124,7 @@ void run(char* path,int mode){
 	while(fscanf(input,"%c",&c) != EOF){
 			printf("%s", expand(c,mode));
 	}
+	fclose(input);
 }
 void runStr(FILE* out,char* str, int mode){
 	for(char* p = str;*p;p++) {
