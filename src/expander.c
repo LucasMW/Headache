@@ -127,7 +127,7 @@ void run(char* path,int mode){
 }
 void runStr(FILE* out,char* str, int mode){
 	for(char* p = str;*p;p++) {
-		fprintf(out,"%s\n", expand(*p,mode));
+		fprintf(out,"%s", expand(*p,mode));
 	}
 }
 #ifdef STANDALONE
