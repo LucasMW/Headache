@@ -594,6 +594,36 @@ void xor(int x, int y, int z){
 	bfalgo("$[-]$[$-$-]$[$+$[-]]",z,x,y,x,y,z,y);
 }  
 
+/*read into cell x
+by Urban Müller (1993)
+
+Value is input into the current cell, uses three more cells to the right. End of the number is a newline, or eof. All other character are treated the same as digits. Works correctly with bignum cells.
+
+   [-]>[-]+    // Clear sum
+   [[-]                // Begin loop on first temp
+   >[-],               // Clear the inp buffer to detect leave on eof and input
+       [
+           +[                          // Check for minus one on eof
+               -----------[            // Check for newline
+                   >[-]++++++[<------>-]       // Subtract 38 to get the char in zero to nine
+                   <--<<[->>++++++++++<<]      // Multiply the existing value by ten
+                   >>[-<<+>>]          // and add in the new char
+               <+>]
+           ]
+       ]
+   <]
+   <
+   // Current cell is the number input*/
+void read(int x){
+	pushCells(10);
+	bfalgo("$[-]>[-]+[[-]>[-],[+[-----------[>[-]++++++[<------>-]<--<<[->>++++++++++<<]>>[-<<+>>]<+>]]]<]<",
+		currentAllocationIndex-4);
+	codeZero(x);
+	incrementXbyY2(x,currentAllocationIndex-4);
+	codeZero(currentAllocationIndex-4);
+	popCells(10);
+}
+
 static void codeCellValuePrint(int start, int end){
 	pushCells(10);
 	incrementXbyY2(currentAllocationIndex-5,start);
@@ -804,7 +834,7 @@ void codeCommandList(CommandL* cl) {
 			case CAssign:
 				 i1 = codeExp(c->expRight);
 				 /* gambiarra para short e int sem esforço*/
-				 printType(c->expLeft->type,0);
+				 //printType(c->expLeft->type,0);
 				 if(c->expLeft->type->b == WShort){
 				 	//printf("forceExpand %d\n",forceExpand);
 				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
@@ -884,6 +914,10 @@ void codeCommandList(CommandL* cl) {
 				// 	typeError("Expression is not printable");
 				// }
 			break;
+			case CRead:
+				i1 =  codeExp(c->printExp);
+				read(i1);
+			break; 
 			case CDebug:
 				codeStr("@");
 				codeDebugMessage("Print All Memory");

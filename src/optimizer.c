@@ -139,6 +139,9 @@ void optimizeCommandList(CommandL* cl) {
 			case CPrint:
 				c->printExp = optimizeExp(c->printExp);
 			break;
+			case CRead:
+				c->printExp = optimizeExp(c->printExp);
+			break;
 			case CDebug:
 				optimizeExp(c->printExp);
 			break;

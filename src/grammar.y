@@ -262,7 +262,7 @@ commandPrint: '@' exp ';' {
 ;
 commandRead: '#' exp ';' {
   $$ = (CommandL*)malloc(sizeof(CommandL));
-  $$->tag = CPrint;
+  $$->tag = CRead;
   $$->printExp = $2;
 }
 ;

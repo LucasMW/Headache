@@ -66,6 +66,7 @@ int typeEquals(Type* t1, Type* t2);
 int typesBothIntegers(Type* t1,Type* t2);
 void performCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
+int checkReadability(Exp* e);
 int checkTypeLogic(Exp* e);
 
 
@@ -404,6 +405,12 @@ void typeCommandList(CommandL* cl ) {
 					raiseError("Expression is not printable",c->printExp->dbg_line);
 				}
 			break;
+			case CRead:
+				typeExp(c->printExp);
+				if (!checkReadability(c->printExp)) {
+					raiseError("Expression is not readable",c->printExp->dbg_line);
+				}
+			break;
 			case CDebug:
 				flagDebug = 1;
 			break;
@@ -650,6 +657,25 @@ int checkPrintability(Exp* e) {
 		if(e->type->of->tag == base 
 			&& e->type->of->b ==WByte) {
 			return 1;
+		}
+	}
+	return 0;
+}
+int checkReadability(Exp* e) {
+	if(!e)
+		return 0;
+	if(e->type == NULL)
+		return 0;
+	
+	if(e->tag == ExpVar){
+		if(e->type->tag == base) {
+			return 1;
+		}
+		if(e->type->tag == array) { //can print strings
+			if(e->type->of->tag == base 
+				&& e->type->of->b ==WByte) {
+				return 1;
+			}
 		}
 	}
 	return 0;

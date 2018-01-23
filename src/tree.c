@@ -275,6 +275,10 @@ void printCommandList(CommandL* cl,int x) {
 				printDepthLevel("print",x);
 				printExp(c->printExp,x+1);
 			break;
+			case CRead:
+				printDepthLevel("read",x);
+				printExp(c->printExp,x+1);
+			break;
 			case CDebug:
 				printDepthLevel("debug",x);
 				printExp(c->printExp,x+1);
@@ -627,6 +631,9 @@ void freeCommandList(CommandL* cl) {
 				freeExp(c->expRight);
 			break;
 			case CPrint:
+				freeExp(c->printExp);
+			break;
+			case CRead:
 				freeExp(c->printExp);
 			break;
 			case CDebug:
