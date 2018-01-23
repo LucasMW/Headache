@@ -1,5 +1,10 @@
-byte pow(byte x, byte y){
-	byte r,z;
+/*
+23/01/2018
+Author: Lucas Menezes
+Interactive 16 bit power program
+*/
+short pow(short x, short y){
+	short r,z;
 	r=1;
 	z = y;
 	while(z){
@@ -10,8 +15,11 @@ byte pow(byte x, byte y){
 }
 void main(){
 	byte a,b;
-	a=2;
-	b=9;
+	@"Calculate pow(a,b)\n";
+	@"Enter a:\n";
+	#a;
+	@"Enter b:\n";
+	#b;
 	@"pow(";@a;@",";@b;@") = ";
-	@pow(a,b);@"\n";
+	@pow(a as short,b as short);@"\n";
 }
