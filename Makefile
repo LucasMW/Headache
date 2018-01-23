@@ -103,6 +103,12 @@ zip:
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../hac.zip
 
+zip-release: all
+	rm -rf zipfolder
+	rm -f src/*.o
+	zip -r zipfolder.zip hac expander bfi bin/hac
+	mv zipfolder.zip ../hac-release.zip
+
 temp: 
 	mkdir temp
 bin: 
