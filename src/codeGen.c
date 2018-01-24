@@ -148,14 +148,7 @@ static int popCells(int x){
 	return currentAllocationIndex;
 }
 
-/*looks for not used temporary
-chunks is needed memory size
 
-*/
-
-int findTempMemory(int chunks){
-	return 0;
-}
 
 
 
@@ -930,6 +923,14 @@ void codeCommandList(CommandL* cl) {
 				i1 =  codeExp(c->printExp);
 				read(i1);
 				codeDebugMessage("Read");
+				 if(c->printExp->type->b == WShort){
+				 	//printf("forceExpand %d\n",forceExpand);
+				 	forceExpand = forceExpand > 1 ? forceExpand : 1;
+				 }
+				 else if(c->printExp->type->b == WInt){
+				 	//printf("forceExpand %d\n",forceExpand);
+				 	forceExpand = forceExpand > 2 ? forceExpand : 2;
+				 }
 			break; 
 			case CDebug:
 				codeStr("@");
