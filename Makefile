@@ -1,4 +1,4 @@
-CFLAGS = -Wall -std=c99 -g
+CFLAGS = -Wall -std=c99 -g -O3
 OUTFILE = hac
 SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c
 OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o
@@ -12,7 +12,7 @@ bin/hac.html: src/main.c src/lex.c src/grammar.c
 
 all: test/hac bfi expander bin/hac bfalgoConverter
 
-install: bin/hac expander bfi
+install: bin/hac expander bfi bfalgoConverter
 	@rm -rf $(HOME)/.Headache/
 	@echo "Installing Headache..."
 	@./bin/hac --version
@@ -20,7 +20,11 @@ install: bin/hac expander bfi
 	@cp bin/hac "$(HOME)/.Headache/"
 	@cp bfi "$(HOME)/.Headache/"
 	@cp expander "$(HOME)/.Headache/"
+	@cp bfalgoConverter "$(HOME)/.Headache/"
 	@echo "Please add $(HOME)/.Headache/ to your PATH"
+
+uninstall: 
+	@rm -rf $(HOME)/.Headache/
 
 
 test: testlexical testsyntax testtree testchecks
@@ -142,3 +146,4 @@ temp/main.o:  src/main.c
 	cc -o temp/main.o -Wall -O3 -c src/main.c
 temp/lex.o: src/lex.c
 	cc -o temp/lex.o -Wall -O3 -c src/lex.c
+

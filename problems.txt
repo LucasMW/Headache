@@ -141,6 +141,14 @@ So, Windows builds of hac are possible, but it is not officially supported.
 
 Wilfred's bfc can be integrated to headache as an extra/plugin. Make it pre-built into each plataform, being hosted in github branches, and make custom system integration code. It can be downloaded to a tools directory near the installation of Headache binaries.
 
+23/01/2018:
+
+Reading won't simple work in on debugging in interactive mode.
+
+24/01/2018:
+Operations inside while corrupt memory
+
+
 
 
 
