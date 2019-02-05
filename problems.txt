@@ -148,6 +148,10 @@ Reading won't simple work in on debugging in interactive mode.
 24/01/2018:
 Operations inside while corrupt memory
 
+02/02/2018:
+Two Reading operations with shorts can result in infinite loop if the first one has more digits
+than the second one.
+
 
 
 
