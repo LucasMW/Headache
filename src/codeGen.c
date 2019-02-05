@@ -218,6 +218,8 @@ static void moveXToY(int x, int y){
 	codeZero(y);
 	bfalgo("$[$+$-]",x,y,x);
 }
+
+
 static void codeConstantIncrement(int x, int q){
 	codeGoTo(x);
 	while(q){
@@ -838,7 +840,8 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CAssign:
 				 i1 = codeExp(c->expRight);
-				 /* gambiarra para short e int sem esforço*/
+				 
+				 /* lil Trick to add shorts and ints */
 				 //printType(c->expLeft->type,0);
 				 if(c->expLeft->type->b == WShort){
 				 	//printf("forceExpand %d\n",forceExpand);
@@ -854,7 +857,12 @@ void codeCommandList(CommandL* cl) {
 				 //printExp(c->expRight,0);
 				 i2 = codeExp(c->expLeft);
 				 //printExp(c->expRight,0);
+				 temp0 = pushCells(1);
+				 codeZero(temp0);
+				 incrementXbyY2(temp0,i1);
 				 moveXToY(i1,i2);
+				 moveXToY(temp0,i1);
+				 popCells(1);
 				 //printf("%d %d",i1,i2);
 				 codeDebugMessage("Assign");
 			break;
@@ -1014,8 +1022,8 @@ int codeExpPrim(Exp* e) {
 		
 	} else {
 		if(e->c->start_cell == 0) {
-			e->c->start_cell = currentAllocationIndex += 1;
-			//printf("kint at %d\n",currentAllocationIndex);
+			e->c->start_cell = pushCells(1);
+			printf("kint at %d\n",currentAllocationIndex);
 			char c = '+';
 			int number = e->c->u.i;
 			codeZero(e->c->start_cell);
@@ -1279,7 +1287,8 @@ int codeExp(Exp* e) {
 				//result = codeBinExp(e,"add nsw");
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
-				currentAllocationIndex += cellsForType(e->type);
+				currentAllocationIndex = pushCells(cellsForType(e->type));
+				codeZero(currentAllocationIndex);
 				incrementXbyY2(currentAllocationIndex,te1);
 				incrementXbyY2(currentAllocationIndex,te2);
 				codeDebugMessage("Add");
@@ -1288,7 +1297,8 @@ int codeExp(Exp* e) {
 		case ExpSub:
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
-				currentAllocationIndex += cellsForType(e->type);
+				currentAllocationIndex = pushCells(cellsForType(e->type));
+				codeZero(currentAllocationIndex);
 				incrementXbyY(currentAllocationIndex,te1);
 				decrementXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Sub");
@@ -1298,6 +1308,7 @@ int codeExp(Exp* e) {
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
 				currentAllocationIndex += cellsForType(e->type);
+				codeZero(currentAllocationIndex);
 				incrementXbyY(currentAllocationIndex,te1);
 				multiplyXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Mult");
@@ -1307,6 +1318,7 @@ int codeExp(Exp* e) {
 				te1 = codeExp(e->bin.e1 );
 				te2 = codeExp(e->bin.e2 );
 				currentAllocationIndex += cellsForType(e->type);
+				codeZero(currentAllocationIndex);
 				incrementXbyY(currentAllocationIndex,te1);
 				divideXbyY(currentAllocationIndex,te2);
 				codeDebugMessage("Div");
