@@ -78,9 +78,10 @@ static char optimizationOptionsCount = 3;
 
 static char* breakingOptions[] = {
 	"--help",
-	"--version"
+	"--version",
+	"--maga"
 };
-static char breakingOptionsCount = 2;
+static char breakingOptionsCount = 3;
 
 static char hacVersion[] = "v0.51.0b";
 
@@ -200,7 +201,13 @@ int main (int argc, char** argv)
 			{
 				printf("HAC (HeadAche Compiler). Version: %s\n",hacVersion );
 				return 0;
-			} 
+			}
+			else if(strcmp("--maga",argv[1])==0)
+			{
+				system("curl http://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
+				system("open trump.jpg");
+				return 0;
+			}  
 		} 
 		else 
 		{
