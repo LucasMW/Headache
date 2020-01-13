@@ -78,7 +78,7 @@ class BrainfuckInterpreter {
      */
     func setProgram(program : String)
     {
-        dprint(program.characters.count)
+        dprint(program.count)
         self.program = program.cString(using: String.Encoding.utf8)!
         self.prg_idx = 0 //program must be read again
         dprint(self.program.count)
