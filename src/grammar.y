@@ -1,7 +1,7 @@
 /* The grammar for Headache*/
 /* grammar.y */
 
-%error-verbose /* instruct bison to generate verbose error messages*/
+%define parse.error verbose /* instruct bison to generate verbose error messages*/
 
 %{
 #include "lex.h"
@@ -305,7 +305,7 @@ commandFor: TK_WFOR '(' command expCmp ';' expOperator ')' command %prec "if" {
           $$->cFor.begin = $3;
           $$->cFor.end = opr;
           $$->cFor.cmpExp = $4;
-          $$->cFor.block = $8
+          $$->cFor.block = $8;
           /* CommandL* loop = (CommandL*)malloc(sizeof(CommandL));
           loop->tag = CWhile;
           loop->condExp = $4;
