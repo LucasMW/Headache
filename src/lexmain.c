@@ -110,11 +110,17 @@ int main (int argc, char** argv)
 			case TK_FLOAT:
 				printf("Float %g\n",seminfo.d);
 			break;
+			case TK_WByte:
+				printf("reserved word byte");
+			break;
+			case TK_WShort:
+				printf("reserved word short");
+			break;
+			case TK_WINT:
+				printf("reserved word int\n");
+			break;
 			case TK_WCHAR:
 				printf("reserved word char\n");
-			break;
-			case TK_WELSE:
-				printf("reserved word else\n");
 			break;
 			case TK_WFLOAT:
 				printf("reserved word float\n");
@@ -122,8 +128,8 @@ int main (int argc, char** argv)
 			case TK_WIF:
 				printf("reserved word if\n");
 			break;
-			case TK_WINT:
-				printf("reserved word int\n");
+			case TK_WELSE:
+				printf("reserved word else\n");
 			break;
 			case TK_WNEW:
 				printf("reserved word new\n");

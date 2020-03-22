@@ -109,14 +109,17 @@ void testLex ()
 			case TK_INT:
 				printf("Int %d\n",yylval.int_val);
 			break;
-			// case TK_FLOAT:
-			// 	printf("Float %g\n",yylval.double_val);
-			// break;
+			case TK_WINT:
+				printf("reserved word int\n");
+			break;
+			case TK_WSHORT:
+				printf("reserved word short\n");
+			break;
+			case TK_WBYTE:
+				printf("reserved word byte\n");
+			break;
 			case TK_WCHAR:
 				printf("reserved word char\n");
-			break;
-			case TK_WELSE:
-				printf("reserved word else\n");
 			break;
 			case TK_WFLOAT:
 				printf("reserved word float\n");
@@ -124,8 +127,8 @@ void testLex ()
 			case TK_WIF:
 				printf("reserved word if\n");
 			break;
-			case TK_WINT:
-				printf("reserved word int\n");
+			case TK_WELSE:
+				printf("reserved word else\n");
 			break;
 			case TK_WNEW:
 				printf("reserved word new\n");
