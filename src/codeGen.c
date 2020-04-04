@@ -913,6 +913,10 @@ void codeCommandList(CommandL* cl) {
 		 				bfalgo("$-]",temp0);
 						codeDebugMessage("print bit");
 						break;
+						case WChar:
+						bfalgo("$.",i1);
+						codeDebugMessage("print char");
+						break;
 					}
 				}
 				else if(c->printExp->type->of->tag == base &&
@@ -929,7 +933,11 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CRead:
 				i1 =  codeExp(c->printExp);
-				read(i1);
+				if(c->printExp->type->b == WChar) { 
+					bfalgo("$,",i1);
+				} else {
+					read(i1);
+				}
 				codeDebugMessage("Read");
 				 if(c->printExp->type->b == WShort){
 				 	//printf("forceExpand %d\n",forceExpand);
@@ -1144,6 +1152,8 @@ int sizeOfType(Type* t) {
 				return sizeof(char);
 			break;
 			case WBit:
+				return sizeof(char);
+			case WChar:
 				return sizeof(char);
 			break;
 		}

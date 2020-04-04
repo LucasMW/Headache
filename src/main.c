@@ -83,7 +83,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.52.0b";
+static char hacVersion[] = "v0.54.0b";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -199,7 +199,7 @@ int main (int argc, char** argv)
 			}
 			else if(strcmp("--version",argv[1])==0)
 			{
-				printf("HAC (HeadAche Compiler). Version: %s\n",hacVersion );
+				printf("HAC (Headache Awesome Compiler). Version: %s\n",hacVersion );
 				return 0;
 			}
 			else if(strcmp("--maga",argv[1])==0)
@@ -325,7 +325,7 @@ int main (int argc, char** argv)
 	}
 	if(!noDebug)
 	{
-		printf("Debuging\n");
+		printf("Debugging\n");
 		char* program = readFile(bf_name);
 		printf("exec\n");
 		int used = execute(program,30000,1);

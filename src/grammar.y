@@ -1,7 +1,7 @@
 /* The grammar for Headache*/
 /* grammar.y */
 
-%define parse.error verbose /* instruct bison to generate verbose error messages*/
+//%define parse.error verbose /* instruct bison to generate verbose error messages*/
 
 %{
 #include "lex.h"
@@ -51,7 +51,6 @@ extern FILE *yyin;
 %token <int_val> TK_WSHORT
 %token <int_val> TK_WBIT
 %token <int_val> TK_WBYTE
-//%token <int_val> TK_FLOAT
 %token <int_val> TK_WAS
 %token <int_val> TK_WCHAR
 %token <int_val> TK_WELSE
@@ -709,6 +708,7 @@ baseType : TK_WINT { $$ = WInt;}
 | TK_WFLOAT {$$ = WFloat;}
 | TK_WSHORT {$$ = WShort;}
 | TK_WBIT {$$ = WBit;}
+| TK_WCHAR {$$ = WChar;}
 ;
 %%
 

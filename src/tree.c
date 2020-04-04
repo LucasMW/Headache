@@ -189,6 +189,9 @@ void printType(Type* t,int x) {
 				case WBit:
 				printDepthLevel("bit ",x);
 				break;
+				case WChar:
+				printDepthLevel("char ",x);
+				break;
 			}
 			
 		break;

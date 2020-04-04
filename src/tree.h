@@ -31,7 +31,7 @@ typedef struct Constant
 
 typedef enum defType { DFunc, DVar} defType;
 
-typedef enum BType { WInt, WByte ,WFloat, WShort, WBit} BType;
+typedef enum BType { WInt, WByte ,WFloat, WShort, WBit, WChar} BType;
 typedef enum Types { base, array} Types;
 
 typedef struct Type
