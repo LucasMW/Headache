@@ -32,5 +32,22 @@ int less(int x, int y){
 	return !(x > y || x == y);
 }
 int greaterEqual(int x, int y){
-	return x > y && x == y;
+	return x > y || x == y;
+}
+
+void main() {
+	byte a,b;
+	print "Enter a and b\n";
+	read a;
+	read b;
+	if(greaterEqual(a as int,b as int)){
+		@"a >= b\n";
+	} else {
+		@"a < b\n";
+	}
+	if(less(a as int,b as int)){
+		@"less\n";
+	} else {
+		@"Not less\n";
+	}
 }

@@ -2,15 +2,15 @@ void println(int b){
 	@b;@"\n";
 }
 
-void printlnshort(short b){
+void printlnShort(short b){
 	@b;@"\n";
 }
 
-void printlnbyte(byte b){
+void printlnByte(byte b){
 	@b;@"\n";
 }
 
-void printBit(bit x) {
+void printlnBit(bit x) {
 	if(x)
 		@"true";
 	else 

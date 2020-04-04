@@ -142,6 +142,9 @@ void testLex ()
 			case TK_WWHILE:
 				printf("reserved word while\n");
 			break;
+			case TK_WFOR:
+				printf("reserved word for\n");
+			break;
 			case TK_WAS:
 				printf("reserved word as\n");
 			break;
