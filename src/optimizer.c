@@ -207,23 +207,38 @@ Exp* optimizeExpBin(Exp* e){
 	if(e1->tag == ExpPrim && e2->tag == ExpPrim) {
 		//printf("Both prim\n");
 		char r; //same semantics as brainfuck cell
-		if(e->tag == ExpAdd)
+		short r2;
+		int r4;
+		if(e->tag == ExpAdd){
 			r = (char)e1->c->u.i + (char)e2->c->u.i;
-		else if(e->tag == ExpSub)
+			r2 = (short)e1->c->u.i + (short)e2->c->u.i;
+			r4 = e1->c->u.i + e2->c->u.i;
+		}
+		else if(e->tag == ExpSub){
 			r = (char)e1->c->u.i - (char)e2->c->u.i;
-		else if(e->tag == ExpMul)
+			r2 = (short)e1->c->u.i - (short)e2->c->u.i;
+			r4 = e1->c->u.i - e2->c->u.i;
+		}
+		else if(e->tag == ExpMul){
 			r = (char)e1->c->u.i * (char)e2->c->u.i;
+			r2 = (short)e1->c->u.i * (short)e2->c->u.i;
+			r4 = e1->c->u.i * e2->c->u.i;
+		}
 		else if(e->tag == ExpDiv) {
 			//Dealing with 0
 			if(e2->c->u.i == 0 && e1->c->u.i == 0){
 				r = 0;
+				r2 = 0;
+				r4 = 0;
 			}
 			else if(e2->c->u.i == 0){
 				raiseWarning("cannot optimize",e->dbg_line);
 				return e; //abort optimization. Cannot optimize this
 			} 
 			else {
-				r = (char)e1->c->u.i / (char)e2->c->u.i; 
+				r = (char)e1->c->u.i / (char)e2->c->u.i;
+				r2 = (short)e1->c->u.i / (short)e2->c->u.i;
+				r4 = e1->c->u.i / e2->c->u.i;  
 			}
 			
 		}
@@ -237,10 +252,30 @@ Exp* optimizeExpBin(Exp* e){
 		newExp->tag = ExpPrim;
 		newExp->c = (Constant*)malloc(sizeof(Constant));
 		newExp->c->tag = KInt;
-		newExp->c->u.i = r;
+		switch(e->type->b){
+			case WByte:
+				newExp->c->u.i = r;
+			break;
+			case WShort: 
+				newExp->c->u.i = r2;
+			break;
+			case WInt:
+				newExp->c->u.i = r4;
+			break;
+			case WFloat:
+				raiseWarning("cannot optimize",e->dbg_line);
+			break;
+			case WBit:
+				raiseWarning("cannot optimize",e->dbg_line);
+			break;
+			case WChar:
+				raiseWarning("cannot optimize",e->dbg_line);
+			break;
+		}
 		newExp->c->start_cell = 0;
-
+		printf("registers (%d,%d,%d); \nchosen value %d \n", newExp->c->u.i ,r,r2,r4);
 		
+		printf("types involved (%d,%d) => %d\n",e->type->b,e1->type->b,e2->type->b);		
 	} else if(optimizationLevel >= 2) {
 		//printf("optimizer inc dec\n");
 		if(e1->tag == ExpPrim) { // translate to simple increments or decrements
