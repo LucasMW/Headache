@@ -43,6 +43,15 @@ expander: src/expander.c
 bfalgoConverter: src/bfalgoConverter.c
 	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
 
+bfi.exe: src/testbfi.c
+	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.exe
+
+expander.exe: src/expander.c
+	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/expander.c -o expander.exe
+
+bfalgoConverter.exe: src/bfalgoConverter.c
+	i686-w64-mingw32-gcc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
+
 testoptimize: hac bfi
 	sh test/optimize/script.sh
 
