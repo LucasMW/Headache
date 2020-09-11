@@ -23,3 +23,5 @@ bfi
 bfide-bfi
 expander
 bfalgoConverter
+*.exe
+*.zip
