@@ -6,6 +6,7 @@ Braces Open
 reserved word char
 Var value
 Semicolon
+reserved word short
 Var svalue
 Semicolon
 reserved word if
