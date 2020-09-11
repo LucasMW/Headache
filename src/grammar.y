@@ -587,13 +587,6 @@ expMul: expMul '*' expUnary {
         $$->bin.e2 = $3;
         $$->dbg_line = yy_lines;
       }
-      | expMul '%' expUnary {
-        $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpModulus; //<
-        $$->bin.e1 = $1;
-        $$->bin.e2 = $3;
-        $$->dbg_line = yy_lines;
-      }
       | expUnary {
         $$=$1;
       } 
