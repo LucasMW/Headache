@@ -1363,17 +1363,6 @@ int codeExp(Exp* e) {
 				codeDebugMessage("Div");
 				result = currentAllocationIndex;
 		break;
-		case ExpModulus:
-				te1 = codeExp(e->bin.e1 );
-				te2 = codeExp(e->bin.e2 );
-				currentAllocationIndex += cellsForType(e->type);
-				codeZero(currentAllocationIndex);
-				incrementXbyY(currentAllocationIndex,te1);
-				printf("te1 = %d, te2 = %d, currentAllocationIndex = %d\n", te1, te2, currentAllocationIndex );
-				modulus(currentAllocationIndex,te2);
-				codeDebugMessage("Mod");
-				result = currentAllocationIndex;
-		break;
 		case ExpCall:
 			result = codeCallExp(e);
 		break;
