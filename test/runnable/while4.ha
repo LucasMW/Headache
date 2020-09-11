@@ -1,15 +1,15 @@
 void main(){
 	byte i;
 	byte j;
-	i = 0;
-	while(i<=3){
-		j=0;
-		while(j<=3){
-			%;
+	i = 5;
+	while(i){
+		j=5;
+		while(j){
+			//%;
 			@j;@" ";
-			j++;
+			j--;
 		}
-		i++;
+		i--;
 		@"\n";
 	}
 	@"Finished\n";
