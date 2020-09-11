@@ -5,7 +5,7 @@ OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o 
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
-bin/hac.exe:
+bin/hac.exe: $(SOURCES)
 	i686-w64-mingw32-gcc $(CFLAGS) -o bin/hac.exe $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
 	emcc --pre-js stdin.js -Wall -o bin/hac.js $(SOURCES)
