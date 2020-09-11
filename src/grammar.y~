@@ -1,7 +1,7 @@
 /* The grammar for Headache*/
 /* grammar.y */
 
-//%define parse.error verbose /* instruct bison to generate verbose error messages*/
+%error-verbose /* instruct bison to generate verbose error messages*/
 
 %{
 #include "lex.h"
@@ -51,6 +51,7 @@ extern FILE *yyin;
 %token <int_val> TK_WSHORT
 %token <int_val> TK_WBIT
 %token <int_val> TK_WBYTE
+//%token <int_val> TK_FLOAT
 %token <int_val> TK_WAS
 %token <int_val> TK_WCHAR
 %token <int_val> TK_WELSE
@@ -579,7 +580,7 @@ expMul: expMul '*' expUnary {
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
         $$->dbg_line = yy_lines;
-      }
+}
       | expMul '/' expUnary {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpDiv; //<
@@ -587,18 +588,10 @@ expMul: expMul '*' expUnary {
         $$->bin.e2 = $3;
         $$->dbg_line = yy_lines;
       }
-      | expMul '%' expUnary {
-        $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpModulus; //<
-        $$->bin.e1 = $1;
-        $$->bin.e2 = $3;
-        $$->dbg_line = yy_lines;
-      }
       | expUnary {
         $$=$1;
-      } 
-      
-;
+      }
+
 expUnary: '!' expVar {  
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpUnary;

@@ -1,4 +1,4 @@
-//
+// gryphon output: main.kt
 //  main.swift
 //  bfide-bfi
 //
@@ -24,12 +24,13 @@ else if(args.count == 2){
     
     do {
         let program = try readFromFile(path: args[1]);
-        let interpreter = BrainfuckInterpreter(cells: 30000)
-            interpreter.dbg_messages = false
-            interpreter.setProgram(program: program)
-            interpreter.inputRedirect = false
-            interpreter.outputRedirect = false
-            interpreter.execute()
+        print(program)  
+        // let interpreter = BrainfuckInterpreter(cells: 30000)
+        //     interpreter.dbg_messages = false
+        //     interpreter.setProgram(program: program)
+        //     interpreter.inputRedirect = false
+        //     interpreter.outputRedirect = false
+        //     interpreter.execute()
     } catch {
         print("Couldn't read file: \(args[1])");
         exit(1)

@@ -317,6 +317,7 @@ int checkIncDecremantability(Exp* oprExp){
 	return 1;
 }
 void typeCommandList(CommandL* cl ) {
+	printf("commandList %p \n", (void*)cl);
 	if(!cl)
 		return;
 	CommandL* c = cl;
@@ -755,6 +756,16 @@ void typeExp(Exp* e ) {
 				// printExp(e->bin.e1,0);
 				// printExp(e->bin.e2,0);
 				raiseError("Types in Div differs",e->dbg_line);
+			}
+			e->type = arithType(e);
+		break;
+		case ExpModulus:
+			typeExp(e->bin.e1 );
+			typeExp(e->bin.e2 );
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
+				// printExp(e->bin.e1,0);
+				// printExp(e->bin.e2,0);
+				raiseError("Types in Modulus differs",e->dbg_line);
 			}
 			e->type = arithType(e);
 		break;
