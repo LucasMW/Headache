@@ -1,0 +1,25 @@
+{
+    "name": "headache-syntax-highlightt",
+    "displayName": "Headache Syntax Highlightt",
+    "description": "Syntax for the Headache Programming Language",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.44.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "'headache'",
+            "aliases": ["'Headache'", "'headache'"],
+            "extensions": [".ha"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "'headache'",
+            "scopeName": "source.headache",
+            "path": "./syntaxes/'headache'.tmLanguage.json"
+        }]
+    }
+}

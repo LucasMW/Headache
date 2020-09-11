@@ -1,0 +1,80 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Headache",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#identifiers"
+		}, {
+			"include": "#comments"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.headache",
+				"match": "\\b(if|else|while|for|return|as)\\b"
+			}, 
+			{
+				"name": "storage.type",
+				"match": "\\b(void|byte|short|int|char|bit)\\b"
+			},
+			{
+				"name": "keyword.other",
+				"match": "(read|print|#|@)"
+			},
+			{
+				"name":"keyword.operator",
+				"match": "('+'|'-'|'*'|'/'|'='|'++'|'--')"
+			}]
+		}, 
+		"identifiers": {
+			"patterns": [
+				{
+					"name": "variable.name",
+					"match": "([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*"
+				}, 
+				{
+					"name": "constant.numeric",
+					"match": "[0-9]+"
+				},
+				{	
+					"name": "constant.language",
+					"match": "\\b(true|false)\\b"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.headache",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.headache",
+					"match": "\\\\."
+				}
+			]
+		},
+		"comments": {
+			"name": "comment.headache",
+			"patterns": [
+				{
+					"name":"comment.line.double-dash",
+					"begin": "//",
+					"end": "\n"
+				},
+				{
+					"name": "comment.block",
+					"begin": "//*",
+					"end": "*/"
+				}
+			]
+		}
+	},
+	"scopeName": "source.headache"
+}
