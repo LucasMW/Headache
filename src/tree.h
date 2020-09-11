@@ -99,7 +99,6 @@ typedef enum ExpE {
 	ExpSub,
 	ExpMul,
 	ExpDiv,
-	ExpModulus,
 	ExpUnary,
 	ExpVar,
 	ExpCall,

@@ -759,16 +759,6 @@ void typeExp(Exp* e ) {
 			}
 			e->type = arithType(e);
 		break;
-		case ExpModulus:
-			typeExp(e->bin.e1 );
-			typeExp(e->bin.e2 );
-			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				// printExp(e->bin.e1,0);
-				// printExp(e->bin.e2,0);
-				raiseError("Types in Modulus differs",e->dbg_line);
-			}
-			e->type = arithType(e);
-		break;
 		case ExpCall:
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);

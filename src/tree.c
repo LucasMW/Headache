@@ -329,11 +329,6 @@ void printExp(Exp* e,int x) {
 			printExp(e->bin.e1,x+1);
 			printExp(e->bin.e2,x+1);
 		break;
-		case ExpModulus:
-			printDepthLevel("%",x);
-			printExp(e->bin.e1,x+1);
-			printExp(e->bin.e2,x+1);
-		break;
 		case ExpCall:
 			printDepthLevel("call()",x);
 			printDepthLevel(e->call.id,x+1);
@@ -687,10 +682,6 @@ void freeExp(Exp* e) {
 			freeExp(e->bin.e2);
 		break;
 		case ExpDiv:
-			freeExp(e->bin.e1);
-			freeExp(e->bin.e2);
-		break;
-		case ExpModulus:
 			freeExp(e->bin.e1);
 			freeExp(e->bin.e2);
 		break;
