@@ -17,3 +17,5 @@ jobs:
       run: make
     - name: make test
       run: make test
+    - name: runnable
+      run: make testrunnable
