@@ -52,6 +52,12 @@ expander.exe: src/expander.c
 bfalgoConverter.exe: src/bfalgoConverter.c
 	i686-w64-mingw32-gcc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
 
+windows.zip: bfi.exe expander.exe bfalgoConverter.exe bin/hac.exe
+	rm -rf zipfolder.zip
+	rm -f src/*.o
+	zip -r zipfolder.zip bin/hac.exe expander.exe bfi.exe bfalgoConverter.exe
+	mv zipfolder.zip ../hac-release-windows.zip
+
 testoptimize: hac bfi
 	sh test/optimize/script.sh
 
