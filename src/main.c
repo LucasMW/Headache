@@ -283,11 +283,14 @@ int main (int argc, char** argv)
 		checkAndFixesTypesInTree();
 		printf("Typing OK\n");
 	}
-	setOptimizationLevel(level);
-	optimizeTree();
+	if(level > 0){
+		setOptimizationLevel(level);
+		optimizeTree();
+	}
 	if(!noTree)
 	{
 		printTree();
+		printf("finished print tree\n");
 	}
 	char * bf_name = "a.bf";
 	//char * bin_name = "a.out";
