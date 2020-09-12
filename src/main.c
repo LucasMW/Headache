@@ -83,7 +83,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.55.0b";
+static char hacVersion[] = "v0.70.0b";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -290,7 +290,6 @@ int main (int argc, char** argv)
 	if(!noTree)
 	{
 		printTree();
-		printf("finished print tree\n");
 	}
 	char * bf_name = "a.bf";
 	//char * bin_name = "a.out";

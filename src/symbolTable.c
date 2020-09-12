@@ -317,7 +317,7 @@ int checkIncDecremantability(Exp* oprExp){
 	return 1;
 }
 void typeCommandList(CommandL* cl ) {
-	printf("commandList %p \n", (void*)cl);
+	//printf("commandList %p \n", (void*)cl);
 	if(!cl)
 		return;
 	CommandL* c = cl;
