@@ -396,9 +396,7 @@ command1: TK_WRETURN  ';' {
           $$->expRight = $1;
         }
         | block {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          $$->tag = CBlock;
-          $$->block = $1; //abuse
+          $$ =  $1->cl;
         }
         | commandIF {
           $$=$1;
