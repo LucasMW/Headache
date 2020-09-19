@@ -237,20 +237,43 @@ int parse(char* program){
 	return open == 0;
 }
 #ifdef STANDALONE
+int shouldHelp(int argc, char** argv) {
+	for(int i=1;i<argc;i++){
+		if(strcmp(argv[i],"--help")==0){
+			return 1;
+		}
+	}
+	return 0;
+}
+void help(){
+	printf("expects: bfi filepath [-debug | -extra | -memory number]\n");
+}
 int main (int argc, char** argv){
 	char * program;
 	char extra = 0;
+	int size = DEFAULT_SIZE;
 	//expects bfi filepath [-debug -extra]
-	if(argc >= 3)
+	//expects bfi filepath [-memory 100000]
+	if(shouldHelp(argc,argv)){
+		help();
+		return 0;
+	}
+	if(argc >= 4){
+		if(strcmp(argv[2],"-memory")==0){
+			size = atoi(argv[3]);
+		}
+	}
+	else if(argc >= 3)
 	{
 		if(strcmp(argv[2],"-extra")==0){
 			extra = 1;
 		}
-		if(strcmp(argv[2],"-debug")==0) {
+		else if(strcmp(argv[2],"-debug")==0) {
 			extra = 1;
 		}
 	} 
 	if(argc >= 2){
+		
 		program = readFile(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);
@@ -260,7 +283,7 @@ int main (int argc, char** argv){
 			printf("Unmatched brackets. Aborting\n");
 			return -1;
 		} else {
-			execute(program,DEFAULT_SIZE,extra);
+			execute(program,size,extra);
 			free(memory);
 			free(program);
 			return 0;
