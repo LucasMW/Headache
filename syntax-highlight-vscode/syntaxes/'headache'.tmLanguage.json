@@ -68,13 +68,14 @@
 					"begin": "//",
 					"end": "\n"
 				},
-				{
-					"name": "comment.block",
-					"begin": "//*",
-					"end": "*/"
+				{	"name": "comment.block",
+					"begin": "/\\*",
+					"end": "\\*/"
+
 				}
 			]
 		}
+		
 	},
 	"scopeName": "source.headache"
 }
