@@ -20,6 +20,10 @@
 	#include "lextest.h"
 	#define lextest_h
 #endif
+#if !defined(highlight_h)
+	#include "highlight.h"
+	#define highlight_h
+#endif
 #if !defined(symbolTable_h)
 	#include "symbolTable.h"
 	#define symbolTable_h
@@ -245,6 +249,10 @@ int main (int argc, char** argv)
 		else if(strcmp("-lex",option)==0)
 		{
 			testLex();
+			return 0;
+		}
+		else if(strcmp("-highlight",option)==0){
+			highlight();
 			return 0;
 		}
 		else if(strcmp("-tree",option)==0)
