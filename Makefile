@@ -1,14 +1,16 @@
 CFLAGS = -Wall -std=c99 -g -O3
 OUTFILE = hac
-SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c
-OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o
+SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c src/highlight.c
+OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o temp/highlight.o
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.exe: $(SOURCES)
 	i686-w64-mingw32-gcc $(CFLAGS) -o bin/hac.exe $(SOURCES)
+bin/hac.linux: $(SOURCES)
+	x86_64-linux-musl-cc -static $(CFLAGS) -o bin/hac.linux $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
-	emcc --pre-js stdin.js -Wall -o bin/hac.js $(SOURCES)
+	emcc -Wall -o bin/hac.js $(SOURCES)
 bin/hac.html: src/main.c src/lex.c src/grammar.c
 	emcc -Wall -o bin/hac.html $(SOURCES)
 
@@ -45,18 +47,35 @@ bfalgoConverter: src/bfalgoConverter.c
 
 bfi.exe: src/testbfi.c
 	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.exe
+bfi.linux: src/testbfi.c
+	x86_64-linux-musl-cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.linux
+bfi.js: src/testbfi.c
+	emcc $(CFLAGS) -DSTANDALONE src/testbfi.c -s FORCE_FILESYSTEM=1 -lnodefs.js -o bfi.js
 
 expander.exe: src/expander.c
 	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/expander.c -o expander.exe
+expander.linux: src/expander.c
+	x86_64-linux-musl-cc -static $(CFLAGS) -DSTANDALONE src/expander.c -o expander.linux
 
 bfalgoConverter.exe: src/bfalgoConverter.c
-	i686-w64-mingw32-gcc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
+	i686-w64-mingw32-gcc -static $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
+
+bfalgoConverter.linux: src/bfalgoConverter.c
+	x86_64-linux-musl-cc -static $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.linux
 
 windows.zip: bfi.exe expander.exe bfalgoConverter.exe bin/hac.exe
 	rm -rf zipfolder.zip
 	rm -f src/*.o
-	zip -r zipfolder.zip bin/hac.exe expander.exe bfi.exe bfalgoConverter.exe
-	mv zipfolder.zip ../hac-release-windows.zip
+	mv bin/hac.exe hac.exe
+	zip -r zipfolder.zip hac.exe expander.exe bfi.exe bfalgoConverter.exe
+	mv zipfolder.zip hac-release-windows.zip
+
+linux.zip: bfi.linux expander.linux bfalgoConverter.linux bin/hac.linux
+	rm -rf zipfolder.zip
+	rm -f src/*.o
+	mv bin/hac.linux hac.linux
+	zip -r zipfolder.zip hac.linux expander.linux bfi.linux bfalgoConverter.linux
+	mv zipfolder.zip hac-release-linux.zip
 
 testoptimize: hac bfi
 	sh test/optimize/script.sh
@@ -87,9 +106,8 @@ testlexical: hac
 	sh test/lexical/script.sh
 
 src/grammar.c: src/grammar.y
-	bison -d src/grammar.y
-	mv grammar.tab.c src/grammar.c
-	mv grammar.tab.h src/grammar.h
+	bison -d src/grammar.y --output src/grammar.c
+	
 src/lex.c: src/rules.lex src/grammar.c
 	flex src/rules.lex
 	mv lex.yy.c src/lex.c
@@ -116,6 +134,8 @@ clean:
 	rm -f bfi
 	rm -f expander
 	rm -f bfalgoConverter
+	rm -f *.exe
+	rm -f *.linux
 
 #always generate zip
 zip:
