@@ -183,4 +183,6 @@ temp/main.o:  src/main.c
 	cc -o temp/main.o -Wall -O3 -c src/main.c
 temp/lex.o: src/lex.c
 	cc -o temp/lex.o -Wall -O3 -c src/lex.c
+temp/highlight.o: src/highlight.c
+	cc -o temp/highlight.o -Wall -O3 -c src/highlight.c
 
