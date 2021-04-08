@@ -42,19 +42,33 @@ byte modulus8(byte a, byte b){
 }
 short sqrt16(short x){
 	short y,r;
-	y = 1;
-	while(x > y*y){
+	y = 0;
+	r = 0;
+	while(x > r){
 		y++;
+		r = y*y;
 	}
-	return y;
+	if(x == r) {
+		return y;
+	} else {
+		y--;
+		return y; 
+	}
 }
 byte sqrt(byte x){
 	byte y,r;
 	y = 0;
-	while(x > y*y){
+	r = 0;
+	while(x > r){
 		y++;
+		r = y*y;
 	}
-	return y;
+	if(x == r) {
+		return y;
+	} else {
+		y--;
+		return y; 
+	}
 }
 byte root8(byte x, byte grade){
     byte y,r;
