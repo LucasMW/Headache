@@ -1,10 +1,17 @@
 short sqrt(short x){
 	short y,r;
 	y = 0;
-	while(x > y*y){
+	r = 0;
+	while(x > r){
 		y++;
+		r = y*y;
 	}
-	return y;
+	if(x == r) {
+		return y;
+	} else {
+		y--;
+		return y; 
+	}
 }
 void main(){
     short x;
