@@ -208,7 +208,7 @@ int main (int argc, char** argv)
 			}
 			else if(strcmp("--maga",argv[1])==0)
 			{
-				system("curl http://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
+				system("curl https://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
 				system("open trump.jpg");
 				return 0;
 			}  
