@@ -20,7 +20,7 @@ Run `make install` and the include `$HOME/.Headache/` in your `PATH` variable in
 ## Usage
 
 ##### Compiling hac
-In order to compile `hac` to `brainfuck`, run:
+In order to compile `headache` (.ha) files to `brainfuck`, run:
 
 ```
 ./hac file.ha
