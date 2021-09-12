@@ -1,12 +1,16 @@
-CFLAGS = -Wall -std=c99 -g -O3
+CFLAGS = -Wall -std=c99 -O3
 OUTFILE = hac
 SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c src/highlight.c
 OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o temp/highlight.o
+
+ZIGCC = zig cc
+WINCC = x86_64-w64-mingw32-gcc-11.1.0 #old one was i686-w64-mingw32-gcc; changed because false positives
+
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.exe: $(SOURCES)
-	i686-w64-mingw32-gcc $(CFLAGS) -o bin/hac.exe $(SOURCES)
+	$(WINCC) $(CFLAGS) -o bin/hac.exe $(SOURCES)
 bin/hac.linux: $(SOURCES)
 	x86_64-linux-musl-cc -static $(CFLAGS) -o bin/hac.linux $(SOURCES)
 bin/hac.js: src/main.c src/lex.c src/grammar.c
@@ -46,19 +50,19 @@ bfalgoConverter: src/bfalgoConverter.c
 	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
 
 bfi.exe: src/testbfi.c
-	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.exe
+	$(WINCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.exe
 bfi.linux: src/testbfi.c
 	x86_64-linux-musl-cc $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.linux
 bfi.js: src/testbfi.c
 	emcc $(CFLAGS) -DSTANDALONE src/testbfi.c -s FORCE_FILESYSTEM=1 -lnodefs.js -o bfi.js
 
 expander.exe: src/expander.c
-	i686-w64-mingw32-gcc $(CFLAGS) -DSTANDALONE src/expander.c -o expander.exe
+	$(WINCC) $(CFLAGS) -DSTANDALONE src/expander.c -o expander.exe
 expander.linux: src/expander.c
 	x86_64-linux-musl-cc -static $(CFLAGS) -DSTANDALONE src/expander.c -o expander.linux
 
 bfalgoConverter.exe: src/bfalgoConverter.c
-	i686-w64-mingw32-gcc -static $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
+	$(WINCC) -static $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.exe
 
 bfalgoConverter.linux: src/bfalgoConverter.c
 	x86_64-linux-musl-cc -static $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter.linux
@@ -185,4 +189,35 @@ temp/lex.o: src/lex.c
 	cc -o temp/lex.o -Wall -O3 -c src/lex.c
 temp/highlight.o: src/highlight.c
 	cc -o temp/highlight.o -Wall -O3 -c src/highlight.c
+
+
+## ZIG CC EXPERIMENT
+
+zig_windows : bfi_z.exe hac_z.exe expander_z.exe bfalgoConverter_z.exe
+
+bfi_z.exe: src/testbfi.c
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi_z.exe -target x86_64-windows-gnu
+hac_z.exe: $(SOURCES)
+	$(ZIGCC) $(CFLAGS) -o hac_z.exe $(SOURCES) -target x86_64-windows-gnu
+expander_z.exe: src/expander.c
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/expander.c -o expander_z.exe -target x86_64-windows-gnu
+bfalgoConverter_z.exe: src/bfalgoConverter.c
+	$(ZIGCC) $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter_z.exe -target x86_64-windows-gnu
+
+hac-release-z-windows.zip: bfi_z.exe hac_z.exe expander_z.exe bfalgoConverter_z.exe
+	rm -rf zipfolder.zip
+	rm -f src/*.o
+	zip -r zipfolder.zip hac_z.exe expander_z.exe bfi_z.exe bfalgoConverter_z.exe
+	mv zipfolder.zip hac-release-z-windows.zip
+
+zig: hac_z bfi_z expander_z bfalgoConverter_z
+
+bfi_z: src/testbfi.c
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi_z -target x86_64-macos-gnu
+hac_z: $(SOURCES)
+	$(ZIGCC) $(CFLAGS) -o hac_z $(SOURCES) -target x86_64-macos-gnu
+expander_z: src/expander.c
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/expander.c -o expander_z -target x86_64-macos-gnu
+bfalgoConverter_z: src/bfalgoConverter.c
+	$(ZIGCC) $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter_z -target x86_64-macos-gnu
 
