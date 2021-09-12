@@ -49,7 +49,8 @@
 #include <assert.h>
 Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
-FILE* yyin;
+
+extern FILE* yyin;
 
 char forceExpand=0;
 void lexError(const char* message, int ret)
@@ -87,7 +88,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.70.2b";
+static char hacVersion[] = "v0.70.3b";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
