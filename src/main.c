@@ -44,6 +44,10 @@
 	#include "optimizer.h"
 	#define optimizer_h
 #endif
+#if !defined(codellvm_h)
+	#include "codellvm.h"
+	#define codellvm_h
+#endif
 
 #include <string.h>
 #include <assert.h>
@@ -171,7 +175,7 @@ int main (int argc, char** argv)
 	char noTree =0;
 	char noChecks=0;
 	char noCode = 0;
-	char noBin = 1;
+	char noBin = 0;
 	char noDebug = 0;
 
 	char* option = NULL;
@@ -301,7 +305,7 @@ int main (int argc, char** argv)
 		printTree();
 	}
 	char * bf_name = "a.bf";
-	//char * bin_name = "a.out";
+	char * bin_name = "a.ll";
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
@@ -312,14 +316,19 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
+		FILE* bin_location = fopen(bin_name,"wt");
+		setCodeOutputLLVM(bin_location);
+		codeTreeLLVM();
+		fclose(bin_location);
+
 		char* str = handleClangOptions(argc,argv);
 		char* buff = (char*)malloc(
 			strlen(str) +
 			strlen("clang") +
-			strlen(bf_name)+1);
+			strlen(bin_name)+1);
 		sprintf(buff,"clang %s %s",
 			str,
-			bf_name);
+			bin_name);
 		int s = system(buff);
 		return s;
 	}
