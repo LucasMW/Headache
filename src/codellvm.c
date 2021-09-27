@@ -25,6 +25,7 @@ static void codeConstant(Constant* c);
 static void codeExpList(ExpList* el);
 static int codeAccessElemPtr(Exp* e);
 static char* stringForType(Type* t);
+static char* retranslatescape(const char* scape);
 
 static FILE* output = NULL;
 static int currentFunctionTIndex = 0;
@@ -474,6 +475,11 @@ static void codeCommandList(CommandL* cl) {
 							tStr,
 							addr);
 						break;
+						case WShort:
+							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
+							tStr,
+							addr);
+						break;
 						case WByte:
 							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
 							tStr,
@@ -490,6 +496,7 @@ static void codeCommandList(CommandL* cl) {
 			break;
 			case CPrint:
 				i1 =  codeExp(c->printExp);
+				printf("; printexp i1 %d", i1);
 				printExp(c->printExp,0);
 				if(c->printExp->type == NULL) {
 					fprintf(output, ";printing void expression is unavaible\n" );
@@ -499,7 +506,10 @@ static void codeCommandList(CommandL* cl) {
 						case WInt:
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i32 %%t%d)\n",
 						i1 );
-						
+						break;
+						case WShort:
+							fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i16 %%t%d)\n",
+						i1 );
 						break;
 						case WFloat:
 						currentFunctionTIndex++;
@@ -513,6 +523,7 @@ static void codeCommandList(CommandL* cl) {
 						case WChar:
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
+						break;
 						case WByte:
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
@@ -635,7 +646,7 @@ static char* stringForConstant(Constant* c) {
 			str = hexaStringForFloat(c->u.d);
 		break;
 		case KStr:
-			str = (char*)c->u.str;
+			str = (char*)c->u.str;	
 		break;
 	}
 	return &str[0];
@@ -824,6 +835,35 @@ static char* adressOfParameter(const char* id) {
 		sprintf(str,"%%t%d",t);
 		return str;
 		
+}
+static char* retranslatescape(const char* scape) {
+	int len = strlen(scape);
+	char* result = (char*)malloc(len*2);
+	char* smallStr;
+	int i,j;
+	for(i=0,j=0; i<len; i++, j++) {
+		char c = scape[i];
+		if(c == '\n') {
+			result[j] = '\\';
+			j++;
+			result[j] = 'n';
+		} else if(c == '\t') {
+			result[j] = '\\';
+			j++;
+			result[j] = 't';
+		} else if(c == '\\') {
+			result[j] = '\\';
+			j++;
+			result[j] = '\\';
+		}else {
+			result[j] = c;
+		}
+	}
+	result[j] = '\0';
+	smallStr = (char*)malloc(j+1);
+	strncpy(smallStr,result,j);
+	free(result);
+	return smallStr;
 }
 static char* addressOfVector(Exp* e) {
 	//printf("addressOfVector\n");
