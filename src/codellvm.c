@@ -481,7 +481,7 @@ static void codeCommandList(CommandL* cl) {
 						break;
 					}
 				} else {
-					fprintf(output, "PIROCA, %s* %s)\n",
+					fprintf(output, ";Unknown Error on Read. Not Implemented, %s* %s)\n",
 							tStr,
 							addr);
 				}
