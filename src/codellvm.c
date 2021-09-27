@@ -92,7 +92,7 @@ static char* stringForDefaultValue(Type* t) {
 		return "void";
 	}
 	if(t->tag == base) {
-		if(t->b == WInt || t->b == WChar || t->b == WByte) {
+		if(t->b == WInt || t->b == WChar || t->b == WByte || t->b == WShort) {
 			return "0";
 		}
 		else {
@@ -164,6 +164,9 @@ static void codeExtraDeclares() {
 	fprintf(output, "@.floatprintstr = private unnamed_addr constant [3 x i8] c\"%%f\\00\"\n" );
 	fprintf(output, "@.charprintstr = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
 	fprintf(output, "@.strprintstr = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n" );
+	fprintf(output, "@.charreadstr = private unnamed_addr constant [4 x i8] c\" %%c\\00\"\n" );
+	fprintf(output, "@.intreadstr = private unnamed_addr constant [4 x i8] c\" %%d\\00\"\n" );
+	fprintf(output, "@.floatreadstr = private unnamed_addr constant [4 x i8] c\" %%f\\00\"\n" );
 	fprintf(output, "; End of monga dependencies \n" );
 }
 
@@ -452,20 +455,39 @@ static void codeCommandList(CommandL* cl) {
 				codeExp(c->expRight);
 			break;
 			case CRead:
-<<<<<<< Updated upstream
-			i1 = codeExp(c->printExp);
-			// We have to get the address of the var, to scanf to there
-			fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8* %%t%d)\n",i1);
-
-=======
 				tStr = stringForType(c->printExp->type);
 				addr = adressOfLeftAssign(c->printExp);
-				fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0), %s* %s)",
-				tStr,
-				addr);
+				fprintf(output, ";tStr %s\n", tStr);
+				fprintf(output,";addr %s\n", addr);
+				if(c->printExp->type == NULL) {
+					fprintf(output, ";printing void expression is unavaible\n" );
+				}
+				else if(c->printExp->type->tag == base) {
+					switch(c->printExp->type->b) {
+						case WChar:
+							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.charreadstr, i64 0, i64 0), %s* %s)\n",
+							tStr,
+							addr);
+						break;
+						case WInt:
+							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
+							tStr,
+							addr);
+						break;
+						case WByte:
+							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
+							tStr,
+							addr);
+						break;
+					}
+				} else {
+					fprintf(output, "PIROCA, %s* %s)\n",
+							tStr,
+							addr);
+				}
+				
 				
 			break;
->>>>>>> Stashed changes
 			case CPrint:
 				i1 =  codeExp(c->printExp);
 				printExp(c->printExp,0);
@@ -492,7 +514,7 @@ static void codeCommandList(CommandL* cl) {
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
 						case WByte:
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
 						break;
 					}
