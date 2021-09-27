@@ -452,10 +452,20 @@ static void codeCommandList(CommandL* cl) {
 				codeExp(c->expRight);
 			break;
 			case CRead:
+<<<<<<< Updated upstream
 			i1 = codeExp(c->printExp);
 			// We have to get the address of the var, to scanf to there
 			fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8* %%t%d)\n",i1);
 
+=======
+				tStr = stringForType(c->printExp->type);
+				addr = adressOfLeftAssign(c->printExp);
+				fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0), %s* %s)",
+				tStr,
+				addr);
+				
+			break;
+>>>>>>> Stashed changes
 			case CPrint:
 				i1 =  codeExp(c->printExp);
 				printExp(c->printExp,0);
