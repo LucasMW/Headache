@@ -49,6 +49,7 @@ static void defaultOutput() {
 static Parameter* currentParameters = NULL;
 
 char* stringForType(Type* t) {
+	printType(t,0);
 	char* tStr = NULL;
 	if(t == NULL)
 		return "void";
@@ -65,7 +66,7 @@ char* stringForType(Type* t) {
 					return "i8";
 				break;
 				case WByte:
-					return "i32";
+					return "i8";
 				case WShort:
 					return "i16";
 			}
@@ -158,6 +159,7 @@ static void codeExtraDeclares() {
 	fprintf(output, "declare i8* @malloc(i32)\n" ); //malloc 
 	fprintf(output, "declare i32 @printf(i8* nocapture readonly, ...)\n" );
 	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
+	fprintf(output, "declare i32 @scanf(i8*, ...)\n" );
 	fprintf(output, "@.intprintstr = private unnamed_addr constant [3 x i8] c\"%%d\\00\"\n" );
 	fprintf(output, "@.floatprintstr = private unnamed_addr constant [3 x i8] c\"%%f\\00\"\n" );
 	fprintf(output, "@.charprintstr = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
@@ -449,6 +451,11 @@ static void codeCommandList(CommandL* cl) {
 				//printf("ccall\n");
 				codeExp(c->expRight);
 			break;
+			case CRead:
+			i1 = codeExp(c->printExp);
+			// We have to get the address of the var, to scanf to there
+			fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8* %%t%d)\n",i1);
+
 			case CPrint:
 				i1 =  codeExp(c->printExp);
 				printExp(c->printExp,0);
@@ -717,6 +724,7 @@ static int codeExpUnary(Exp* e) {
 				i2);
 			}
 			else {
+
 				fprintf(output, "%%t%d = icmp eq %s %%t%d, 0\n",
 				 currentFunctionTIndex,
 				 tStr,
@@ -908,6 +916,8 @@ static int sizeOfType(Type* t) {
 			break;
 			case WChar:
 				return sizeof(char);
+			case WByte:
+				return sizeof(char);
 			break;
 		}
 	}
@@ -961,12 +971,20 @@ static int codeCondToValue(int b1,int b2,int b3) {
 }
 static int codeSimpleCompare(Exp* e,const char* oprStr ) {
 	int i1,i2;
+	const char* tStr = stringForType(e->cmp.e1->type); //Consider undoing symboltable autocast to int
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
 	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = icmp %s i32 %%t%d, %%t%d\n",
+	printf("%%t%d = icmp %s %s %%t%d, %%t%d\n",
 		currentFunctionTIndex,
 		oprStr,
+		tStr,
+		i1,
+		i2 );
+	fprintf(output, "%%t%d = icmp %s %s %%t%d, %%t%d\n",
+		currentFunctionTIndex,
+		oprStr,
+		tStr,
 		i1,
 		i2 );
 	return currentFunctionTIndex;
@@ -978,6 +996,7 @@ static int codeExpCompare(Exp* e) {
 	int b2 = currentBrIndex++;
 	int b3 = currentBrIndex++;
 	int ln;
+	const char* tStr = stringForType(e->type);
 	switch(e->cmp.op) {
 		case GT:
 			codeSimpleCompare(e,"sgt");
@@ -997,7 +1016,8 @@ static int codeExpCompare(Exp* e) {
 		case OR:
 			i1 = codeExp(e->cmp.e1);
 			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
+			tStr,
 			currentFunctionTIndex,
 			i1);
 			ln = currentBrIndex++;
@@ -1005,7 +1025,8 @@ static int codeExpCompare(Exp* e) {
 			codeLabel(ln);
 			i2 = codeExp(e->cmp.e2);
 			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
+				tStr,
 			currentFunctionTIndex,
 			i2);
 			codeBranches(currentFunctionTIndex,b1,b2);
@@ -1014,16 +1035,18 @@ static int codeExpCompare(Exp* e) {
 		case AND:
 			i1 = codeExp(e->cmp.e1);
 			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
 			currentFunctionTIndex,
+			tStr,
 			i1);
 			ln = currentBrIndex++;
 			codeBranches(currentFunctionTIndex,ln,b2); 
 			codeLabel(ln);
 			i2 = codeExp(e->cmp.e2);
 			currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
 			currentFunctionTIndex,
+			tStr,
 			i2);
 			codeBranches(currentFunctionTIndex,b1,b2);
 			return codeCondToValue(b1,b2,b3);
