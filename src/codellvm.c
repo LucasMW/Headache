@@ -21,7 +21,7 @@ static int codeExpAccess(Exp* e);
 static void codeBlock(Block* b);
 static int codeExp(Exp* e);
 static void codeVar(Var* v);
-static void codeConstant(Constant* c);
+//static void codeConstant(Constant* c);
 static void codeExpList(ExpList* el);
 static int codeAccessElemPtr(Exp* e);
 static char* stringForType(Type* t);
@@ -70,6 +70,8 @@ char* stringForType(Type* t) {
 					return "i8";
 				case WShort:
 					return "i16";
+				case WBit:
+					return "i1";
 			}
 		break;
 		case array:
@@ -85,6 +87,7 @@ char* stringForType(Type* t) {
 
 		break;
 	}
+	return "Unknown Type Error";
 }
 
 static char* stringForDefaultValue(Type* t) {
@@ -241,7 +244,7 @@ static void codeDefList(Def* d) {
 	//printf("coding DefList\n");
 	switch (d->tag) {
 		case DVar:
-			codeDefVar(d->u.v);
+			codeDefVarList(d->u.v);
 		break;
 		case DFunc:
 			codeDefFunc(d->u.f);
@@ -455,6 +458,15 @@ static void codeCommandList(CommandL* cl) {
 				//printf("ccall\n");
 				codeExp(c->expRight);
 			break;
+			case COperator:
+				fprintf(output, ";COperator not implemented\n");
+			break;
+			case CDebug:
+				fprintf(output, ";CDebug not implemented\n");
+			break;
+			case CFor:
+				fprintf(output, ";CFor not implemented\n");
+			break;
 			case CRead:
 				tStr = stringForType(c->printExp->type);
 				addr = adressOfLeftAssign(c->printExp);
@@ -484,6 +496,9 @@ static void codeCommandList(CommandL* cl) {
 							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
 							tStr,
 							addr);
+						break;
+						default:
+							fprintf(output, "%s\n", "not implemented" );
 						break;
 					}
 				} else {
@@ -528,10 +543,13 @@ static void codeCommandList(CommandL* cl) {
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
 						break;
+						default:
+						fprintf(output, "%s\n", ";not implemented");
+						break;
 					}
 				}
 				else if(c->printExp->type->of->tag == base &&
-					c->printExp->type->of->b == WChar || c->printExp->type->of->b == WByte ) {
+					(c->printExp->type->of->b == WChar || c->printExp->type->of->b == WByte) ) {
 					fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strprintstr, i64 0, i64 0), i8* %%t%d)\n",
 						i1 );
 					//fprintf(output, "tail call i32 @puts(i8* %%t%d)\n", i1);
@@ -647,6 +665,9 @@ static char* stringForConstant(Constant* c) {
 		break;
 		case KStr:
 			str = (char*)c->u.str;	
+		break;
+		case KBit:
+			str = c->u.i ? "true" : "false"; 
 		break;
 	}
 	return &str[0];
@@ -990,6 +1011,10 @@ static int sizeOfType(Type* t) {
 				return sizeof(char);
 			case WByte:
 				return sizeof(char);
+			case WBit:
+				return 1;
+			case WShort:
+				return sizeof(short);
 			break;
 		}
 	}
@@ -1089,8 +1114,8 @@ static int codeExpCompare(Exp* e) {
 			i1 = codeExp(e->cmp.e1);
 			currentFunctionTIndex++;
 			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
-			tStr,
 			currentFunctionTIndex,
+			tStr,
 			i1);
 			ln = currentBrIndex++;
 			codeBranches(currentFunctionTIndex,b1,ln); 
@@ -1098,8 +1123,8 @@ static int codeExpCompare(Exp* e) {
 			i2 = codeExp(e->cmp.e2);
 			currentFunctionTIndex++;
 			fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
+				currentFunctionTIndex,
 				tStr,
-			currentFunctionTIndex,
 			i2);
 			codeBranches(currentFunctionTIndex,b1,b2);
 			return codeCondToValue(b1,b2,b3);
@@ -1165,6 +1190,11 @@ static int codeExp(Exp* e) {
 		break;
 		case ExpUnary:
 			result = codeExpUnary(e);
+		break;
+		case ExpOperator:
+			//Not Implemented;
+			//result = codeExpPrim(e);
+			// e->type = typeOfConstant(e->c);
 		break;
 		case ExpPrim:
 			result = codeExpPrim(e);
