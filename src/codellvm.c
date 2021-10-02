@@ -813,7 +813,12 @@ static int codeExpUnary(Exp* e) {
 static int typeCompare(Type* a, Type* b){
 	int aSize = cellsForType(a);
 	int bSize = cellsForType(b);
-	return a - b;
+	int result = aSize - bSize;
+	printf("(a-b) = %d - %d = %d\n",
+		aSize,
+		bSize, 
+		result );
+	return result;
 }
 static int codeExpCast(Exp* e) {
 	printf("expCast\n");
@@ -836,19 +841,24 @@ static int codeExpCast(Exp* e) {
 	}
 	else {
 		int cmp = typeCompare(e->cast.e->type,e->type);
-		if(cmp > 0) { //sext
+		fprintf(output, ";typecmp = %d\n",cmp);
+		fprintf(output,";cast: %s to %s  \n", orTStr,toTStr);
+		if(cmp < 0) { //sext
 			fprintf(output, "%%t%d = sext %s %%t%d to %s\n",
 			currentFunctionTIndex,
 			orTStr,
 			i1,
 			toTStr
 			 );
-		} else if(cmp < 0) {
+		} else if(cmp > 0) {
 			fprintf(output, "%%t%d = trunc %s %%t%d to %s\n",
 			currentFunctionTIndex,
 			orTStr,
 			i1,
 			toTStr );
+		} else if(cmp == 0){
+			fprintf(output, ";cast useless\n");
+			return i1;
 		}
 		else if(e->cast.e->type->b == e->type->b) {
 			fprintf(output, ";cast useless\n");
