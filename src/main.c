@@ -92,7 +92,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.70.3b";
+static char hacVersion[] = "v0.71.3b (LLVM)";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -172,7 +172,7 @@ static char* handleClangOptions(int argc,char** argv) {
 
 int main (int argc, char** argv)
 {
-	char noTree =0;
+	char noTree = 1;
 	char noChecks=0;
 	char noCode = 0;
 	char noBin = 0;
@@ -330,7 +330,10 @@ int main (int argc, char** argv)
 			str,
 			bin_name);
 		int s = system(buff);
-		return s;
+		if(s == 0)
+			printf("\nLLVM binary generated\n"); 
+		else 
+			printf("something went wrong! clang returned %d\n", s);
 	}
 	if(forceExpand){
 		printf("should forceExpand %d\n",forceExpand );
