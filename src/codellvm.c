@@ -22,6 +22,7 @@ static void codeBlock(Block* b);
 static int codeExp(Exp* e);
 static void codeVar(Var* v);
 //static void codeConstant(Constant* c);
+static int codeExpOperator(Exp* e);
 static void codeExpList(ExpList* el);
 static int codeAccessElemPtr(Exp* e);
 static char* stringForType(Type* t);
@@ -459,7 +460,8 @@ static void codeCommandList(CommandL* cl) {
 				codeExp(c->expRight);
 			break;
 			case COperator:
-				fprintf(output, ";COperator not implemented\n");
+				codeExp(c->oprExp);
+				//fprintf(output, ";COperator not implemented\n");
 			break;
 			case CDebug:
 				fprintf(output, ";CDebug not implemented\n");
@@ -1153,6 +1155,37 @@ static int codeExpCompare(Exp* e) {
 	return codeCondToValue(b1,b2,b3);
 }
 
+static int codeExpOperator(Exp* e){
+	printf("Enter code exp ExpOperator\n");
+
+	if(!e){
+		printf("null\n");
+		return currentFunctionTIndex;
+	}
+	printExp(e,3);
+	
+	int i1 = codeExp(e->opr.e);
+	printf("get i1 %d\n",i1);
+	char* tStr = stringForType(e->opr.e->type);
+	printf("get tStr %s\n",tStr);
+	char* addr = adressOfLeftAssign(e->opr.e);
+	printf("get addr %s\n",addr);
+	currentFunctionTIndex++;
+	switch(e->opr.op) {
+		case INC:
+			fprintf(output, "%%t%d = add nsw %s %%t%d, %d\n", 
+				currentFunctionTIndex, tStr, i1, e->opr.amount );
+			fprintf(output, "store %s %%t%d, %s* %s ; align 4\n", tStr, currentFunctionTIndex,  tStr, addr);
+		break;
+		case DEC:
+			fprintf(output, "%%t%d = add nsw %s %%t%d, -%d\n", 
+				currentFunctionTIndex, tStr, i1, e->opr.amount );
+			fprintf(output, "store %s %%t%d, %s* %s ; align 4\n", tStr, currentFunctionTIndex,  tStr, addr);
+		break;
+	}
+	return currentFunctionTIndex;
+}
+
 static int codeExp(Exp* e) {
 	int result =-1;
 	if(!e)
@@ -1192,6 +1225,7 @@ static int codeExp(Exp* e) {
 			result = codeExpUnary(e);
 		break;
 		case ExpOperator:
+			result = codeExpOperator(e);
 			//Not Implemented;
 			//result = codeExpPrim(e);
 			// e->type = typeOfConstant(e->c);
