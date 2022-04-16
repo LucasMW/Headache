@@ -170,12 +170,15 @@ static void codeExtraDeclares() {
 	fprintf(output, "declare i32 @printf(i8* nocapture readonly, ...)\n" );
 	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
 	fprintf(output, "declare i32 @scanf(i8*, ...)\n" );
+	fprintf(output, "declare i32 @putchar(i32) \n");
 	fprintf(output, "@.intprintstr = private unnamed_addr constant [3 x i8] c\"%%d\\00\"\n" );
+	fprintf(output, "@.shortprintstr = private unnamed_addr constant [4 x i8] c\"%%hd\\00\"\n" );
 	fprintf(output, "@.floatprintstr = private unnamed_addr constant [3 x i8] c\"%%f\\00\"\n" );
 	fprintf(output, "@.charprintstr = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
 	fprintf(output, "@.strprintstr = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n" );
 	fprintf(output, "@.charreadstr = private unnamed_addr constant [4 x i8] c\" %%c\\00\"\n" );
 	fprintf(output, "@.intreadstr = private unnamed_addr constant [4 x i8] c\" %%d\\00\"\n" );
+	fprintf(output, "@.shortreadstr = private unnamed_addr constant [5 x i8] c\" %%hd\\00\"\n" );
 	fprintf(output, "@.floatreadstr = private unnamed_addr constant [4 x i8] c\" %%f\\00\"\n" );
 	fprintf(output, "; End of monga dependencies \n" );
 }
@@ -220,7 +223,7 @@ static void codeDefFunc(DefFunc* df) {
 		} //probably missing a ret in the end of void func
 		else if(currentFuncHasReturn == 0) {
 			fprintf(stderr, "Warning: missing return in function %s\n",df->id);
-			fprintf(stderr, "I will be overwritten by i deafult return\n");
+			fprintf(stderr, "It will be overwritten by the default return\n");
 		}
 		codeDefaultReturn(df->retType);
 		fprintf(output, "}\n");
@@ -495,7 +498,7 @@ static void codeCommandList(CommandL* cl) {
 							addr);
 						break;
 						case WShort:
-							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intreadstr, i64 0, i64 0), %s* %s)\n",
+							fprintf(output, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.shortreadstr, i64 0, i64 0), %s* %s)\n",
 							tStr,
 							addr);
 						break;
@@ -530,7 +533,7 @@ static void codeCommandList(CommandL* cl) {
 						i1 );
 						break;
 						case WShort:
-							fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i16 %%t%d)\n",
+							fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.shortprintstr, i64 0, i64 0), i16 %%t%d)\n",
 						i1 );
 						break;
 						case WFloat:
