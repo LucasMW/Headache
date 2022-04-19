@@ -171,12 +171,14 @@ static void codeExtraDeclares() {
 	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
 	fprintf(output, "declare i32 @scanf(i8*, ...)\n" );
 	fprintf(output, "declare i32 @putchar(i32) \n");
-	fprintf(output, "@.intprintstr = private unnamed_addr constant [3 x i8] c\"%%d\\00\"\n" );
-	fprintf(output, "@.shortprintstr = private unnamed_addr constant [4 x i8] c\"%%hd\\00\"\n" );
+	fprintf(output, "@.intprintstr = private unnamed_addr constant [3 x i8] c\"%%u\\00\"\n" );
+	fprintf(output, "@.shortprintstr = private unnamed_addr constant [4 x i8] c\"%%hu\\00\"\n" );
 	fprintf(output, "@.floatprintstr = private unnamed_addr constant [3 x i8] c\"%%f\\00\"\n" );
 	fprintf(output, "@.charprintstr = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
+	fprintf(output, "@.byteprintstr = private unnamed_addr constant [5 x i8] c\"%%hhu\\00\"\n" );
 	fprintf(output, "@.strprintstr = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n" );
 	fprintf(output, "@.charreadstr = private unnamed_addr constant [4 x i8] c\" %%c\\00\"\n" );
+	fprintf(output, "@.bytereadstr = private unnamed_addr constant [5 x i8] c\"%%hhu\\00\"\n" );
 	fprintf(output, "@.intreadstr = private unnamed_addr constant [4 x i8] c\" %%d\\00\"\n" );
 	fprintf(output, "@.shortreadstr = private unnamed_addr constant [5 x i8] c\" %%hd\\00\"\n" );
 	fprintf(output, "@.floatreadstr = private unnamed_addr constant [4 x i8] c\" %%f\\00\"\n" );
@@ -536,6 +538,10 @@ static void codeCommandList(CommandL* cl) {
 							fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.shortprintstr, i64 0, i64 0), i16 %%t%d)\n",
 						i1 );
 						break;
+						case WByte:
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.byteprintstr, i64 0, i64 0), i8 %%t%d)\n",
+						i1 );
+						break;
 						case WFloat:
 						currentFunctionTIndex++;
 						fprintf(output, "%%t%d = fpext float %%t%d to double\n", 
@@ -549,10 +555,7 @@ static void codeCommandList(CommandL* cl) {
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
 						break;
-						case WByte:
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i8 %%t%d)\n",
-						i1 );
-						break;
+						
 						default:
 						fprintf(output, "%s\n", ";not implemented");
 						break;
