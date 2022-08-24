@@ -38,7 +38,7 @@ static int currentBrIndex = 0;
 
 static int currentStringConstant = 0;
 static int declareTop = 0;
-char* stringsToDeclare[100];
+static char* stringsToDeclare[100];
 
 static int currentFuncHasReturn = 0;
 
@@ -148,7 +148,7 @@ static void declateStringsToDeclare() {
 char* stringForVarAddress(const char* name,int scope) {
 	char string[50] = "no string yet";
 	if(strlen(name) >= 50) {
-		printf("SevereError. var name is to big\n");
+		printf("SevereError. var name is too big\n");
 	}
 	if(scope == 0) {
 		sprintf(string,"@g%s",name);
