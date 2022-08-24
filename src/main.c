@@ -56,6 +56,17 @@ int yy_lines=1; //save one for EOF
 
 extern FILE* yyin;
 
+#ifndef YY_TYPEDEF_YY_BUFFER_STATE
+#define YY_TYPEDEF_YY_BUFFER_STATE
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+#endif
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+extern YY_BUFFER_STATE yy_scan_string (char *base);
+
+
 char forceExpand=0;
 void lexError(const char* message, int ret)
 {
@@ -88,11 +99,12 @@ static char optimizationOptionsCount = 3;
 static char* breakingOptions[] = {
 	"--help",
 	"--version",
-	"--maga"
+	"--maga",
+	"--xxx"
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.71.3b (LLVM)";
+static char hacVersion[] = "v0.73.1b (LLVM)";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -170,6 +182,21 @@ static char* handleClangOptions(int argc,char** argv) {
 
 }
 
+char* compile(const char* program, int level, int bufferSize){
+	
+	char* buffer = calloc(sizeof(char),bufferSize);
+	yy_scan_string((char*)program);
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fmemopen(buffer, sizeof(buffer), "w");
+	setCodeOutput(f);
+	fclose(f);
+	codeTree();
+	return buffer;
+}
+
 int main (int argc, char** argv)
 {
 	char noTree = 1;
@@ -215,13 +242,26 @@ int main (int argc, char** argv)
 			{
 				system("curl https://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
 				system("open trump.jpg");
+				
+				const char* str = "void main() { byte a;\n#a;\nprint a;\n\n} ";
+				yy_scan_string((char*)str);
+				
+
+				yyparse();
+				
+				checkAndFixesTypesInTree();
+				setOptimizationLevel(level);
+				optimizeTree();
+				codeTree();
+
 				return 0;
-			}  
+			}
 		} 
 		else 
 		{
 			fileName = argv[1];
 			option = NULL; 
+			
 			yyin = fopen(fileName,"r");
 		}
 
