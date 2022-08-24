@@ -70,7 +70,7 @@ static int currentBrIndex = 0;
 
 static int currentStringConstant = 0;
 static int declareTop = 0;
-char* stringsToDeclare[100];
+static char* stringsToDeclare[100];
 
 
 extern char forceExpand; 
@@ -668,6 +668,8 @@ static void codeCellValuePrintAnySize(int start, int end){
 	bfalgo("$[-]$[-]$[-]",currentAllocationIndex-5,currentAllocationIndex-6,currentAllocationIndex-7);
 	popCells(10);
 }
+
+void outputToBuffer(){}
 
 
 void setCodeOutput(FILE* out) {

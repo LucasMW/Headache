@@ -44,6 +44,10 @@
 	#include "optimizer.h"
 	#define optimizer_h
 #endif
+#if !defined(codellvm_h)
+	#include "codellvm.h"
+	#define codellvm_h
+#endif
 
 #include <string.h>
 #include <assert.h>
@@ -51,6 +55,17 @@ Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 
 extern FILE* yyin;
+
+#ifndef YY_TYPEDEF_YY_BUFFER_STATE
+#define YY_TYPEDEF_YY_BUFFER_STATE
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+#endif
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+extern YY_BUFFER_STATE yy_scan_string (char *base);
+
 
 char forceExpand=0;
 void lexError(const char* message, int ret)
@@ -84,11 +99,12 @@ static char optimizationOptionsCount = 3;
 static char* breakingOptions[] = {
 	"--help",
 	"--version",
-	"--maga"
+	"--maga",
+	"--xxx"
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.70.3b";
+static char hacVersion[] = "v0.73.1b (LLVM)";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -166,12 +182,27 @@ static char* handleClangOptions(int argc,char** argv) {
 
 }
 
+char* compile(const char* program, int level, int bufferSize){
+	
+	char* buffer = calloc(sizeof(char),bufferSize);
+	yy_scan_string((char*)program);
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fmemopen(buffer, sizeof(buffer), "w");
+	setCodeOutput(f);
+	fclose(f);
+	codeTree();
+	return buffer;
+}
+
 int main (int argc, char** argv)
 {
-	char noTree =0;
+	char noTree = 1;
 	char noChecks=0;
 	char noCode = 0;
-	char noBin = 1;
+	char noBin = 0;
 	char noDebug = 0;
 
 	char* option = NULL;
@@ -211,13 +242,26 @@ int main (int argc, char** argv)
 			{
 				system("curl https://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
 				system("open trump.jpg");
+				
+				const char* str = "void main() { byte a;\n#a;\nprint a;\n\n} ";
+				yy_scan_string((char*)str);
+				
+
+				yyparse();
+				
+				checkAndFixesTypesInTree();
+				setOptimizationLevel(level);
+				optimizeTree();
+				codeTree();
+
 				return 0;
-			}  
+			}
 		} 
 		else 
 		{
 			fileName = argv[1];
 			option = NULL; 
+			
 			yyin = fopen(fileName,"r");
 		}
 
@@ -301,7 +345,7 @@ int main (int argc, char** argv)
 		printTree();
 	}
 	char * bf_name = "a.bf";
-	//char * bin_name = "a.out";
+	char * bin_name = "a.ll";
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
@@ -312,16 +356,24 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
+		FILE* bin_location = fopen(bin_name,"wt");
+		setCodeOutputLLVM(bin_location);
+		codeTreeLLVM();
+		fclose(bin_location);
+
 		char* str = handleClangOptions(argc,argv);
 		char* buff = (char*)malloc(
 			strlen(str) +
 			strlen("clang") +
-			strlen(bf_name)+1);
+			strlen(bin_name)+1);
 		sprintf(buff,"clang %s %s",
 			str,
-			bf_name);
+			bin_name);
 		int s = system(buff);
-		return s;
+		if(s == 0)
+			printf("\nLLVM binary generated\n"); 
+		else 
+			printf("something went wrong! clang returned %d\n", s);
 	}
 	if(forceExpand){
 		printf("should forceExpand %d\n",forceExpand );
