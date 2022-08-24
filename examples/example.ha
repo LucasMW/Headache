@@ -1,4 +1,4 @@
 
 void main() {
-	@"Headache compiles to 8 bit Brainfuck\n";
+	print "Headache compiles to 8 bit Brainfuck\n";
 }
