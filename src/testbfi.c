@@ -299,10 +299,7 @@ int main (int argc, char** argv){
 		}
 	} 
 	if(argc >= 2){
-		time_t start = clock();
 		program = readFileFast(argv[1]);
-		time_t end = clock();
-		printf("It took %f seconds to read\n", (end - start)/(1.0*CLOCKS_PER_SEC));
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);
 			return -1;
