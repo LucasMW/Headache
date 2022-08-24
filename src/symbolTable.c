@@ -83,7 +83,7 @@ void raiseError(const char* message,int line) {
 	exit(01);
 }
 void raiseWarning(const char* message,int line) {
-	printf("Warning: %s\n# near line %d",message,line);
+	printf("Warning: %s\n# near line %d\n",message,line);
 	warningCount++;
 }
 void generateStardardDeclares(progNode* prog) {
@@ -514,6 +514,15 @@ void promoteType(Exp ** eptr) {
 		performCastToType(t,eptr);
 	}
 }
+void promoteToType(Exp ** eptr, Type* t0) {
+	Exp* e = *eptr;
+	if(e->type->tag == base && e->type->b == WByte) {
+		Type* t = (Type*)malloc(sizeof(Type));
+		t->tag = t0->tag;
+		t->b = t0->b;
+		performCastToType(t,eptr);
+	}
+}
 
 BType BTypeOfArith(Exp* e1,Exp *e2) {
 	if(e1->type->b == WFloat || e2->type->b == WFloat)
@@ -809,11 +818,14 @@ void typeExp(Exp* e ) {
 			typeExp(e->cmp.e2);
 			//promoteType(&e->cmp.e1);
 			//promoteType(&e->cmp.e2);
+			
 			switch(e->cmp.op) {
 				default:
 					if(!checkTypeLogic(e->cmp.e1) ||
 					!checkTypeLogic(e->cmp.e2))  {
 						raiseError("Types not suitble for logic",e->dbg_line);
+					} else {
+						promoteToType(&e->cmp.e2,e->cmp.e1->type);
 					}
 				break;
 				case EqEq:
@@ -822,6 +834,8 @@ void typeExp(Exp* e ) {
 							// printType(e->cmp.e1->type,0);
 							// printType(e->cmp.e2->type,0);
 							raiseError("Not comparable types in ==",e->dbg_line);
+						} else {
+							promoteToType(&e->cmp.e2,e->cmp.e1->type);
 						}
 					}
 				break;
