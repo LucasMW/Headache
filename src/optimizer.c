@@ -27,6 +27,7 @@ void optimizeParams(Parameter* params);
 void optimizeBlock(Block* b);
 void optimizeDefVarList(DefVarL* dvl);
 void optimizeCommandList(CommandL* cl); 
+void optimizeExpPrint(Exp* e);
 void optimizeExpList(ExpList* el);
 Exp* optimizeExp(Exp* e);
 
@@ -144,6 +145,7 @@ void optimizeCommandList(CommandL* cl) {
 			break;
 			case CPrint:
 				c->printExp = optimizeExp(c->printExp);
+				optimizeExpPrint(c->printExp);
 			break;
 			case CRead:
 				c->printExp = optimizeExp(c->printExp);
@@ -159,6 +161,34 @@ void optimizeCommandList(CommandL* cl) {
 		}
 		c = c->next;
 	}
+}
+
+void optimizeExpPrint(Exp* e){
+	if(!e)
+		return;
+	if(e->tag == ExpPrim) {
+		if(e->c->tag == KInt){
+			int x = e->c->u.i;
+			char* nStr = malloc(x%10+2);
+			sprintf(nStr,"%d",x);
+			printf("Changing to print \"%d\"",x);
+			Constant* c = (Constant*)malloc(sizeof(Constant));
+			c->tag = KStr;
+			c->u.str = nStr;
+			e->c = c;
+			e->type = (Type*)malloc(sizeof(Type));
+	    	e->type->tag = array; 
+	    	e->type->of = (Type*)malloc(sizeof(Type));
+	    	e->type->of->tag = base;
+	    	e->type->of->b = WByte;
+
+	    	printf("Changing to print \"%d\"",x);
+	    	printExp(e,0);
+		}
+
+	}
+
+
 }
 
 void optimizeExpList(ExpList* el) {
@@ -183,6 +213,7 @@ void optimizeConstant(Constant* c) {
 		case KFloat:
 		break;
 		case KStr:
+			return;
 		break;
 		case KBit:
 		break;
