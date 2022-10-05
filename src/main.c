@@ -88,7 +88,7 @@ static char* breakingOptions[] = {
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.70.3b";
+static char hacVersion[] = "v0.72.0b";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){

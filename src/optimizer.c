@@ -171,7 +171,6 @@ void optimizeExpPrint(Exp* e){
 			int x = e->c->u.i;
 			char* nStr = malloc(x%10+2);
 			sprintf(nStr,"%d",x);
-			printf("Changing to print \"%d\"",x);
 			Constant* c = (Constant*)malloc(sizeof(Constant));
 			c->tag = KStr;
 			c->u.str = nStr;
@@ -181,14 +180,8 @@ void optimizeExpPrint(Exp* e){
 	    	e->type->of = (Type*)malloc(sizeof(Type));
 	    	e->type->of->tag = base;
 	    	e->type->of->b = WByte;
-
-	    	printf("Changing to print \"%d\"",x);
-	    	printExp(e,0);
 		}
-
 	}
-
-
 }
 
 void optimizeExpList(ExpList* el) {
@@ -213,7 +206,6 @@ void optimizeConstant(Constant* c) {
 		case KFloat:
 		break;
 		case KStr:
-			return;
 		break;
 		case KBit:
 		break;
