@@ -9,6 +9,7 @@
 #include "optimizer.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static int optimizationLevel;
 
@@ -27,6 +28,7 @@ void optimizeParams(Parameter* params);
 void optimizeBlock(Block* b);
 void optimizeDefVarList(DefVarL* dvl);
 void optimizeCommandList(CommandL* cl); 
+void optimizeCommandPrint(CommandL* cl);
 void optimizeExpPrint(Exp* e);
 void optimizeExpList(ExpList* el);
 Exp* optimizeExp(Exp* e);
@@ -146,6 +148,8 @@ void optimizeCommandList(CommandL* cl) {
 			case CPrint:
 				c->printExp = optimizeExp(c->printExp);
 				optimizeExpPrint(c->printExp);
+				optimizeCommandPrint(c);
+
 			break;
 			case CRead:
 				c->printExp = optimizeExp(c->printExp);
@@ -162,6 +166,29 @@ void optimizeCommandList(CommandL* cl) {
 		c = c->next;
 	}
 }
+
+void optimizeCommandPrint(CommandL* cl){
+	if(cl->tag == CPrint && cl->printExp->c->tag == KStr){
+		//printf("will opt 1\n");
+		if(cl->next != NULL && cl->next->tag == CPrint && cl->printExp->c->tag == KStr){
+			//printf("will opt 2\n");
+			cl->next->printExp = optimizeExp(cl->next->printExp);
+			optimizeExpPrint(cl->next->printExp);
+			optimizeCommandPrint(cl->next); //this should be possible, but it was crashing
+			char* newStr = malloc(strlen(cl->printExp->c->u.str) + strlen(cl->next->printExp->c->u.str)+1);
+			sprintf(newStr,"%s%s",cl->printExp->c->u.str,cl->next->printExp->c->u.str);
+			//free(cl->printExp->c->u.str);
+			//free(cl->next->printExp->c->u.str);
+			cl->printExp->c->u.str = newStr;
+			cl->next = cl->next->next;
+			// free(cl->next->printExp->c);
+			// free(cl->next->printExp);
+			// free(cl->next);
+		}
+	}
+}
+
+
 
 void optimizeExpPrint(Exp* e){
 	if(!e)
@@ -378,7 +405,7 @@ Exp* optimizeExp(Exp* e) {
 		case ExpCmp:
 			if(optimizationLevel >= 1) 
 			{
-				newExp = optimizeExpLogic(e);
+				newExp = optimizeExpLogic(e); 
 			}
 			//printf("cmp\n");
 		break;
