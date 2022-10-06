@@ -171,6 +171,8 @@ void optimizeExpPrint(Exp* e){
 			int x = e->c->u.i;
 			char* nStr = malloc(x%10+2);
 			sprintf(nStr,"%d",x);
+			free(e->c);
+			free(e->type);
 			Constant* c = (Constant*)malloc(sizeof(Constant));
 			c->tag = KStr;
 			c->u.str = nStr;
