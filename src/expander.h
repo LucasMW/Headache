@@ -13,3 +13,4 @@ char * expand8to16NoCopy(char b);
 char * expand8to16(char b);
 char * expand8to32(char b);
 void runStr(FILE* out, char* str, int mode);
+char* expandedString(const char* str, int mode);

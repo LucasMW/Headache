@@ -131,6 +131,18 @@ void runStr(FILE* out,char* str, int mode){
 		fprintf(out,"%s", expand(*p,mode));
 	}
 }
+char* expandedString(const char* str, int mode){
+	int size = 0;
+	for(char* p=(char*)str;*p;p++){
+		size += strlen(expand(*p,mode));
+	}
+	char* expandedStr = calloc(size,sizeof(char)+1);
+	for(char* p=(char*)str;*p;p++){
+		char* expandedChar = expand(*p,mode);
+		strcat(expandedStr,expandedChar);
+	}
+	return expandedStr;
+}
 #ifdef STANDALONE
 int main (int argc, char** argv){
 	//expects ./expander filepath [1]
