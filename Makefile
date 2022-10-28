@@ -183,6 +183,8 @@ temp/grammar.o: src/grammar.c
 	cc -o temp/grammar.o -Wall -O3 -c src/grammar.c
 temp/tree.o: src/tree.c
 	cc -o temp/tree.o -Wall -O3 -c src/tree.c
+temp/lib.o:
+	cc -DHACLIB -o temp/lib.o -Wall -O3 -c src/main.c
 temp/main.o:  src/main.c
 	cc -o temp/main.o -Wall -O3 -c src/main.c
 temp/lex.o: src/lex.c
@@ -193,11 +195,13 @@ temp/codellvm.o: src/codellvm.c
 	cc -o temp/codellvm.o -Wall -O3 -c src/codellvm.c
 
 ## LIBS
-hac.a: $(OBJS)
+hac.a: $(OBJS) temp/lib.o
+	rm -f temp/main.o
 	ar ruv hac.a  temp/*.o
 	ranlib hac.a
 
-hac.so: $(OBJS)
+hac.so: $(OBJS) temp/lib.o
+	rm -f temp/main.o
 	cc -shared temp/*.o -o hac.so
 
 

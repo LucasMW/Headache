@@ -100,11 +100,10 @@ static char* breakingOptions[] = {
 	"--help",
 	"--version",
 	"--maga",
-	"--xxx"
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.73.1b (LLVM)";
+static char hacVersion[] = "v0.80.0b (LLVM)";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -181,24 +180,83 @@ static char* handleClangOptions(int argc,char** argv) {
 	return str;
 
 }
-
-char* compile(const char* program, int level, int bufferSize){
-	
+static char* doubleNullTerminatedString(const char* string){
+	int len = strlen(string);
+	char* newStr = malloc(len+2);
+	strcpy(newStr,string);
+	newStr[len]= '\0';
+	newStr[len+1]= '\0';
+	return newStr;
+}
+static int guessBufferSize(char* str) {
+	int buffSize = 1000+strlen(str)*10*(1+forceExpand*forceExpand);
+	return buffSize;
+}
+char* compileHa2bf(const char* program, int level, int bufferSize){	
 	char* buffer = calloc(sizeof(char),bufferSize);
-	yy_scan_string((char*)program);
+	char* programToScan = doubleNullTerminatedString(program);
+	yy_scan_string(programToScan);
 	yyparse();			
 	checkAndFixesTypesInTree();
 	setOptimizationLevel(level);
 	optimizeTree();
-	FILE* f = fmemopen(buffer, sizeof(buffer), "w");
+	FILE* f = fmemopen(buffer, bufferSize, "wb");
 	setCodeOutput(f);
-	fclose(f);
 	codeTree();
+	fclose(f);
+	char* old = buffer;
+	if(forceExpand){
+		buffer = expandedString(old,forceExpand == 1 ? 0 : 2);
+		free(old);
+		return buffer;
+	}
 	return buffer;
 }
+char* compileHa2bfAutoBuffer(const char* program, int level){
+	return compileHa2bf(program,level,guessBufferSize(program));
+}
+char* compileHa2LLVM(const char* program, int level, int bufferSize){
+	char* buffer = calloc(sizeof(char),bufferSize);
+	char* programToScan = doubleNullTerminatedString(program);
+	yy_scan_string(programToScan);
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fmemopen(buffer, bufferSize, "wb");
+	setCodeOutputLLVM(f);
+	codeTreeLLVM();
+	fclose(f);
+	return buffer;
+}
+char* compileHa2LLVMAutoBuffer(const char* program, int level){
+	return compileHa2LLVM(program,level,guessBufferSize(program));
+}
+void compileHa2File(const char* input, const char* output, int level){
+	yyin = fopen(input,"r");
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fopen(output,"w");
+	setCodeOutput(f);
+	codeTree();
+	fclose(f);
+}
+void compileHa2FileLLVM(const char* input, const char* output, int level){
+	yyin = fopen(input,"r");
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fopen(output,"w");
+	setCodeOutput(f);
+	codeTreeLLVM();
+	fclose(f);
+}
 
-int main (int argc, char** argv)
-{
+#ifndef HACLIB
+int main (int argc, char** argv){
 	char noTree = 1;
 	char noChecks=0;
 	char noCode = 0;
@@ -243,18 +301,7 @@ int main (int argc, char** argv)
 				system("curl https://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
 				system("open trump.jpg");
 				
-				const char* str = "void main() { byte a;\n#a;\nprint a;\n\n} ";
-				yy_scan_string((char*)str);
 				
-
-				yyparse();
-				
-				checkAndFixesTypesInTree();
-				setOptimizationLevel(level);
-				optimizeTree();
-				codeTree();
-
-				return 0;
 			}
 		} 
 		else 
@@ -400,3 +447,4 @@ int main (int argc, char** argv)
 
 	return 0;
 }
+#endif
