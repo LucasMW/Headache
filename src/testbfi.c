@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 // based on  http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html
 
@@ -88,7 +89,32 @@ void printAllWrittenMemory(){
 	}
 }
 
-
+char* readFileFast(const char* path){
+	long size;
+	int read;
+	FILE * input;
+	char * fileString;
+	input = fopen(path,"rb");
+	if(!input)
+		return NULL;
+	fseek(input, 0, SEEK_END);
+	size = ftell(input);
+	rewind(input);
+	fileString = (char*)malloc(size+1);
+	if(!fileString){
+		fclose(input);
+		return NULL;
+	}
+	read = fread(fileString,1,size,input);
+	if(read != size) {
+		fclose(input);
+		free(fileString);
+		return NULL;
+	}
+	fileString[size] = '\0';
+	fclose(input);
+	return fileString;
+}
 char * readFile(const char* path){
 	int size;
 	FILE * input;
@@ -273,8 +299,7 @@ int main (int argc, char** argv){
 		}
 	} 
 	if(argc >= 2){
-		
-		program = readFile(argv[1]);
+		program = readFileFast(argv[1]);
 		if(!program){
 			printf("Couldn't read file: %s\n",argv[1]);
 			return -1;

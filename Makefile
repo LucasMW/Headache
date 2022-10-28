@@ -1,4 +1,5 @@
 CFLAGS = -Wall -std=c99 -O3
+CFLAGSDEBUG = -g -Wall -std=c99 -O0
 OUTFILE = hac
 SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c src/testbfi.c src/compilerFunctions.c src/codeEss.c src/optimizer.c src/expander.c src/highlight.c src/codellvm.c
 OBJS = temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o temp/testbfi.o temp/compilerFunctions.o temp/codeEss.o temp/optimizer.o temp/expander.o temp/highlight.o temp/codellvm.o
@@ -8,6 +9,11 @@ WINCC = x86_64-w64-mingw32-gcc-11.1.0 #old one was i686-w64-mingw32-gcc; changed
 
 #always compiles when using just make
 test/hac: src/main.c src/lex.c src/grammar.c
+	cc $(CFLAGS) -o hac $(SOURCES)
+
+debug: $(SOURCES)
+	cc $(CFLAGSDEBUG) -o hac $(SOURCES)
+release: $(SOURCES)
 	cc $(CFLAGS) -o hac $(SOURCES)
 bin/hac.exe: $(SOURCES)
 	$(WINCC) $(CFLAGS) -o bin/hac.exe $(SOURCES)
@@ -205,6 +211,14 @@ hac.so: $(OBJS) temp/lib.o
 	cc -shared temp/*.o -o hac.so
 
 
+
+## LIBS
+hac.a: $(OBJS)
+	ar ruv hac.a  temp/*.o
+	ranlib hac.a
+
+hac.so: $(OBJS)
+	cc -shared temp/*.o -o hac.s
 
 
 ## ZIG CC EXPERIMENT

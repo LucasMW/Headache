@@ -19,7 +19,7 @@ Run `make install` and the include `$HOME/.Headache/` in your `PATH` variable in
 
 ## Usage
 
-##### Compiling hac
+##### Compiling headache (.ha) files
 In order to compile `headache` (.ha) files to `brainfuck`, run:
 
 ```
@@ -60,7 +60,7 @@ Execute `make test` to run the default tests.
 
 ##### Other test options
 
-For checking the file only, run:
+For testing only type checks, run:
 ```
 make testchecks
 ```
@@ -70,7 +70,7 @@ For testing only the lexical scope, run:
 make testlexical
 ```
 
-For testing only the syntactical scope, run:
+For testing only the syntax scope, run:
 ```
 make testsyntax
 ```

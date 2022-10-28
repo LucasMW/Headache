@@ -133,12 +133,12 @@ void runStr(FILE* out,char* str, int mode){
 }
 char* expandedString(const char* str, int mode){
 	int size = 0;
-	for(char* p = (char*)str;*p;p++) {
+
+	for(char* p=(char*)str;*p;p++){
 		size += strlen(expand(*p,mode));
 	}
-	//printf("we need %d bytes\nOriginally %lu bytes\n",size,strlen(str));
 	char* expandedStr = calloc(size,sizeof(char)+1);
-	for(char* p = (char*)str;*p;p++) {
+	for(char* p=(char*)str;*p;p++){
 		char* expandedChar = expand(*p,mode);
 		strcat(expandedStr,expandedChar);
 	}

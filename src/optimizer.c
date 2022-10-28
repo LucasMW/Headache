@@ -9,6 +9,7 @@
 #include "optimizer.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static int optimizationLevel;
 
@@ -27,6 +28,8 @@ void optimizeParams(Parameter* params);
 void optimizeBlock(Block* b);
 void optimizeDefVarList(DefVarL* dvl);
 void optimizeCommandList(CommandL* cl); 
+void optimizeCommandPrint(CommandL* cl);
+void optimizeExpPrint(Exp* e);
 void optimizeExpList(ExpList* el);
 Exp* optimizeExp(Exp* e);
 
@@ -144,6 +147,11 @@ void optimizeCommandList(CommandL* cl) {
 			break;
 			case CPrint:
 				c->printExp = optimizeExp(c->printExp);
+			if(optimizationLevel >= 1) {
+				optimizeExpPrint(c->printExp);
+				optimizeCommandPrint(c);
+			}
+
 			break;
 			case CRead:
 				c->printExp = optimizeExp(c->printExp);
@@ -158,6 +166,85 @@ void optimizeCommandList(CommandL* cl) {
 
 		}
 		c = c->next;
+	}
+}
+
+void optimizeCommandPrint(CommandL* cl){
+	if(cl->tag == CPrint && cl->printExp->tag == ExpPrim && cl->printExp->c->tag == KStr){
+		printf("will opt 1\n");
+		if(cl->next != NULL && cl->next->tag == CPrint && cl->next->printExp->tag == ExpPrim && cl->next->printExp->c->tag == KStr){
+			printf("will opt 2\n");
+			// if((cl->printExp->c == NULL) || (cl->next->printExp->c == NULL)){
+			// 	printf("Fuck off 1\n");
+			// 	return;
+			// }
+			// if((cl->printExp->c->u.str == NULL) || (cl->next->printExp->c->u.str == NULL)){
+			// 	printExp(cl->next->printExp,3);
+			// 	printf("Fuck off 2\n");
+			// 	return;
+			// }
+			// if(cl->printExp->tag == ExpVar ||  cl->next->printExp->tag == ExpVar){
+			// 	printf("Fuck off 3\n");
+			// 	return;
+			// }
+			//printCommandList(cl,1);
+			cl->next->printExp = optimizeExp(cl->next->printExp);
+			
+			printf("will opt 3\n");
+			optimizeExpPrint(cl->next->printExp);
+			printf("will opt 4\n");
+			optimizeCommandPrint(cl->next); //this should be possible, but it was crashing
+			printf("will opt 5\n");
+
+			int x = strlen(cl->printExp->c->u.str);
+			printf("will opt 5.1 %d\n",x);
+
+			printExp(cl->next->printExp,20);
+			int y = strlen(cl->next->printExp->c->u.str);
+			printf("will opt 5.2 (%d)\n",y);
+
+			char* newStr = malloc(strlen(cl->printExp->c->u.str) + strlen(cl->next->printExp->c->u.str)+1);
+			printf("will opt 6 b\n");
+			sprintf(newStr,"%s%s",cl->printExp->c->u.str,cl->next->printExp->c->u.str);
+			//free(cl->printExp->c->u.str);
+			//free(cl->next->printExp->c->u.str);
+			printf("will opt 7\n");
+			cl->printExp->c->u.str = newStr;
+			printf("will opt 8\n");
+			cl->next = cl->next->next;
+			printf("will opt 9\n");
+			// free(cl->next->printExp->c);
+			// free(cl->next->printExp);
+			// free(cl->next);
+		}
+	}
+}
+
+
+
+void optimizeExpPrint(Exp* e){
+	if(!e)
+		return;
+	if(e->tag == ExpPrim) {
+		if(e->c->tag == KInt){
+			printf("xxxx\n");
+			printExp(e,10);
+			printf("xxxx\n");
+			int x = e->c->u.i;
+			char* nStr = malloc(x%10+2);
+			sprintf(nStr,"%d",x);
+			free(e->c);
+			free(e->type);
+			Constant* c = (Constant*)malloc(sizeof(Constant));
+			c->tag = KStr;
+			c->u.str = nStr;
+			e->c = c;
+			e->type = (Type*)malloc(sizeof(Type));
+	    	e->type->tag = array; 
+	    	e->type->of = (Type*)malloc(sizeof(Type));
+	    	e->type->of->tag = base;
+	    	e->type->of->b = WByte;
+		}
 	}
 }
 
@@ -353,7 +440,7 @@ Exp* optimizeExp(Exp* e) {
 		case ExpCmp:
 			if(optimizationLevel >= 1) 
 			{
-				newExp = optimizeExpLogic(e);
+				newExp = optimizeExpLogic(e); 
 			}
 			//printf("cmp\n");
 		break;
