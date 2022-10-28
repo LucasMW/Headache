@@ -212,15 +212,6 @@ hac.so: $(OBJS) temp/lib.o
 
 
 
-## LIBS
-hac.a: $(OBJS)
-	ar ruv hac.a  temp/*.o
-	ranlib hac.a
-
-hac.so: $(OBJS)
-	cc -shared temp/*.o -o hac.s
-
-
 ## ZIG CC EXPERIMENT
 
 zig_windows : bfi_z.exe hac_z.exe expander_z.exe bfalgoConverter_z.exe
