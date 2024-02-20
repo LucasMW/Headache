@@ -51,13 +51,9 @@ static int flagFunctionHasReturn = 0;
 //static int currentAllocationIndex = 4; // four registers
 //static char* memory[30000]; //debugs and controlsfree memory
 
-
-
-
 int warningCount=0;
 
 int totalMemoryUsage=0;
-
 
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
@@ -68,9 +64,6 @@ void performCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
 int checkReadability(Exp* e);
 int checkTypeLogic(Exp* e);
-
-
-
 
 DefFunc* findFuncInTree(const char* funcId);
 void typeError(const char* message) {
@@ -307,6 +300,48 @@ int checkCallability(Exp* callExp) {
 	Type* ft = df->retType;
 	return typeEquals(t,ft);
 }
+int checkRecursiveness(Exp* callExp){
+	printf("\nRecu\n");
+	if(!callExp){
+		return 0;
+	}
+	printf("\nRecu 2\n");
+	DefFunc* df = findFuncInTree(callExp->call.id);
+	printf("\nRecu 3\n");
+	if(!df)
+		return 0; 
+	printf("\nRecu 4\n");
+	CommandL* cl = df->b->cl;
+	printf("\nRecu 5\n");
+	while(cl){
+		printf("\nRecu 6\n");
+		//printCommandList(cl,1);
+		if(cl->tag == CCall){
+			printf("\nRecu 7\n");
+			printf("\n%s vs", callExp->call.id);
+			printf("%s\n", cl->expRight->call.id);
+			if(strcmp(cl->expRight->call.id,callExp->call.id)==0){
+				raiseWarning("Recursiveness detected!", callExp->dbg_line);
+				return 0;
+			}
+		} else if (cl->tag == CPrint) {
+			if(cl->printExp->tag == ExpCall){
+				printf("\nRecu 8\n");
+			}
+		}
+		else if (cl->tag == CReturn) {
+			printCommandList(cl,10);
+			if(cl->retExp->tag == ExpCall){
+				printf("\nRecu 9\n");
+			}
+		}
+		cl = cl->next;
+	}
+	exit(01);
+	return 1;
+}
+
+
 int checkIncDecremantability(Exp* oprExp){
 	if(!oprExp){
 		return 0;
@@ -317,7 +352,8 @@ int checkIncDecremantability(Exp* oprExp){
 	return 1;
 }
 void typeCommandList(CommandL* cl ) {
-	//printf("commandList %p \n", (void*)cl);
+	printf("commandList %p \n", (void*)cl);
+	printCommandList(cl,1);
 	if(!cl)
 		return;
 	CommandL* c = cl;
@@ -412,6 +448,8 @@ void typeCommandList(CommandL* cl ) {
 				if(!checkCallability(c->expRight)) {
 					raiseError("Expression is not callable",c->expRight->dbg_line);
 				}
+				printf("\nxxxx-xxxx\n");
+				checkRecursiveness(c->expRight);
 			break;
 			case CPrint:
 				typeExp(c->printExp);
@@ -772,6 +810,7 @@ void typeExp(Exp* e ) {
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);
 			e->call.def = (void*) findFuncInTree(e->call.id);
+			
 			if(!checkCallability(e)) {
 					//printf("--%s--\n", e->call.id);
 					raiseError("Expression is not callable",e->dbg_line);
@@ -779,6 +818,10 @@ void typeExp(Exp* e ) {
 			if(!checkTypeCallParamsArgs(e)) {
 				printf("--%s--\n", e->call.id);
 				raiseError("Params typing differs from arguments in call",e->dbg_line);
+			}
+			if(!checkRecursiveness(e)) {
+				printf("--%s--\n", e->call.id);
+				raiseError("Recursive!",e->dbg_line);
 			}
 		break;
 		case ExpVar:
