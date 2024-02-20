@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 // based on  http://groups.csail.mit.edu/graphics/classes/6.837/F04/cpp_notes/stack1.html
 
@@ -89,6 +91,34 @@ void printAllWrittenMemory(){
 	}
 }
 
+char* readFileFaster(const char* path){
+	long size;
+	int read;
+	FILE * input;
+	char * fileString;
+	input = fopen(path,"rb");
+	if(!input)
+		return NULL;
+	struct stat finfo;
+	if (fstat(fileno(input), &finfo)) return NULL;
+	off_t pngDataLength = finfo.st_size;
+	size = (long)pngDataLength;
+	fileString = (char*)malloc(size+1);
+	if(!fileString){
+		fclose(input);
+		return NULL;
+	}
+	read = fread(fileString,1,size,input);
+	if(read != size) {
+		fclose(input);
+		free(fileString);
+		return NULL;
+	}
+	fileString[size] = '\0';
+	fclose(input);
+	return fileString;
+}
+
 char* readFileFast(const char* path){
 	long size;
 	int read;
@@ -143,10 +173,10 @@ int execute(char* program,int memorySize, char extra){
 	Stack* loopStack;
 	char instructions[] = {'>','<','+','-','.',',','[',']'};
 	char extras_instructions[] = {'@','#','$','%','&'};
-	char* ptr; 
-	char c; 
+	register char* ptr; 
+	register char c; 
 	char *loopStart = NULL;
-	int internalLoopCount = 0;
+	register int internalLoopCount = 0;
 	char* farthestPtr = memory;
 	memory = (char*) calloc(sizeof(char),memorySize); // memory of program must be zeroed.
 	const char* memLimit = memory + memorySize -1;
