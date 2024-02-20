@@ -133,6 +133,7 @@ void runStr(FILE* out,char* str, int mode){
 }
 char* expandedString(const char* str, int mode){
 	int size = 0;
+
 	for(char* p=(char*)str;*p;p++){
 		size += strlen(expand(*p,mode));
 	}

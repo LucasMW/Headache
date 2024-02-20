@@ -1,4 +1,4 @@
-void main() {
+void hello() {
     print "Hello, World!\n";
 }
 

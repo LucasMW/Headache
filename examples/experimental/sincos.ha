@@ -44,7 +44,7 @@ short cos(short x){
     short i;
     short sum;
 
-    //sum = (x - x*x/2 + pow(x,4)/factorial(4))*100;
+    sum = (x - x*x/2 + pow(x,4)/factorial(4))*100;
     return sum;
 }
 void main() {

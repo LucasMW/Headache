@@ -170,52 +170,40 @@ void optimizeCommandList(CommandL* cl) {
 }
 
 void optimizeCommandPrint(CommandL* cl){
-	if(cl->tag == CPrint && cl->printExp->tag == ExpPrim && cl->printExp->c->tag == KStr){
-		printf("will opt 1\n");
-		if(cl->next != NULL && cl->next->tag == CPrint && cl->next->printExp->tag == ExpPrim && cl->next->printExp->c->tag == KStr){
-			printf("will opt 2\n");
-			// if((cl->printExp->c == NULL) || (cl->next->printExp->c == NULL)){
-			// 	printf("Fuck off 1\n");
-			// 	return;
-			// }
-			// if((cl->printExp->c->u.str == NULL) || (cl->next->printExp->c->u.str == NULL)){
-			// 	printExp(cl->next->printExp,3);
-			// 	printf("Fuck off 2\n");
-			// 	return;
-			// }
-			// if(cl->printExp->tag == ExpVar ||  cl->next->printExp->tag == ExpVar){
-			// 	printf("Fuck off 3\n");
-			// 	return;
-			// }
-			//printCommandList(cl,1);
+	if(cl->tag == CPrint &&
+	 cl->printExp->tag == ExpPrim && cl->printExp->c->tag == KStr){
+		//printf("will opt 1\n");
+		if(cl->next != NULL && cl->next->tag == CPrint
+		 && cl->next->printExp->tag == ExpPrim && cl->next->printExp->c->tag == KStr){
+			//printf("will opt 2\n");
+			
 			cl->next->printExp = optimizeExp(cl->next->printExp);
 			
-			printf("will opt 3\n");
+			//printf("will opt 3\n");
 			optimizeExpPrint(cl->next->printExp);
-			printf("will opt 4\n");
+			//printf("will opt 4\n");
 			optimizeCommandPrint(cl->next); //this should be possible, but it was crashing
-			printf("will opt 5\n");
+			//printf("will opt 5\n");
 
 			int x = strlen(cl->printExp->c->u.str);
-			printf("will opt 5.1 %d\n",x);
+			//printf("will opt 5.1 %d\n",x);
 
-			printExp(cl->next->printExp,20);
+			//printExp(cl->next->printExp,20);
 			int y = strlen(cl->next->printExp->c->u.str);
-			printf("will opt 5.2 (%d)\n",y);
+			//printf("will opt 5.2 (%d)\n",y);
 
 			char* newStr = malloc(strlen(cl->printExp->c->u.str) + strlen(cl->next->printExp->c->u.str)+1);
-			printf("will opt 6 b\n");
+			//printf("will opt 6 b\n");
 			sprintf(newStr,"%s%s",cl->printExp->c->u.str,cl->next->printExp->c->u.str);
-			//free(cl->printExp->c->u.str);
-			//free(cl->next->printExp->c->u.str);
-			printf("will opt 7\n");
+			// free(cl->printExp->c->u.str);
+			// free(cl->next->printExp->c->u.str);
+			//printf("will opt 7\n");
 			cl->printExp->c->u.str = newStr;
-			printf("will opt 8\n");
+			//printf("will opt 8\n");
+			//free(cl->next->printExp);
 			cl->next = cl->next->next;
-			printf("will opt 9\n");
-			// free(cl->next->printExp->c);
-			// free(cl->next->printExp);
-			// free(cl->next);
+			//printf("will opt 9\n");
+			//free(cl->next);
 		}
 	}
 }
