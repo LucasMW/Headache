@@ -55,6 +55,9 @@ expander: src/expander.c
 bfalgoConverter: src/bfalgoConverter.c
 	cc $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter
 
+minifier: src/minifier.c
+	cc $(CFLAGS) src/minifier.c src/testbfi.c -o minifier
+
 bfi.exe: src/testbfi.c
 	$(WINCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi.exe
 bfi.linux: src/testbfi.c
@@ -231,14 +234,20 @@ hac-release-z-windows.zip: bfi_z.exe hac_z.exe expander_z.exe bfalgoConverter_z.
 	zip -r zipfolder.zip hac_z.exe expander_z.exe bfi_z.exe bfalgoConverter_z.exe
 	mv zipfolder.zip hac-release-z-windows.zip
 
-zig: hac_z bfi_z expander_z bfalgoConverter_z
+zig_build: 
+	mkdir zig_build
+zig: hac_z bfi_z expander_z bfalgoConverter_z zig_build
+	mv *_z zig_build
 
 bfi_z: src/testbfi.c
-	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi_z -target x86_64-macos-gnu
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/testbfi.c -o bfi_z -target x86_64-macos
 hac_z: $(SOURCES)
-	$(ZIGCC) $(CFLAGS) -o hac_z $(SOURCES) -target x86_64-macos-gnu
+	$(ZIGCC) $(CFLAGS) -o hac_z $(SOURCES) -target x86_64-macos
 expander_z: src/expander.c
-	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/expander.c -o expander_z -target x86_64-macos-gnu
+	$(ZIGCC) $(CFLAGS) -DSTANDALONE src/expander.c -o expander_z -target x86_64-macos
 bfalgoConverter_z: src/bfalgoConverter.c
-	$(ZIGCC) $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter_z -target x86_64-macos-gnu
+	$(ZIGCC) $(CFLAGS) src/bfalgoConverter.c -o bfalgoConverter_z -target x86_64-macos
+
+minifier_z: src/minifier.c
+	$(ZIGCC) $(CFLAGS) src/minifier.c src/testbfi.c -o minifier_z -target x86_64-macos
 
