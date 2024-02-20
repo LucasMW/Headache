@@ -8,11 +8,10 @@
  	}
  	return z;
  }
-
 void main(){
 	short x;
 	@"Calculate x!\n";
 	@"Enter x:\n";
 	read x;	
-	@"x! is "; @factorial(x); @"\n";
+	@x; @"! is "; @factorial(x); @"\n";
 }

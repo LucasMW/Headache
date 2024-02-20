@@ -44,6 +44,10 @@
 	#include "optimizer.h"
 	#define optimizer_h
 #endif
+#if !defined(codellvm_h)
+	#include "codellvm.h"
+	#define codellvm_h
+#endif
 
 #include <string.h>
 #include <assert.h>
@@ -51,6 +55,17 @@ Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 
 extern FILE* yyin;
+
+#ifndef YY_TYPEDEF_YY_BUFFER_STATE
+#define YY_TYPEDEF_YY_BUFFER_STATE
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+#endif
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+extern YY_BUFFER_STATE yy_scan_string (char *base);
+
 
 char forceExpand=0;
 void lexError(const char* message, int ret)
@@ -84,11 +99,11 @@ static char optimizationOptionsCount = 3;
 static char* breakingOptions[] = {
 	"--help",
 	"--version",
-	"--maga"
+	"--maga",
 };
 static char breakingOptionsCount = 3;
 
-static char hacVersion[] = "v0.72.0b";
+static char hacVersion[] = "v0.80.0b (LLVM)";
 
 static int isOption(const char* candidate){
 	for (int i=0;i<hacOptionsCount;i++){
@@ -129,7 +144,6 @@ static int handleOptimization(int* refargc, char** argv){
 			}
 		}
 		if(flag == 1) {
-			//printf("detected  O%d\n",level );
 			// must shift all of them
 			for(int k = i;k<argc; k++){
 				if(k < argc-1) 
@@ -141,8 +155,6 @@ static int handleOptimization(int* refargc, char** argv){
 		flag = 0;
 	}
 	return level;
-		
-
 }
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
@@ -165,13 +177,87 @@ static char* handleClangOptions(int argc,char** argv) {
 	return str;
 
 }
+static char* doubleNullTerminatedString(const char* string){
+	int len = strlen(string);
+	char* newStr = malloc(len+2);
+	strcpy(newStr,string);
+	newStr[len]= '\0';
+	newStr[len+1]= '\0';
+	return newStr;
+}
+static int guessBufferSize(char* str) {
+	int buffSize = 1000+strlen(str)*10*(1+forceExpand*forceExpand);
+	return buffSize;
+}
+char* compileHa2bf(const char* program, int level, int bufferSize){	
+	char* buffer = calloc(sizeof(char),bufferSize);
+	char* programToScan = doubleNullTerminatedString(program);
+	yy_scan_string(programToScan);
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fmemopen(buffer, bufferSize, "wb");
+	setCodeOutput(f);
+	codeTree();
+	fclose(f);
+	char* old = buffer;
+	if(forceExpand){
+		buffer = expandedString(old,forceExpand == 1 ? 0 : 2);
+		free(old);
+		return buffer;
+	}
+	return buffer;
+}
+char* compileHa2bfAutoBuffer(const char* program, int level){
+	return compileHa2bf(program,level,guessBufferSize(program));
+}
+char* compileHa2LLVM(const char* program, int level, int bufferSize){
+	char* buffer = calloc(sizeof(char),bufferSize);
+	char* programToScan = doubleNullTerminatedString(program);
+	yy_scan_string(programToScan);
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fmemopen(buffer, bufferSize, "wb");
+	setCodeOutputLLVM(f);
+	codeTreeLLVM();
+	fclose(f);
+	return buffer;
+}
+char* compileHa2LLVMAutoBuffer(const char* program, int level){
+	return compileHa2LLVM(program,level,guessBufferSize(program));
+}
+void compileHa2File(const char* input, const char* output, int level){
+	yyin = fopen(input,"r");
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fopen(output,"w");
+	setCodeOutput(f);
+	codeTree();
+	fclose(f);
+}
+void compileHa2FileLLVM(const char* input, const char* output, int level){
+	yyin = fopen(input,"r");
+	yyparse();			
+	checkAndFixesTypesInTree();
+	setOptimizationLevel(level);
+	optimizeTree();
+	FILE* f = fopen(output,"w");
+	setCodeOutput(f);
+	codeTreeLLVM();
+	fclose(f);
+}
 
-int main (int argc, char** argv)
-{
-	char noTree =0;
+#ifndef HACLIB
+int main (int argc, char** argv){
+	char noTree = 1;
 	char noChecks=0;
 	char noCode = 0;
-	char noBin = 1;
+	char noBin = 0;
 	char noDebug = 0;
 
 	char* option = NULL;
@@ -211,13 +297,15 @@ int main (int argc, char** argv)
 			{
 				system("curl https://www.buffettworld.com/images/news_trump.jpg > trump.jpg");
 				system("open trump.jpg");
-				return 0;
-			}  
+				
+				
+			}
 		} 
 		else 
 		{
 			fileName = argv[1];
 			option = NULL; 
+			
 			yyin = fopen(fileName,"r");
 		}
 
@@ -301,7 +389,7 @@ int main (int argc, char** argv)
 		printTree();
 	}
 	char * bf_name = "a.bf";
-	//char * bin_name = "a.out";
+	char * bin_name = "a.ll";
 	if(!noCode)
 	{	FILE* bf_location = fopen(bf_name,"wt");
 		setCodeOutput(bf_location);
@@ -312,16 +400,24 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
+		FILE* bin_location = fopen(bin_name,"wt");
+		setCodeOutputLLVM(bin_location);
+		codeTreeLLVM();
+		fclose(bin_location);
+
 		char* str = handleClangOptions(argc,argv);
 		char* buff = (char*)malloc(
 			strlen(str) +
 			strlen("clang") +
-			strlen(bf_name)+1);
+			strlen(bin_name)+1);
 		sprintf(buff,"clang %s %s",
 			str,
-			bf_name);
+			bin_name);
 		int s = system(buff);
-		return s;
+		if(s == 0)
+			printf("\nLLVM binary generated\n"); 
+		else 
+			printf("something went wrong! clang returned %d\n", s);
 	}
 	if(forceExpand){
 		printf("should forceExpand %d\n",forceExpand );
@@ -348,3 +444,4 @@ int main (int argc, char** argv)
 
 	return 0;
 }
+#endif

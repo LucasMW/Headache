@@ -3,7 +3,7 @@
 //Interactive Calculator program
 void main() {
     char operator;
-    byte a,b;
+    short a,b;
     print "Enter first number:\n";
     read a;
     print "Received number "; print a; print "\n";
