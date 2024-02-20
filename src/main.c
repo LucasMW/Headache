@@ -144,7 +144,6 @@ static int handleOptimization(int* refargc, char** argv){
 			}
 		}
 		if(flag == 1) {
-			//printf("detected  O%d\n",level );
 			// must shift all of them
 			for(int k = i;k<argc; k++){
 				if(k < argc-1) 
@@ -156,8 +155,6 @@ static int handleOptimization(int* refargc, char** argv){
 		flag = 0;
 	}
 	return level;
-		
-
 }
 static char* handleClangOptions(int argc,char** argv) {
 	char* str = (char*)malloc(50*argc); //more than enough
