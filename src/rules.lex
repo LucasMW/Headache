@@ -70,7 +70,6 @@
 "byte"	{return TK_WBYTE;}
 "char"	{return TK_WCHAR;}
 "else"	{return TK_WELSE; }
-
 "if"	{return TK_WIF;}
 "int"	{return TK_WINT;}
 "new"	{return TK_WNEW;}
@@ -105,9 +104,9 @@
 "/"		{return '/';}
 ","		{return ',';}
 "@"		{return '@';}
-"print"		{return '@';}
+"print"	{return '@';}
 "#"		{return '#';}
-"read"		{return '#';}
+"read"	{return '#';}
 "%"		{return '%';}
 
 "0x"([0-9]|[A-F]|[a-f])+	{yylval.int_val = strtol(yytext, NULL, 0);
